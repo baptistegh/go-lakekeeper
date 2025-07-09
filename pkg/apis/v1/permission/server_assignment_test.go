@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
-	"net/url" // Added for url.Values
 	"testing"
 
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
@@ -90,16 +90,17 @@ func TestServerPermissionService_GetServerAccess(t *testing.T) {
 			return resp, nil
 		},
 		NewRequestFunc: func(method, path string, opt any, options []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-			// Simulate NewRequest behavior from client.go
-			req, err := retryablehttp.NewRequest(method, "http://example.com"+path, nil)
+			if method != http.MethodGet {
+				return nil, fmt.Errorf("expected method %s, got %s", http.MethodGet, method)
+			}
+			expectedPath := "/permissions/server/access"
+			if path != expectedPath {
+				return nil, fmt.Errorf("expected path %s, got %s", expectedPath, path)
+			}
+			// No specific checks for opt or options for now, as they are handled by the DoFunc or not critical for this test.
+			req, err := retryablehttp.NewRequest(method, "http://example.com"+path, opt)
 			if err != nil {
 				return nil, err
-			}
-			if q, ok := opt.(url.Values); ok {
-				req.URL.RawQuery = q.Encode()
-			} else if opt != nil {
-				bodyBytes, _ := json.Marshal(opt)
-				req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 			}
 			return req, nil
 		},
@@ -160,16 +161,17 @@ func TestServerPermissionService_GetServerAssignments(t *testing.T) {
 			return resp, nil
 		},
 		NewRequestFunc: func(method, path string, opt any, options []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-			// Simulate NewRequest behavior from client.go
-			req, err := retryablehttp.NewRequest(method, "http://example.com"+path, nil)
+			if method != http.MethodGet {
+				return nil, fmt.Errorf("expected method %s, got %s", http.MethodGet, method)
+			}
+			expectedPath := "/permissions/server/assignments"
+			if path != expectedPath {
+				return nil, fmt.Errorf("expected path %s, got %s", expectedPath, path)
+			}
+			// No specific checks for opt or options for now, as they are handled by the DoFunc or not critical for this test.
+			req, err := retryablehttp.NewRequest(method, "http://example.com"+path, opt)
 			if err != nil {
 				return nil, err
-			}
-			if q, ok := opt.(url.Values); ok {
-				req.URL.RawQuery = q.Encode()
-			} else if opt != nil {
-				bodyBytes, _ := json.Marshal(opt)
-				req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 			}
 			return req, nil
 		},
@@ -230,16 +232,17 @@ func TestServerPermissionService_UpdateServerAssignments(t *testing.T) {
 			return resp, nil
 		},
 		NewRequestFunc: func(method, path string, opt any, options []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-			// Simulate NewRequest behavior from client.go
-			req, err := retryablehttp.NewRequest(method, "http://example.com"+path, nil)
+			if method != http.MethodPost {
+				return nil, fmt.Errorf("expected method %s, got %s", http.MethodPost, method)
+			}
+			expectedPath := "/permissions/server/assignments"
+			if path != expectedPath {
+				return nil, fmt.Errorf("expected path %s, got %s", expectedPath, path)
+			}
+			// No specific checks for opt or options for now, as they are handled by the DoFunc or not critical for this test.
+			req, err := retryablehttp.NewRequest(method, "http://example.com"+path, opt)
 			if err != nil {
 				return nil, err
-			}
-			if q, ok := opt.(url.Values); ok {
-				req.URL.RawQuery = q.Encode()
-			} else if opt != nil {
-				bodyBytes, _ := json.Marshal(opt)
-				req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 			}
 			return req, nil
 		},
