@@ -33,6 +33,7 @@ go.work.sum
 
 # binaries folder
 bin/
+dist/
 
 # test outputs
 .output/
