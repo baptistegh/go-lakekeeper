@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/go-test/deep v1.1.1
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	golang.org/x/sys v0.33.0 // indirect

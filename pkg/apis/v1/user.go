@@ -8,10 +8,10 @@ import (
 
 type (
 	UserServiceInterface interface {
-		GetUser(id string, options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		Get(id string, options ...core.RequestOptionFunc) (*User, *http.Response, error)
 		Whoami(options ...core.RequestOptionFunc) (*User, *http.Response, error)
-		ProvisionUser(opts *ProvisionUserOptions, options ...core.RequestOptionFunc) (*User, *http.Response, error)
-		DeleteUser(id string, options ...core.RequestOptionFunc) (*http.Response, error)
+		Provision(opts *ProvisionUserOptions, options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
 	// UserService handles communication with user endpoints of the Lakekeeper API.
@@ -49,11 +49,11 @@ const (
 	ApplicationUserType UserType = "application"
 )
 
-// GetUser retrieves detailed information about a specific user.
+// Get retrieves detailed information about a specific user.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/get_user
-func (s *UserService) GetUser(id string, options ...core.RequestOptionFunc) (*User, *http.Response, error) {
+func (s *UserService) Get(id string, options ...core.RequestOptionFunc) (*User, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "/user/"+id, nil, options)
 	if err != nil {
 		return nil, nil, err
@@ -89,7 +89,7 @@ func (s *UserService) Whoami(options ...core.RequestOptionFunc) (*User, *http.Re
 	return &user, resp, nil
 }
 
-// ProvisionUserOptions represents ProvisionUser() options.
+// ProvisionUserOptions represents Provision() options.
 //
 // The id must be identical to the subject in JWT tokens, prefixed with <idp-identifier>~.
 // For example: oidc~1234567890 for OIDC users or kubernetes~1234567890 for Kubernetes users.
@@ -106,13 +106,13 @@ type ProvisionUserOptions struct {
 	UserType       *UserType `json:"user-type,omitempty"`
 }
 
-// ProvisionUser creates a new user or updates an existing user's metadata from the provided token.
+// Provision creates a new user or updates an existing user's metadata from the provided token.
 // The token should include "profile" and "email" scopes for complete user information.
 // If opts is provided, the associated user will be created
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/create_user
-func (s *UserService) ProvisionUser(opts *ProvisionUserOptions, options ...core.RequestOptionFunc) (*User, *http.Response, error) {
+func (s *UserService) Provision(opts *ProvisionUserOptions, options ...core.RequestOptionFunc) (*User, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodPost, "/user", opts, options)
 	if err != nil {
 		return nil, nil, err
@@ -128,12 +128,12 @@ func (s *UserService) ProvisionUser(opts *ProvisionUserOptions, options ...core.
 	return &user, resp, nil
 }
 
-// DeleteProject permanently removes a user and all their associated permissions.
+// Delete permanently removes a user and all their associated permissions.
 // If the user is re-registered later, their permissions will need to be re-added.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/delete_user
-func (s *UserService) DeleteUser(id string, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *UserService) Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodDelete, "/user/"+id, nil, options)
 	if err != nil {
 		return nil, err
