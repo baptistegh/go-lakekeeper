@@ -1,8 +1,9 @@
-package management
+package client
 
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"maps"
@@ -12,6 +13,8 @@ import (
 	"sync"
 	"time"
 
+	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/google/go-querystring/query"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/go-retryablehttp"
@@ -33,14 +36,14 @@ type Client struct {
 	disableRetries bool
 
 	// authSource is used to obtain authentication headers.
-	authSource AuthSource
+	authSource core.AuthSource
 
 	// authSourceInit is used to ensure that AuthSources are initialized only
 	// once.
 	authSourceInit sync.Once
 
 	// Default request options applied to every request.
-	defaultRequestOptions []RequestOptionFunc
+	defaultRequestOptions []core.RequestOptionFunc
 
 	// User agent used when communicating with the Lakekeeper API.
 	UserAgent string
@@ -52,24 +55,39 @@ type Client struct {
 	// bootstrapInit is used to ensure that the bootstrap flow
 	// is executed once
 	bootstrapInit sync.Once
+}
 
-	// Services used for talking to different parts of the Lakekeeper API.
-	Server    ServerServiceInterface
-	Project   ProjectServiceInterface
-	User      UserServiceInterface
-	Warehouse WarehouseServiceInterface
-	Role      RoleServiceInterface
+var _ core.Client = (*Client)(nil)
+
+func (c *Client) ServerV1() v1.ServerServiceInterface {
+	return v1.NewServerService(c)
+}
+
+func (c *Client) ProjectV1() v1.ProjectServiceInterface {
+	return v1.NewProjectService(c)
+}
+
+func (c *Client) UserV1() v1.UserServiceInterface {
+	return v1.NewUserService(c)
+}
+
+func (c *Client) RoleV1(projectID string) v1.RoleServiceInterface {
+	return v1.NewRoleService(c, projectID)
+}
+
+func (c *Client) WarehouseV1(projectID string) v1.WarehouseServiceInterface {
+	return v1.NeWarehouseService(c, projectID)
 }
 
 // NewClient returns a new Lakekeeper API client.
 // You must provide a valid access token.
 func NewClient(token string, baseURL string, options ...ClientOptionFunc) (*Client, error) {
-	as := AccessTokenAuthSource{Token: token}
+	as := core.AccessTokenAuthSource{Token: token}
 	return NewAuthSourceClient(as, baseURL, options...)
 }
 
 // NewAuthSourceClient returns a new Lakekeeper API client that uses the AuthSource for authentication.
-func NewAuthSourceClient(as AuthSource, baseURL string, options ...ClientOptionFunc) (*Client, error) {
+func NewAuthSourceClient(as core.AuthSource, baseURL string, options ...ClientOptionFunc) (*Client, error) {
 	var err error
 
 	c := &Client{
@@ -104,20 +122,13 @@ func NewAuthSourceClient(as AuthSource, baseURL string, options ...ClientOptionF
 		}
 	}
 
-	// Create all the public services.
-	c.Server = &ServerService{c}
-	c.Project = &ProjectService{c}
-	c.User = &UserService{c}
-	c.Warehouse = &WarehouseService{c}
-	c.Role = &RoleService{c}
-
 	c.bootstrapInit.Do(func() {
 		if !c.bootstrap {
 			return
 		}
 
-		var info *ServerInfo
-		info, _, err = c.Server.Info()
+		var info *v1.ServerInfo
+		info, _, err = c.ServerV1().Info()
 		if err != nil {
 			return
 		}
@@ -127,14 +138,14 @@ func NewAuthSourceClient(as AuthSource, baseURL string, options ...ClientOptionF
 		}
 
 		isOperator := true
-		userType := ApplicationUserType
+		userType := v1.ApplicationUserType
 
-		bootstrapOpts := &BootstrapServerOptions{
+		bootstrapOpts := v1.BootstrapServerOptions{
 			AcceptTermsOfUse: true,
 			IsOperator:       &isOperator,
 			UserType:         &userType,
 		}
-		_, err = c.Server.Bootstrap(bootstrapOpts)
+		_, err = c.ServerV1().Bootstrap(&bootstrapOpts)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error bootstraping the server, %w", err)
@@ -151,6 +162,10 @@ func (c *Client) BaseURL() *url.URL {
 
 // setBaseURL sets the base URL for API requests.
 func (c *Client) setBaseURL(urlStr string) error {
+	if urlStr == "" {
+		return errors.New("base URL must be provided")
+	}
+
 	// Make sure the given URL does not end with "/"
 	urlStr = strings.TrimSuffix(urlStr, "/")
 
@@ -159,8 +174,8 @@ func (c *Client) setBaseURL(urlStr string) error {
 		return err
 	}
 
-	if !strings.HasSuffix(baseURL.Path, apiManagementVersionPath) {
-		baseURL.Path += apiManagementVersionPath
+	if !strings.HasSuffix(baseURL.Path, v1.ApiManagementVersionPath) {
+		baseURL.Path += v1.ApiManagementVersionPath
 	}
 
 	// Update the base URL of the client.
@@ -174,7 +189,7 @@ func (c *Client) setBaseURL(urlStr string) error {
 // Relative URL paths should always be specified with a preceding slash.
 // If specified, the value pointed to by body is JSON encoded and included
 // as the request body.
-func (c *Client) NewRequest(method, path string, opt any, options []RequestOptionFunc) (*retryablehttp.Request, error) {
+func (c *Client) NewRequest(method, path string, opt any, options []core.RequestOptionFunc) (*retryablehttp.Request, error) {
 	u := *c.baseURL
 	unescaped, err := url.PathUnescape(path)
 	if err != nil {
@@ -237,19 +252,19 @@ func (c *Client) NewRequest(method, path string, opt any, options []RequestOptio
 // error if an API error has occurred. If v implements the io.Writer
 // interface, the raw response body will be written to v, without attempting to
 // first decode it.
-func (c *Client) Do(req *retryablehttp.Request, v any) (*http.Response, *ApiError) {
+func (c *Client) Do(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
 	var err error
 
 	c.authSourceInit.Do(func() {
 		err = c.authSource.Init(req.Context(), c)
 	})
 	if err != nil {
-		return nil, ApiErrorFromMessage("initializing token source failed:").WithCause(err)
+		return nil, core.ApiErrorFromMessage("initializing token source failed:").WithCause(err)
 	}
 
 	authKey, authValue, err := c.authSource.Header(req.Context())
 	if err != nil {
-		return nil, ApiErrorFromError(err)
+		return nil, core.ApiErrorFromError(err)
 	}
 
 	if v := req.Header.Values(authKey); len(v) == 0 {
@@ -260,7 +275,7 @@ func (c *Client) Do(req *retryablehttp.Request, v any) (*http.Response, *ApiErro
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, ApiErrorFromError(err)
+		return nil, core.ApiErrorFromError(err)
 	}
 
 	defer func() {
@@ -283,17 +298,17 @@ func (c *Client) Do(req *retryablehttp.Request, v any) (*http.Response, *ApiErro
 		}
 	}
 
-	return resp, ApiErrorFromError(err)
+	return resp, core.ApiErrorFromError(err)
 }
 
 // CheckResponse checks the API response for errors, and returns them if present.
-func CheckResponse(r *http.Response) *ApiError {
+func CheckResponse(r *http.Response) *core.ApiError {
 	switch r.StatusCode {
 	case 200, 201, 202, 204, 304:
 		return nil
 	}
 
-	return ApiErrorFromResponse(r)
+	return core.ApiErrorFromResponse(r)
 }
 
 // retryHTTPCheck provides a callback for Client.CheckRetry which

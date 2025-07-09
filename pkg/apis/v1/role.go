@@ -1,17 +1,19 @@
-package management
+package v1
 
 import (
 	"errors"
 	"net/http"
+
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 )
 
 type (
 	RoleServiceInterface interface {
-		ListRoles(opts *ListRolesOptions, options ...RequestOptionFunc) ([]*Role, error)
-		GetRole(id string, projectID string, options ...RequestOptionFunc) (*Role, *http.Response, error)
-		CreateRole(opts *CreateRoleOptions, options ...RequestOptionFunc) (*Role, *http.Response, error)
-		UpdateRole(id string, opts *UpdateRoleOptions, options ...RequestOptionFunc) (*Role, *http.Response, error)
-		DeleteRole(id, projectID string, options ...RequestOptionFunc) (*http.Response, error)
+		ListRoles(opts *ListRolesOptions, options ...core.RequestOptionFunc) ([]*Role, error)
+		GetRole(id string, projectID string, options ...core.RequestOptionFunc) (*Role, *http.Response, error)
+		CreateRole(opts *CreateRoleOptions, options ...core.RequestOptionFunc) (*Role, *http.Response, error)
+		UpdateRole(id string, opts *UpdateRoleOptions, options ...core.RequestOptionFunc) (*Role, *http.Response, error)
+		DeleteRole(id, projectID string, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
 	// RoleService handles communication with role endpoints of the Lakekeeper API.
@@ -19,11 +21,19 @@ type (
 	//
 	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role
 	RoleService struct {
-		client *Client
+		projectID string
+		client    core.Client
 	}
 )
 
 var _ RoleServiceInterface = (*RoleService)(nil)
+
+func NewRoleService(client core.Client, projectID string) RoleServiceInterface {
+	return &RoleService{
+		projectID: projectID,
+		client:    client,
+	}
+}
 
 // Project represents a lakekeeper role
 type Role struct {
@@ -40,7 +50,7 @@ type Role struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/get_role
-func (s *RoleService) GetRole(id string, projectID string, options ...RequestOptionFunc) (*Role, *http.Response, error) {
+func (s *RoleService) GetRole(id string, projectID string, options ...core.RequestOptionFunc) (*Role, *http.Response, error) {
 	if projectID != "" {
 		options = append(options, WithProject(id))
 	}
@@ -84,7 +94,7 @@ type listRolesResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/list_roles
-func (s *RoleService) ListRoles(opts *ListRolesOptions, options ...RequestOptionFunc) ([]*Role, error) {
+func (s *RoleService) ListRoles(opts *ListRolesOptions, options ...core.RequestOptionFunc) ([]*Role, error) {
 	if opts != nil && opts.ProjectID != nil {
 		options = append(options, WithProject(*opts.ProjectID))
 	}
@@ -128,7 +138,7 @@ type CreateRoleOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/create_role
-func (s *RoleService) CreateRole(opts *CreateRoleOptions, options ...RequestOptionFunc) (*Role, *http.Response, error) {
+func (s *RoleService) CreateRole(opts *CreateRoleOptions, options ...core.RequestOptionFunc) (*Role, *http.Response, error) {
 	if opts == nil {
 		return nil, nil, errors.New("CreateRole needs options to create a role")
 	}
@@ -166,7 +176,7 @@ type UpdateRoleOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/update_role
-func (s *RoleService) UpdateRole(id string, opts *UpdateRoleOptions, options ...RequestOptionFunc) (*Role, *http.Response, error) {
+func (s *RoleService) UpdateRole(id string, opts *UpdateRoleOptions, options ...core.RequestOptionFunc) (*Role, *http.Response, error) {
 	if id == "" {
 		return nil, nil, errors.New("Role ID must be defined to be updated")
 	}
@@ -194,7 +204,7 @@ func (s *RoleService) UpdateRole(id string, opts *UpdateRoleOptions, options ...
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/delete_role
-func (s *RoleService) DeleteRole(id string, projectID string, options ...RequestOptionFunc) (*http.Response, error) {
+func (s *RoleService) DeleteRole(id string, projectID string, options ...core.RequestOptionFunc) (*http.Response, error) {
 	if projectID != "" {
 		options = append(options, WithProject(id))
 	}
