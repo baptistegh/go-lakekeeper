@@ -1,18 +1,20 @@
-package management
+package v1
 
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 )
 
 type (
 	ProjectServiceInterface interface {
-		ListProjects(options ...RequestOptionFunc) (*ListProjectsResponse, *http.Response, error)
-		GetProject(id string, options ...RequestOptionFunc) (*Project, *http.Response, error)
-		DeleteProject(id string, options ...RequestOptionFunc) (*http.Response, error)
-		GetDefaultProject(options ...RequestOptionFunc) (*Project, *http.Response, error)
-		CreateProject(opts *CreateProjectOptions, options ...RequestOptionFunc) (*Project, *http.Response, error)
-		RenameProject(id string, opts *RenameProjectOptions, options ...RequestOptionFunc) (*http.Response, error)
+		List(options ...core.RequestOptionFunc) (*ListProjectsResponse, *http.Response, error)
+		Get(id string, options ...core.RequestOptionFunc) (*Project, *http.Response, error)
+		Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error)
+		Default(options ...core.RequestOptionFunc) (*Project, *http.Response, error)
+		Create(opts *CreateProjectOptions, options ...core.RequestOptionFunc) (*Project, *http.Response, error)
+		Rename(id string, opts *RenameProjectOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
 	// ProjectService handles communication with project endpoints of the Lakekeeper API.
@@ -20,11 +22,17 @@ type (
 	// Lakekeeper API docs:
 	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project
 	ProjectService struct {
-		client *Client
+		client core.Client
 	}
 )
 
 var _ ProjectServiceInterface = (*ProjectService)(nil)
+
+func NewProjectService(client core.Client) ProjectServiceInterface {
+	return &ProjectService{
+		client: client,
+	}
+}
 
 // Project represents a lakekeeper project
 type Project struct {
@@ -36,7 +44,7 @@ type Project struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/get_default_project
-func (s *ProjectService) GetProject(id string, options ...RequestOptionFunc) (*Project, *http.Response, error) {
+func (s *ProjectService) Get(id string, options ...core.RequestOptionFunc) (*Project, *http.Response, error) {
 	options = append(options, WithProject(id))
 	req, err := s.client.NewRequest(http.MethodGet, "/project", nil, options)
 	if err != nil {
@@ -59,7 +67,7 @@ func (s *ProjectService) GetProject(id string, options ...RequestOptionFunc) (*P
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/get_default_project
 //
 // Deprecated: This endpoint is deprecated and will be removed in a future version.
-func (s *ProjectService) GetDefaultProject(options ...RequestOptionFunc) (*Project, *http.Response, error) {
+func (s *ProjectService) Default(options ...core.RequestOptionFunc) (*Project, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "/default-project", nil, options)
 	if err != nil {
 		return nil, nil, err
@@ -95,7 +103,7 @@ type RenameProjectOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/list_projects
-func (s *ProjectService) ListProjects(options ...RequestOptionFunc) (*ListProjectsResponse, *http.Response, error) {
+func (s *ProjectService) List(options ...core.RequestOptionFunc) (*ListProjectsResponse, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "/project-list", nil, options)
 	if err != nil {
 		return nil, nil, err
@@ -132,7 +140,7 @@ type createProjectResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/create_project
-func (s *ProjectService) CreateProject(opts *CreateProjectOptions, options ...RequestOptionFunc) (*Project, *http.Response, error) {
+func (s *ProjectService) Create(opts *CreateProjectOptions, options ...core.RequestOptionFunc) (*Project, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodPost, "/project", opts, options)
 	if err != nil {
 		return nil, nil, err
@@ -145,7 +153,7 @@ func (s *ProjectService) CreateProject(opts *CreateProjectOptions, options ...Re
 		return nil, resp, apiErr
 	}
 
-	project, _, err := s.GetProject(prjResp.ID, options...)
+	project, _, err := s.Get(prjResp.ID, options...)
 	if err != nil {
 		return nil, resp, fmt.Errorf("project is created but could not be read, %w", err)
 	}
@@ -157,7 +165,7 @@ func (s *ProjectService) CreateProject(opts *CreateProjectOptions, options ...Re
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/rename_project
-func (s *ProjectService) RenameProject(id string, opts *RenameProjectOptions, options ...RequestOptionFunc) (*http.Response, error) {
+func (s *ProjectService) Rename(id string, opts *RenameProjectOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	if opts == nil {
 		return nil, fmt.Errorf("RenameProjectOptions cannot be nil")
 	}
@@ -181,7 +189,7 @@ func (s *ProjectService) RenameProject(id string, opts *RenameProjectOptions, op
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/delete_default_project
-func (s *ProjectService) DeleteProject(id string, options ...RequestOptionFunc) (*http.Response, error) {
+func (s *ProjectService) Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error) {
 	options = append(options, WithProject(id))
 
 	req, err := s.client.NewRequest(http.MethodDelete, "/project", nil, options)
