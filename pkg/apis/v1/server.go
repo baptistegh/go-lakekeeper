@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/baptistegh/go-lakekeeper/pkg/apis/v1/permission" // Import the permission package
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 )
 
@@ -11,6 +12,7 @@ type (
 	ServerServiceInterface interface {
 		Info(options ...core.RequestOptionFunc) (*ServerInfo, *http.Response, error)
 		Bootstrap(opts *BootstrapServerOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		ServerPermission() permission.ServerPermissionServiceInterface // Add this line
 	}
 
 	// BootstrapService handles communication with server endpoints of the Lakekeeper API.
@@ -28,6 +30,10 @@ func NewServerService(client core.Client) ServerServiceInterface {
 	return &ServerService{
 		client: client,
 	}
+}
+
+func (s *ServerService) ServerPermission() permission.ServerPermissionServiceInterface {
+	return permission.NewServerPermissionService(s.client)
 }
 
 // ServerInfo represents the servier informations.
