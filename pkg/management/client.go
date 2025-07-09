@@ -105,11 +105,11 @@ func NewAuthSourceClient(as AuthSource, baseURL string, options ...ClientOptionF
 	}
 
 	// Create all the public services.
-	c.Server = &ServerService{}
-	c.Project = &ProjectService{}
-	c.User = &UserService{}
-	c.Warehouse = &WarehouseService{}
-	c.Role = &RoleService{}
+	c.Server = &ServerService{c}
+	c.Project = &ProjectService{c}
+	c.User = &UserService{c}
+	c.Warehouse = &WarehouseService{c}
+	c.Role = &RoleService{c}
 
 	c.bootstrapInit.Do(func() {
 		if !c.bootstrap {
