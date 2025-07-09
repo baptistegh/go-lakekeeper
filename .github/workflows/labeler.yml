@@ -1,0 +1,28 @@
+name: labeler
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  labeler:
+    if: github.repository == 'baptistegh/go-lakekeeper'
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # Uploads repository content to the runner
+      - name: Validate PR title and apply labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_REPO: ${{ github.repository }}
+        run: ./.github/pull-request-triage.sh
+      - uses: actions/labeler@v5
+        with:
+          sync-labels: 'true'
