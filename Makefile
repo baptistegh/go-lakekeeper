@@ -92,7 +92,7 @@ BIN_DIR := $(SELF_DIR)/bin
 
 GO_TEST_OUTPUT := $(SELF_DIR)/.output
 
-build: build.common ## Only build for linux platform
+build: build.common test ## Only build for linux platform
 	
 
 $(BIN_DIR):
@@ -101,13 +101,12 @@ $(BIN_DIR):
 $(GO_TEST_OUTPUT):
 	@mkdir -p $(GO_TEST_OUTPUT)
 
-YQ_VERSION = v4.45.1
+YQ_VERSION := v4.45.1
 YQ := $(BIN_DIR)/yq-$(YQ_VERSION)
-export YQ
 $(YQ): $(BIN_DIR)
 	@echo === installing yq $(YQ_VERSION) $(REAL_HOST_PLATFORM)
 	@mkdir -p $(BIN_DIR)
-	@curl -JL https://github.com/mikefarah/yq/releases/download/$(YQ_VERSION)/yq_$(REAL_HOST_PLATFORM) -o $(YQ)
+	@curl -s -JL https://github.com/mikefarah/yq/releases/download/$(YQ_VERSION)/yq_$(REAL_HOST_PLATFORM) -o $(YQ)
 	@chmod +x $(YQ)
 
 GOLANGCI_LINT_VERSION ?= $(strip $(shell $(YQ) .jobs.golangci.steps[2].with.version .github/workflows/lint.yml))
