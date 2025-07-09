@@ -1,4 +1,4 @@
-package management
+package core
 
 import (
 	"context"
@@ -48,12 +48,6 @@ func copyContextValues(oldCtx context.Context, newCtx context.Context) context.C
 	}
 
 	return newCtx
-}
-
-// WithProject add the correct header in order to select a project
-// for the request. The default user project is used otherwise.
-func WithProject(id string) RequestOptionFunc {
-	return WithHeader("x-project-id", id)
 }
 
 // WithQueryParams appends query parameters derived from the given opt to the request URL.

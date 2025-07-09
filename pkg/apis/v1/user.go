@@ -1,15 +1,17 @@
-package management
+package v1
 
 import (
 	"net/http"
+
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 )
 
 type (
 	UserServiceInterface interface {
-		GetUser(id string, options ...RequestOptionFunc) (*User, *http.Response, error)
-		Whoami(options ...RequestOptionFunc) (*User, *http.Response, error)
-		ProvisionUser(opts *ProvisionUserOptions, options ...RequestOptionFunc) (*User, *http.Response, error)
-		DeleteUser(id string, options ...RequestOptionFunc) (*http.Response, error)
+		GetUser(id string, options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		Whoami(options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		ProvisionUser(opts *ProvisionUserOptions, options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		DeleteUser(id string, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
 	// UserService handles communication with user endpoints of the Lakekeeper API.
@@ -17,11 +19,17 @@ type (
 	// Lakekeeper API docs:
 	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user
 	UserService struct {
-		client *Client
+		client core.Client
 	}
 )
 
 var _ UserServiceInterface = (*UserService)(nil)
+
+func NewUserService(client core.Client) UserServiceInterface {
+	return &UserService{
+		client: client,
+	}
+}
 
 // User represents a lakekeeper user
 type User struct {
@@ -45,7 +53,7 @@ const (
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/get_user
-func (s *UserService) GetUser(id string, options ...RequestOptionFunc) (*User, *http.Response, error) {
+func (s *UserService) GetUser(id string, options ...core.RequestOptionFunc) (*User, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "/user/"+id, nil, options)
 	if err != nil {
 		return nil, nil, err
@@ -65,7 +73,7 @@ func (s *UserService) GetUser(id string, options ...RequestOptionFunc) (*User, *
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/whoami
-func (s *UserService) Whoami(options ...RequestOptionFunc) (*User, *http.Response, error) {
+func (s *UserService) Whoami(options ...core.RequestOptionFunc) (*User, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "/whoami", nil, options)
 	if err != nil {
 		return nil, nil, err
@@ -104,7 +112,7 @@ type ProvisionUserOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/create_user
-func (s *UserService) ProvisionUser(opts *ProvisionUserOptions, options ...RequestOptionFunc) (*User, *http.Response, error) {
+func (s *UserService) ProvisionUser(opts *ProvisionUserOptions, options ...core.RequestOptionFunc) (*User, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodPost, "/user", opts, options)
 	if err != nil {
 		return nil, nil, err
@@ -125,7 +133,7 @@ func (s *UserService) ProvisionUser(opts *ProvisionUserOptions, options ...Reque
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/delete_user
-func (s *UserService) DeleteUser(id string, options ...RequestOptionFunc) (*http.Response, error) {
+func (s *UserService) DeleteUser(id string, options ...core.RequestOptionFunc) (*http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodDelete, "/user/"+id, nil, options)
 	if err != nil {
 		return nil, err

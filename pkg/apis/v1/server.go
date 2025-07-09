@@ -1,11 +1,16 @@
-package management
+package v1
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
+)
 
 type (
 	ServerServiceInterface interface {
-		Info(options ...RequestOptionFunc) (*ServerInfo, *http.Response, error)
-		Bootstrap(opts *BootstrapServerOptions, options ...RequestOptionFunc) (*http.Response, error)
+		Info(options ...core.RequestOptionFunc) (*ServerInfo, *http.Response, error)
+		Bootstrap(opts *BootstrapServerOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
 	// BootstrapService handles communication with server endpoints of the Lakekeeper API.
@@ -13,11 +18,17 @@ type (
 	// Lakekeeper API docs:
 	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/server
 	ServerService struct {
-		client *Client
+		client core.Client
 	}
 )
 
 var _ ServerServiceInterface = (*ServerService)(nil)
+
+func NewServerService(client core.Client) ServerServiceInterface {
+	return &ServerService{
+		client: client,
+	}
+}
 
 // ServerInfo represents the servier informations.
 type ServerInfo struct {
@@ -32,11 +43,19 @@ type ServerInfo struct {
 	Queues                       []string `json:"queues"`
 }
 
+func (s *ServerInfo) String() string {
+	b, err := json.Marshal(s)
+	if err != nil {
+		return "{}"
+	}
+	return string(b)
+}
+
 // Info returns basic information about the server configuration and status.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/server/operation/get_server_info
-func (s *ServerService) Info(options ...RequestOptionFunc) (*ServerInfo, *http.Response, error) {
+func (s *ServerService) Info(options ...core.RequestOptionFunc) (*ServerInfo, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "/info", nil, options)
 	if err != nil {
 		return nil, nil, err
@@ -69,7 +88,7 @@ type BootstrapServerOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/server/operation/bootstrap
-func (s *ServerService) Bootstrap(opts *BootstrapServerOptions, options ...RequestOptionFunc) (*http.Response, error) {
+func (s *ServerService) Bootstrap(opts *BootstrapServerOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodPost, "/bootstrap", opts, options)
 	if err != nil {
 		return nil, err

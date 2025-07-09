@@ -1,9 +1,10 @@
-package management
+package client
 
 import (
 	"net/http"
 	"time"
 
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/hashicorp/go-retryablehttp"
 )
 
@@ -61,7 +62,7 @@ func WithCustomRetryWaitMinMax(waitMin, waitMax time.Duration) ClientOptionFunc 
 }
 
 // WithRequestOptions can be used to configure default request options applied to every request.
-func WithRequestOptions(options ...RequestOptionFunc) ClientOptionFunc {
+func WithRequestOptions(options ...core.RequestOptionFunc) ClientOptionFunc {
 	return func(c *Client) error {
 		c.defaultRequestOptions = append(c.defaultRequestOptions, options...)
 		return nil
