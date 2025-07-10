@@ -1,185 +1,134 @@
-package v1
+package v1_test
 
 import (
-	"bytes"
-	"encoding/json"
-	"io"
 	"net/http"
 	"testing"
 
-	"github.com/baptistegh/go-lakekeeper/pkg/core"
+	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
-	"github.com/go-test/deep"
-	"github.com/hashicorp/go-retryablehttp"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestUserService_GetUser(t *testing.T) {
-	testCases := []struct {
-		name           string
-		userID         string
-		expectedUser   *User
-		expectedError  error
-		mockClient     *testutil.MockClient
-		expectedMethod string
-		expectedURL    string
-	}{
-		{
-			name:          "successful get user",
-			userID:        "test-user-id",
-			expectedUser:  &User{ID: "test-user-id", Name: "Test User"},
-			expectedError: nil,
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, options []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					req, err := retryablehttp.NewRequest(method, url, nil)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					if req.Method != http.MethodGet {
-						t.Errorf("expected method %s, got %s", http.MethodGet, req.Method)
-					}
-					if req.URL.Path != "/user/test-user-id" {
-						t.Errorf("expected URL path %s, got %s", "/user/test-user-id", req.URL.Path)
-					}
+func TestUserService_Get(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
 
-					user := User{ID: "test-user-id", Name: "Test User"}
-					userBytes, _ := json.Marshal(user)
+	userID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader(userBytes)),
-					}
+	mux.HandleFunc("/management/v1/user/"+userID, func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_user.json")
+	})
 
-					err := json.NewDecoder(resp.Body).Decode(v)
-					return resp, core.ApiErrorFromError(err)
-				},
-			},
-			expectedMethod: http.MethodGet,
-			expectedURL:    "/user/test-user-id",
-		},
-		{
-			name:           "failed get user - API error",
-			userID:         "test-user-id",
-			expectedUser:   nil,
-			expectedError:  core.ApiErrorFromMessage("API error"),
-			expectedMethod: http.MethodGet,
-			expectedURL:    "/user/test-user-id",
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, options []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					req, err := retryablehttp.NewRequest(method, url, nil)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					return nil, core.ApiErrorFromMessage("API error")
-				},
-			},
-		},
+	user, resp, err := client.UserV1().Get(userID)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+	email := "test@example.com"
+	updatedAt := "2019-08-24T14:15:22Z"
+	want := &v1.User{
+		ID:              userID,
+		Name:            "test-user",
+		Email:           &email,
+		UserType:        v1.HumanUserType,
+		CreatedAt:       "2019-08-24T14:15:22Z",
+		UpdatedAt:       &updatedAt,
+		LastUpdatedWith: "create-endpoint",
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			userService := NewUserService(tc.mockClient)
-
-			user, _, err := userService.Get(tc.userID)
-
-			if tc.expectedError != nil {
-				if err == nil || err.Error() != tc.expectedError.Error() {
-					t.Errorf("expected error %v, got %v", tc.expectedError, err)
-				}
-				return
-			}
-
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-				return
-			}
-
-			if diff := deep.Equal(user, tc.expectedUser); diff != nil {
-				t.Error(diff)
-			}
-		})
-	}
+	assert.Equal(t, want, user)
 }
 
 func TestUserService_Whoami(t *testing.T) {
-	testCases := []struct {
-		name           string
-		expectedUser   *User
-		expectedError  error
-		mockClient     *testutil.MockClient
-		expectedMethod string
-		expectedURL    string
-	}{
-		{
-			name:          "successful whoami",
-			expectedUser:  &User{ID: "current-user-id", Name: "Current User"},
-			expectedError: nil,
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, options []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					req, err := retryablehttp.NewRequest(method, url, nil)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					if req.Method != http.MethodGet {
-						t.Errorf("expected method %s, got %s", http.MethodGet, req.Method)
-					}
-					if req.URL.Path != "/whoami" {
-						t.Errorf("expected URL path %s, got %s", "/whoami", req.URL.Path)
-					}
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
 
-					user := User{ID: "current-user-id", Name: "Current User"}
-					userBytes, _ := json.Marshal(user)
+	mux.HandleFunc("/management/v1/whoami", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_user.json")
+	})
 
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader(userBytes)),
-					}
+	user, resp, err := client.UserV1().Whoami()
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-					err := json.NewDecoder(resp.Body).Decode(v)
-					return resp, core.ApiErrorFromError(err)
-				},
-			},
-			expectedMethod: http.MethodGet,
-			expectedURL:    "/whoami",
-		},
-		{
-			name:           "failed whoami - API error",
-			expectedUser:   nil,
-			expectedError:  core.ApiErrorFromMessage("API error"),
-			expectedMethod: http.MethodGet,
-			expectedURL:    "/whoami",
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, options []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					req, err := retryablehttp.NewRequest(method, url, nil)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					return nil, core.ApiErrorFromMessage("API error")
-				},
-			},
-		},
+	email := "test@example.com"
+	updatedAt := "2019-08-24T14:15:22Z"
+	want := &v1.User{
+		ID:              "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+		Name:            "test-user",
+		Email:           &email,
+		UserType:        v1.HumanUserType,
+		CreatedAt:       "2019-08-24T14:15:22Z",
+		UpdatedAt:       &updatedAt,
+		LastUpdatedWith: "create-endpoint",
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			userService := NewUserService(tc.mockClient)
+	assert.Equal(t, want, user)
+}
 
-			user, _, err := userService.Whoami()
+func TestUserService_Provision(t *testing.T) {
+	t.Parallel()
 
-			if tc.expectedError != nil {
-				if err == nil || err.Error() != tc.expectedError.Error() {
-					t.Errorf("expected error %v, got %v", tc.expectedError, err)
-				}
-				return
-			}
+	mux, client := testutil.ServerMux(t)
 
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-				return
-			}
+	id := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+	email := "test@example.com"
+	name := "test-user"
+	userType := v1.HumanUserType
+	updateIfExists := true
 
-			if diff := deep.Equal(user, tc.expectedUser); diff != nil {
-				t.Error(diff)
-			}
-		})
+	opts := v1.ProvisionUserOptions{
+		ID:             &id,
+		Email:          &email,
+		Name:           &name,
+		UserType:       &userType,
+		UpdateIfExists: &updateIfExists,
 	}
+
+	mux.HandleFunc("/management/v1/user", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		if !testutil.TestBodyJSON(t, r, &opts) {
+			t.Fatalf("error wrong body")
+		}
+		w.WriteHeader(http.StatusCreated)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_user.json")
+	})
+
+	updatedAt := "2019-08-24T14:15:22Z"
+	want := &v1.User{
+		ID:              id,
+		Email:           &email,
+		Name:            name,
+		UserType:        userType,
+		CreatedAt:       "2019-08-24T14:15:22Z",
+		UpdatedAt:       &updatedAt,
+		LastUpdatedWith: "create-endpoint",
+	}
+
+	user, resp, err := client.UserV1().Provision(&opts)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+
+	assert.Equal(t, want, user)
+}
+
+func TestUserService_Delete(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	userID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	mux.HandleFunc("/management/v1/user/"+userID, func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodDelete)
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	resp, err := client.UserV1().Delete(userID)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
 }

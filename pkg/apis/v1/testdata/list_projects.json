@@ -1,0 +1,13 @@
+{
+    "projects": [
+        {
+            "project-id": "01f2fdfc-81fc-444d-8368-5b6701566e35",
+            "project-name": "test-project-1"
+        },
+        {
+            "project-id": "f80ed5b3-2e5b-49df-a7a2-5f071f91e6dd",
+            "project-name": "test-project-2"
+        }
+    ]
+
+}
