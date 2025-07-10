@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package integration
 
 import (
@@ -27,7 +30,8 @@ func Setup(t *testing.T) *client.Client {
 	as := core.OAuthTokenSource{
 		TokenSource: oauth.TokenSource(context.Background()),
 	}
-	c, err := client.NewAuthSourceClient(as, os.Getenv("LAKEKEEPER_BASE_URL"))
+
+	c, err := client.NewAuthSourceClient(as, os.Getenv("LAKEKEEPER_BASE_URL"), client.WithInitialBootstrapEnabled())
 	if err != nil {
 		t.Fatalf("could not create client, %v", err)
 	}

@@ -13,4 +13,6 @@ LAKEKEEPER_VERSION=${LAKEKEEER_VERSION:-latest-main} $CONTAINER_COMPOSE_ENGINE u
 
 ./scripts/await-healthy.sh
 
-go test -v ./integration/...
+sleep 10
+
+go test -v -tags integration ./integration/...

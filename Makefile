@@ -40,9 +40,6 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-# packages that will be compiled into binaries
-CLIENT_PACKAGES = $(GO_PROJECT)/cmd/rook
-
 # the root go project
 GO_PROJECT=github.com/baptistegh/go-lakekeeper
 
@@ -59,11 +56,6 @@ ifeq ($(origin VERSION), undefined)
 VERSION := $(shell git describe --dirty --always --tags | sed 's/-/./2' | sed 's/-/./2' )
 endif
 export VERSION
-
-# inject the version and details the version package using the -X linker flag
-LDFLAGS += -X $(GO_PROJECT)/pkg/version.Version=$(VERSION) \
-           -X $(GO_PROJECT)/pkg/version.Commit=$(COMMIT_SHA) \
-           -X $(GO_PROJECT)/pkg/version.Date=$(DATE)
 
 GOHOSTOS=linux
 GOHOSTARCH := $(shell go env GOHOSTARCH)
@@ -84,9 +76,7 @@ GO_TAGS=$(TAGS)
 
 GO_COMMON_FLAGS = $(GO_BUILDFLAGS) -tags '$(GO_TAGS)' -ldflags '$(GO_LDFLAGS)'
 
-GO_PACKAGES := ./cmd/... ./pkg/...
-
-GO_BUILD_TARGET := ./cmd/lakekeeper/main.go
+GO_PACKAGES := ./pkg/...
 
 BIN_DIR := $(SELF_DIR)/bin
 
@@ -107,28 +97,27 @@ $(YQ): $(BIN_DIR)
 	@chmod +x $(YQ)
 
 GOLANGCI_LINT_VERSION ?= $(strip $(shell $(YQ) .jobs.golangci.steps[2].with.version .github/workflows/lint.yml))
-GOLANGCI_LINT ?= $(BIN_DIR)/golangci-lint-$(GOLANGCI_LINT_VERSION)
+GOLANGCI_LINT ?= $(BIN_DIR)/golangci-lint
 $(GOLANGCI_LINT):
-	@echo === installing golangci-lint-$(GOLANGCI_LINT_VERSION)
+	@echo === installing golangci-lint
 	@mkdir -p $(BIN_DIR)/tmp
 	@curl -sL https://github.com/golangci/golangci-lint/releases/download/$(GOLANGCI_LINT_VERSION)/golangci-lint-$(patsubst v%,%,$(GOLANGCI_LINT_VERSION))-$(shell go env GOHOSTOS)-$(GOHOSTARCH).tar.gz | tar -xz -C $(BIN_DIR)/tmp
 	@mv $(BIN_DIR)/tmp/golangci-lint-$(patsubst v%,%,$(GOLANGCI_LINT_VERSION))-$(shell go env GOHOSTOS)-$(GOHOSTARCH)/golangci-lint $(GOLANGCI_LINT)
 	@rm -fr $(BIN_DIR)/tmp
 
 .PHONY: build
-build: build.common test ## Only build for linux platform
+build: build.common ## Only build for linux platform
 
 .PHONY: build.common
 build.common: $(YQ) $(BIN_DIR)
 	@$(GOHOST) mod tidy
 	@$(MAKE) validate
-	@CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GO) build $(GO_COMMON_FLAGS) -o $(BIN_DIR) $(GO_BUILD_TARGET)
+	@$(MAKE) test
 
 .PHONY: test
 test: ## Runs unit tests.
 	@echo === go test unit-tests
 	@CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GO) test -v -cover -coverprofile=coverage.txt $(GO_COMMON_FLAGS) $(GO_PACKAGES)
-
 
 LAKEKEEPER_VERSION ?= latest-main
 .PHONY: test-integration
@@ -152,12 +141,19 @@ vet:
 .PHONY: fmt
 fmt: $(GOLANGCI_LINT)
 	@echo === go fmt fix
-	@$(GOLANGCI_LINT) run --fix
+	@$(GOLANGCI_LINT) run --fix ./...
 
 .PHONY: lint
 lint: $(GOLANGCI_LINT)
 	@echo === go fmt
-	@$(GOLANGCI_LINT) run
+	@$(GOLANGCI_LINT) run ./...
 
 .PHONY: validate
 validate: vet lint
+
+.PHONY: clean
+clean:
+	@rm -fr $(BIN_DIR)
+	@rm -fr coverage.txt
+	@rm -fr $(ENV_FILE)
+	@$(CONTAINER_COMPOSE_ENGINE) down --volumes

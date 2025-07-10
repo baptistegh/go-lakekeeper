@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package integration
 
 import (
@@ -8,19 +11,18 @@ import (
 )
 
 func TestServer_Info(t *testing.T) {
-	t.Parallel()
-
 	client := Setup(t)
 
 	info, _, err := client.ServerV1().Info()
 
 	assert.NoError(t, err)
-	assert.Equal(t, false, info.Bootstrapped)
+	assert.Equal(t, true, info.Bootstrapped)
+	assert.NotEmpty(t, true, info.ServerID)
+	assert.NotEmpty(t, true, info.DefaultProjectID)
+	assert.Equal(t, info.AuthzBackend, "openfga")
 }
 
 func TestServer_Bootstrap(t *testing.T) {
-	t.Parallel()
-
 	client := Setup(t)
 
 	resp, err := client.ServerV1().Bootstrap(&v1.BootstrapServerOptions{
