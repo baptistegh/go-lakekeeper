@@ -49,7 +49,8 @@ jobs:
     strategy:
       matrix:
         lakekeeper_version:
-          - latest
+          - latest-main # nightly build
+          - latest # last release
           - v0.9.1
           - v0.9.0
     steps:

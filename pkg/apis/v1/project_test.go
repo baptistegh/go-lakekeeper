@@ -60,7 +60,7 @@ func TestProjectService_List(t *testing.T) {
 	assert.Equal(t, want, project)
 }
 
-func TestProjectServer_Delete(t *testing.T) {
+func TestProjectService_Delete(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
@@ -75,19 +75,22 @@ func TestProjectServer_Delete(t *testing.T) {
 	assert.NotNil(t, resp)
 }
 
-func TestProjectServer_Create(t *testing.T) {
+func TestProjectService_Create(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
-
-	mux.HandleFunc("/management/v1/project", func(w http.ResponseWriter, r *http.Request) {
-		testutil.TestMethod(t, r, http.MethodPost)
-		w.WriteHeader(http.StatusCreated)
-		testutil.MustWriteHTTPResponse(t, w, "testdata/create_project.json")
-	})
 
 	opts := v1.CreateProjectOptions{
 		Name: "test-project",
 	}
+
+	mux.HandleFunc("/management/v1/project", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		if !testutil.TestBodyJSON(t, r, &opts) {
+			t.Fatalf("wrong json body")
+		}
+		w.WriteHeader(http.StatusCreated)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/create_project.json")
+	})
 	project, resp, err := client.ProjectV1().Create(&opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)

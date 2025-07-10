@@ -67,7 +67,9 @@ func TestRoleService_Create(t *testing.T) {
 	mux.HandleFunc("/management/v1/role", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
-		testutil.TestBodyJSON(t, r, &opts)
+		if !testutil.TestBodyJSON(t, r, &opts) {
+			t.Fatalf("wrong json body")
+		}
 		w.WriteHeader(http.StatusCreated)
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_role.json")
 	})
@@ -106,7 +108,9 @@ func TestRoleService_Update(t *testing.T) {
 	mux.HandleFunc("/management/v1/role/"+roleID, func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
-		testutil.TestBodyJSON(t, r, &opts)
+		if !testutil.TestBodyJSON(t, r, &opts) {
+			t.Fatalf("wrong json body")
+		}
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_role.json")
 	})
 
