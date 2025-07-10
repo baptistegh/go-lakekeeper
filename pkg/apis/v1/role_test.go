@@ -1,130 +1,181 @@
-package v1
+package v1_test
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 	"testing"
 
-	"github.com/baptistegh/go-lakekeeper/pkg/core"
+	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
-	"github.com/go-test/deep"
-	"github.com/hashicorp/go-retryablehttp"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRoleService_Get(t *testing.T) {
-	testCases := []struct {
-		name          string
-		projectID     string
-		roleID        string
-		expectedRole  *Role
-		expectedError error
-		mockClient    *testutil.MockClient
-	}{
-		{
-			name:      "successful get role",
-			projectID: "test-project",
-			roleID:    "test-role-id",
-			expectedRole: &Role{
-				ID:          "test-role-id",
-				ProjectID:   "test-project",
-				Name:        "test-role",
-				Description: testutil.StringPtr("test-description"),
-				CreatedAt:   "2024-01-01T00:00:00Z",
-				UpdatedAt:   testutil.StringPtr("2024-01-01T00:00:00Z"),
-			},
-			expectedError: nil,
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, opts []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					if method != http.MethodGet {
-						return nil, fmt.Errorf("expected method %s, got %s", http.MethodGet, method)
-					}
-					expectedURL := "/role/test-role-id"
-					if url != expectedURL {
-						return nil, fmt.Errorf("expected URL %s, got %s", expectedURL, url)
-					}
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
 
-					if len(opts) != 1 {
-						return nil, fmt.Errorf("expected 1 option, got %d", len(opts))
-					}
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-					req, err := retryablehttp.NewRequest(method, url, body)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					role := Role{
-						ID:          "test-role-id",
-						ProjectID:   "test-project",
-						Name:        "test-role",
-						Description: testutil.StringPtr("test-description"),
-						CreatedAt:   "2024-01-01T00:00:00Z",
-						UpdatedAt:   testutil.StringPtr("2024-01-01T00:00:00Z"),
-					}
-					roleBytes, _ := json.Marshal(role)
+	mux.HandleFunc("/management/v1/role/"+roleID, func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_role.json")
+	})
 
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader(roleBytes)),
-					}
+	role, resp, err := client.RoleV1(projectID).Get(roleID)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
 
-					err := json.NewDecoder(resp.Body).Decode(v)
-					return resp, core.ApiErrorFromError(err)
-				},
-			},
-		},
-		{
-			name:          "failed get role - API error",
-			projectID:     "test-project",
-			roleID:        "test-role-id",
-			expectedRole:  nil,
-			expectedError: core.ApiErrorFromMessage("API error"),
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, opts []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					if method != http.MethodGet {
-						return nil, fmt.Errorf("expected method %s, got %s", http.MethodGet, method)
-					}
-					expectedURL := "/role/test-role-id"
-					if url != expectedURL {
-						return nil, fmt.Errorf("expected URL %s, got %s", expectedURL, url)
-					}
-
-					if len(opts) != 1 {
-						return nil, fmt.Errorf("expected 1 option, got %d", len(opts))
-					}
-
-					req, err := retryablehttp.NewRequest(method, url, body)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					return nil, core.ApiErrorFromMessage("API error")
-				},
-			},
-		},
+	createdAt := "2019-08-24T14:15:22Z"
+	description := "description of the role"
+	want := &v1.Role{
+		ID:          roleID,
+		ProjectID:   projectID,
+		Name:        "test-role",
+		Description: &description,
+		CreatedAt:   createdAt,
+		UpdatedAt:   &createdAt,
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			roleService := NewRoleService(tc.mockClient, tc.projectID)
+	assert.Equal(t, want, role)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
 
-			role, _, err := roleService.Get(tc.roleID)
+func TestRoleService_Create(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
 
-			if tc.expectedError != nil {
-				if err == nil || err.Error() != tc.expectedError.Error() {
-					t.Errorf("expected error %v, got %v", tc.expectedError, err)
-				}
-				return
-			}
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-				return
-			}
-
-			if diff := deep.Equal(role, tc.expectedRole); diff != nil {
-				t.Error(diff)
-			}
-		})
+	createdAt := "2019-08-24T14:15:22Z"
+	description := "description of the role"
+	want := &v1.Role{
+		ID:          roleID,
+		ProjectID:   projectID,
+		Name:        "test-role",
+		Description: &description,
+		CreatedAt:   createdAt,
+		UpdatedAt:   &createdAt,
 	}
+
+	opts := v1.CreateRoleOptions{
+		Name:        "test-role",
+		Description: &description,
+	}
+
+	mux.HandleFunc("/management/v1/role", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		if !testutil.TestBodyJSON(t, r, &opts) {
+			t.Fatalf("wrong json body")
+		}
+		w.WriteHeader(http.StatusCreated)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_role.json")
+	})
+
+	role, resp, err := client.RoleV1(projectID).Create(&opts)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+
+	assert.Equal(t, want, role)
+}
+
+func TestRoleService_Update(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	createdAt := "2019-08-24T14:15:22Z"
+	description := "description of the role"
+	want := &v1.Role{
+		ID:          roleID,
+		ProjectID:   projectID,
+		Name:        "test-role",
+		Description: &description,
+		CreatedAt:   createdAt,
+		UpdatedAt:   &createdAt,
+	}
+
+	opts := v1.UpdateRoleOptions{
+		Name:        "test-role",
+		Description: &description,
+	}
+
+	mux.HandleFunc("/management/v1/role/"+roleID, func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		if !testutil.TestBodyJSON(t, r, &opts) {
+			t.Fatalf("wrong json body")
+		}
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_role.json")
+	})
+
+	role, resp, err := client.RoleV1(projectID).Update(roleID, &opts)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+	assert.Equal(t, want, role)
+}
+
+func TestRoleService_Delete(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	mux.HandleFunc("/management/v1/role/"+roleID, func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodDelete)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	resp, err := client.RoleV1(projectID).Delete(roleID)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
+}
+
+func TestRoleService_List(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+
+	mux.HandleFunc("/management/v1/role", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/list_roles.json")
+	})
+
+	nextPage := "8bd02c7f-1d9a-4c5c-afbb-eba7f174da09"
+	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	createdAt := "2019-08-24T14:15:22Z"
+	description := "description of the role"
+	r := &v1.Role{
+		ID:          roleID,
+		ProjectID:   projectID,
+		Name:        "test-role",
+		Description: &description,
+		CreatedAt:   createdAt,
+		UpdatedAt:   &createdAt,
+	}
+
+	want := v1.ListRolesResponse{
+		NextPageToken: &nextPage,
+		Roles:         []*v1.Role{r, r},
+	}
+
+	roles, resp, err := client.RoleV1(projectID).List(nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+	assert.Equal(t, &want, roles)
 }

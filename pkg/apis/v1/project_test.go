@@ -1,319 +1,103 @@
-package v1
+package v1_test
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 	"testing"
 
-	"github.com/baptistegh/go-lakekeeper/pkg/core"
+	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
-	"github.com/go-test/deep"
-	"github.com/hashicorp/go-retryablehttp"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestProjectService_Get(t *testing.T) {
-	testCases := []struct {
-		name            string
-		projectID       string
-		expectedProject *Project
-		expectedError   error
-		mockClient      *testutil.MockClient
-	}{
-		{
-			name:      "successful get project",
-			projectID: "test-project-id",
-			expectedProject: &Project{
-				ID:   "test-project-id",
-				Name: "test-project",
-			},
-			expectedError: nil,
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, opts []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					if method != http.MethodGet {
-						return nil, fmt.Errorf("expected method %s, got %s", http.MethodGet, method)
-					}
-					expectedURL := "/project"
-					if url != expectedURL {
-						return nil, fmt.Errorf("expected URL %s, got %s", expectedURL, url)
-					}
-					if len(opts) != 1 {
-						return nil, fmt.Errorf("expected 1 option, got %d", len(opts))
-					}
-					req, err := retryablehttp.NewRequest(method, url, body)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					project := Project{
-						ID:   "test-project-id",
-						Name: "test-project",
-					}
-					projectBytes, _ := json.Marshal(project)
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader(projectBytes)),
-					}
-					err := json.NewDecoder(resp.Body).Decode(v)
-					return resp, core.ApiErrorFromError(err)
-				},
-			},
-		},
-		{
-			name:            "failed get project - API error",
-			projectID:       "test-project-id",
-			expectedProject: nil,
-			expectedError:   core.ApiErrorFromMessage("API error"),
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, opts []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					if method != http.MethodGet {
-						return nil, fmt.Errorf("expected method %s, got %s", http.MethodGet, method)
-					}
-					expectedURL := "/project"
-					if url != expectedURL {
-						return nil, fmt.Errorf("expected URL %s, got %s", expectedURL, url)
-					}
-					if len(opts) != 1 {
-						return nil, fmt.Errorf("expected 1 option, got %d", len(opts))
-					}
-					req, err := retryablehttp.NewRequest(method, url, body)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					return nil, core.ApiErrorFromMessage("API error")
-				},
-			},
-		},
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	mux.HandleFunc("/management/v1/project", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestHeader(t, r, "x-project-id", "01f2fdfc-81fc-444d-8368-5b6701566e35")
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_project.json")
+	})
+
+	project, resp, err := client.ProjectV1().Get("01f2fdfc-81fc-444d-8368-5b6701566e35")
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	want := &v1.Project{
+		ID:   "01f2fdfc-81fc-444d-8368-5b6701566e35",
+		Name: "test-project",
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			projectService := NewProjectService(tc.mockClient)
-
-			project, _, err := projectService.Get(tc.projectID)
-
-			if tc.expectedError != nil {
-				if err == nil || err.Error() != tc.expectedError.Error() {
-					t.Errorf("expected error %v, got %v", tc.expectedError, err)
-				}
-				return
-			}
-
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-				return
-			}
-
-			if diff := deep.Equal(project, tc.expectedProject); diff != nil {
-				t.Error(diff)
-			}
-		})
-	}
-}
-
-func TestProjectService_Default(t *testing.T) {
-	testCases := []struct {
-		name            string
-		expectedProject *Project
-		expectedError   error
-		mockClient      *testutil.MockClient
-	}{
-		{
-			name: "successful get default project",
-			expectedProject: &Project{
-				ID:   "default-project-id",
-				Name: "default-project",
-			},
-			expectedError: nil,
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, opts []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					if method != http.MethodGet {
-						return nil, fmt.Errorf("expected method %s, got %s", http.MethodGet, method)
-					}
-					expectedURL := "/default-project"
-					if url != expectedURL {
-						return nil, fmt.Errorf("expected URL %s, got %s", expectedURL, url)
-					}
-					if len(opts) != 0 {
-						return nil, fmt.Errorf("expected 0 options, got %d", len(opts))
-					}
-					req, err := retryablehttp.NewRequest(method, url, body)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					project := Project{
-						ID:   "default-project-id",
-						Name: "default-project",
-					}
-					projectBytes, _ := json.Marshal(project)
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader(projectBytes)),
-					}
-					err := json.NewDecoder(resp.Body).Decode(v)
-					return resp, core.ApiErrorFromError(err)
-				},
-			},
-		},
-		{
-			name:            "failed get default project - API error",
-			expectedProject: nil,
-			expectedError:   core.ApiErrorFromMessage("API error"),
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, opts []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					if method != http.MethodGet {
-						return nil, fmt.Errorf("expected method %s, got %s", http.MethodGet, method)
-					}
-					expectedURL := "/default-project"
-					if url != expectedURL {
-						return nil, fmt.Errorf("expected URL %s, got %s", expectedURL, url)
-					}
-					if len(opts) != 0 {
-						return nil, fmt.Errorf("expected 0 options, got %d", len(opts))
-					}
-					req, err := retryablehttp.NewRequest(method, url, body)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					return nil, core.ApiErrorFromMessage("API error")
-				},
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			projectService := NewProjectService(tc.mockClient)
-
-			project, _, err := projectService.Default()
-
-			if tc.expectedError != nil {
-				if err == nil || err.Error() != tc.expectedError.Error() {
-					t.Errorf("expected error %v, got %v", tc.expectedError, err)
-				}
-				return
-			}
-
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-				return
-			}
-
-			if diff := deep.Equal(project, tc.expectedProject); diff != nil {
-				t.Error(diff)
-			}
-		})
-	}
+	assert.Equal(t, want, project)
 }
 
 func TestProjectService_List(t *testing.T) {
-	testCases := []struct {
-		name             string
-		expectedProjects *ListProjectsResponse
-		expectedError    error
-		mockClient       *testutil.MockClient
-	}{
-		{
-			name: "successful list projects",
-			expectedProjects: &ListProjectsResponse{
-				Projects: []*Project{
-					{
-						ID:   "project-1",
-						Name: "Project 1",
-					},
-					{
-						ID:   "project-2",
-						Name: "Project 2",
-					},
-				},
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	mux.HandleFunc("/management/v1/project-list", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/list_projects.json")
+	})
+
+	project, resp, err := client.ProjectV1().List()
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	want := &v1.ListProjectsResponse{
+		Projects: []*v1.Project{
+			{
+				ID:   "01f2fdfc-81fc-444d-8368-5b6701566e35",
+				Name: "test-project-1",
 			},
-			expectedError: nil,
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, opts []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					if method != http.MethodGet {
-						return nil, fmt.Errorf("expected method %s, got %s", http.MethodGet, method)
-					}
-					expectedURL := "/project-list"
-					if url != expectedURL {
-						return nil, fmt.Errorf("expected URL %s, got %s", expectedURL, url)
-					}
-					if len(opts) != 0 {
-						return nil, fmt.Errorf("expected 0 options, got %d", len(opts))
-					}
-					req, err := retryablehttp.NewRequest(method, url, body)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					projects := ListProjectsResponse{
-						Projects: []*Project{
-							{
-								ID:   "project-1",
-								Name: "Project 1",
-							},
-							{
-								ID:   "project-2",
-								Name: "Project 2",
-							},
-						},
-					}
-					projectsBytes, _ := json.Marshal(projects)
-					resp := &http.Response{
-						StatusCode: http.StatusOK,
-						Body:       io.NopCloser(bytes.NewReader(projectsBytes)),
-					}
-					err := json.NewDecoder(resp.Body).Decode(v)
-					return resp, core.ApiErrorFromError(err)
-				},
-			},
-		},
-		{
-			name:             "failed list projects - API error",
-			expectedProjects: nil,
-			expectedError:    core.ApiErrorFromMessage("API error"),
-			mockClient: &testutil.MockClient{
-				NewRequestFunc: func(method, url string, body any, opts []core.RequestOptionFunc) (*retryablehttp.Request, error) {
-					if method != http.MethodGet {
-						return nil, fmt.Errorf("expected method %s, got %s", http.MethodGet, method)
-					}
-					expectedURL := "/project-list"
-					if url != expectedURL {
-						return nil, fmt.Errorf("expected URL %s, got %s", expectedURL, url)
-					}
-					if len(opts) != 0 {
-						return nil, fmt.Errorf("expected 0 options, got %d", len(opts))
-					}
-					req, err := retryablehttp.NewRequest(method, url, body)
-					return req, err
-				},
-				DoFunc: func(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
-					return nil, core.ApiErrorFromMessage("API error")
-				},
+			{
+				ID:   "f80ed5b3-2e5b-49df-a7a2-5f071f91e6dd",
+				Name: "test-project-2",
 			},
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			projectService := NewProjectService(tc.mockClient)
+	assert.Equal(t, want, project)
+}
 
-			projects, _, err := projectService.List()
+func TestProjectService_Delete(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
 
-			if tc.expectedError != nil {
-				if err == nil || err.Error() != tc.expectedError.Error() {
-					t.Errorf("expected error %v, got %v", tc.expectedError, err)
-				}
-				return
-			}
+	mux.HandleFunc("/management/v1/project", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodDelete)
+		testutil.TestHeader(t, r, "x-project-id", "01f2fdfc-81fc-444d-8368-5b6701566e35")
+		w.WriteHeader(http.StatusNoContent)
+	})
 
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-				return
-			}
+	resp, err := client.ProjectV1().Delete("01f2fdfc-81fc-444d-8368-5b6701566e35")
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+}
 
-			if diff := deep.Equal(projects, tc.expectedProjects); diff != nil {
-				t.Error(diff)
-			}
-		})
+func TestProjectService_Create(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	opts := v1.CreateProjectOptions{
+		Name: "test-project",
 	}
+
+	mux.HandleFunc("/management/v1/project", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		if !testutil.TestBodyJSON(t, r, &opts) {
+			t.Fatalf("wrong json body")
+		}
+		w.WriteHeader(http.StatusCreated)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/create_project.json")
+	})
+	project, resp, err := client.ProjectV1().Create(&opts)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	want := &v1.CreateProjectResponse{
+		ID: "01f2fdfc-81fc-444d-8368-5b6701566e35",
+	}
+
+	assert.Equal(t, want, project)
 }

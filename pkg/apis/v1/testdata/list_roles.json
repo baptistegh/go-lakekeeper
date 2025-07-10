@@ -1,0 +1,21 @@
+{
+    "next-page-token": "8bd02c7f-1d9a-4c5c-afbb-eba7f174da09",
+    "roles": [
+        {
+            "created-at": "2019-08-24T14:15:22Z",
+            "description": "description of the role",
+            "id": "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+            "name": "test-role",
+            "project-id": "01f2fdfc-81fc-444d-8368-5b6701566e35",
+            "updated-at": "2019-08-24T14:15:22Z"
+        },
+        {
+            "created-at": "2019-08-24T14:15:22Z",
+            "description": "description of the role",
+            "id": "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+            "name": "test-role",
+            "project-id": "01f2fdfc-81fc-444d-8368-5b6701566e35",
+            "updated-at": "2019-08-24T14:15:22Z"
+        }
+    ]
+}
