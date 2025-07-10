@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -25,15 +26,13 @@ func TestUserService_Get(t *testing.T) {
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	email := "test@example.com"
-	updatedAt := "2019-08-24T14:15:22Z"
 	want := &v1.User{
 		ID:              userID,
 		Name:            "test-user",
-		Email:           &email,
+		Email:           core.Ptr("test@example.com"),
 		UserType:        v1.HumanUserType,
 		CreatedAt:       "2019-08-24T14:15:22Z",
-		UpdatedAt:       &updatedAt,
+		UpdatedAt:       core.Ptr("2019-08-24T14:15:22Z"),
 		LastUpdatedWith: "create-endpoint",
 	}
 
@@ -54,15 +53,13 @@ func TestUserService_Whoami(t *testing.T) {
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	email := "test@example.com"
-	updatedAt := "2019-08-24T14:15:22Z"
 	want := &v1.User{
 		ID:              "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
 		Name:            "test-user",
-		Email:           &email,
+		Email:           core.Ptr("test@example.com"),
 		UserType:        v1.HumanUserType,
 		CreatedAt:       "2019-08-24T14:15:22Z",
-		UpdatedAt:       &updatedAt,
+		UpdatedAt:       core.Ptr("2019-08-24T14:15:22Z"),
 		LastUpdatedWith: "create-endpoint",
 	}
 
@@ -74,18 +71,12 @@ func TestUserService_Provision(t *testing.T) {
 
 	mux, client := testutil.ServerMux(t)
 
-	id := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
-	email := "test@example.com"
-	name := "test-user"
-	userType := v1.HumanUserType
-	updateIfExists := true
-
 	opts := v1.ProvisionUserOptions{
-		ID:             &id,
-		Email:          &email,
-		Name:           &name,
-		UserType:       &userType,
-		UpdateIfExists: &updateIfExists,
+		ID:             core.Ptr("a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"),
+		Email:          core.Ptr("test@example.com"),
+		Name:           core.Ptr("test-user"),
+		UserType:       core.Ptr(v1.HumanUserType),
+		UpdateIfExists: core.Ptr(true),
 	}
 
 	mux.HandleFunc("/management/v1/user", func(w http.ResponseWriter, r *http.Request) {
@@ -97,14 +88,13 @@ func TestUserService_Provision(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_user.json")
 	})
 
-	updatedAt := "2019-08-24T14:15:22Z"
 	want := &v1.User{
-		ID:              id,
-		Email:           &email,
-		Name:            name,
-		UserType:        userType,
+		ID:              "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+		Email:           core.Ptr("test@example.com"),
+		Name:            "test-user",
+		UserType:        v1.HumanUserType,
 		CreatedAt:       "2019-08-24T14:15:22Z",
-		UpdatedAt:       &updatedAt,
+		UpdatedAt:       core.Ptr("2019-08-24T14:15:22Z"),
 		LastUpdatedWith: "create-endpoint",
 	}
 

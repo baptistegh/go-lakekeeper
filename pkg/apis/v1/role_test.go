@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -26,15 +27,13 @@ func TestRoleService_Get(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
-	createdAt := "2019-08-24T14:15:22Z"
-	description := "description of the role"
 	want := &v1.Role{
 		ID:          roleID,
 		ProjectID:   projectID,
 		Name:        "test-role",
-		Description: &description,
-		CreatedAt:   createdAt,
-		UpdatedAt:   &createdAt,
+		Description: core.Ptr("description of the role"),
+		CreatedAt:   "2019-08-24T14:15:22Z",
+		UpdatedAt:   core.Ptr("2019-08-24T14:15:22Z"),
 	}
 
 	assert.Equal(t, want, role)
@@ -48,20 +47,18 @@ func TestRoleService_Create(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	createdAt := "2019-08-24T14:15:22Z"
-	description := "description of the role"
 	want := &v1.Role{
 		ID:          roleID,
 		ProjectID:   projectID,
 		Name:        "test-role",
-		Description: &description,
-		CreatedAt:   createdAt,
-		UpdatedAt:   &createdAt,
+		Description: core.Ptr("description of the role"),
+		CreatedAt:   "2019-08-24T14:15:22Z",
+		UpdatedAt:   core.Ptr("2019-08-24T14:15:22Z"),
 	}
 
 	opts := v1.CreateRoleOptions{
 		Name:        "test-role",
-		Description: &description,
+		Description: core.Ptr("description of the role"),
 	}
 
 	mux.HandleFunc("/management/v1/role", func(w http.ResponseWriter, r *http.Request) {
@@ -89,20 +86,18 @@ func TestRoleService_Update(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	createdAt := "2019-08-24T14:15:22Z"
-	description := "description of the role"
 	want := &v1.Role{
 		ID:          roleID,
 		ProjectID:   projectID,
 		Name:        "test-role",
-		Description: &description,
-		CreatedAt:   createdAt,
-		UpdatedAt:   &createdAt,
+		Description: core.Ptr("description of the role"),
+		CreatedAt:   "2019-08-24T14:15:22Z",
+		UpdatedAt:   core.Ptr("2019-08-24T14:15:22Z"),
 	}
 
 	opts := v1.UpdateRoleOptions{
 		Name:        "test-role",
-		Description: &description,
+		Description: core.Ptr("description of the role"),
 	}
 
 	mux.HandleFunc("/management/v1/role/"+roleID, func(w http.ResponseWriter, r *http.Request) {
@@ -156,15 +151,13 @@ func TestRoleService_List(t *testing.T) {
 	nextPage := "8bd02c7f-1d9a-4c5c-afbb-eba7f174da09"
 	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	createdAt := "2019-08-24T14:15:22Z"
-	description := "description of the role"
 	r := &v1.Role{
 		ID:          roleID,
 		ProjectID:   projectID,
 		Name:        "test-role",
-		Description: &description,
-		CreatedAt:   createdAt,
-		UpdatedAt:   &createdAt,
+		Description: core.Ptr("description of the role"),
+		CreatedAt:   "2019-08-24T14:15:22Z",
+		UpdatedAt:   core.Ptr("2019-08-24T14:15:22Z"),
 	}
 
 	want := v1.ListRolesResponse{
