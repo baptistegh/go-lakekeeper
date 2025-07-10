@@ -93,7 +93,6 @@ BIN_DIR := $(SELF_DIR)/bin
 GO_TEST_OUTPUT := $(SELF_DIR)/.output
 
 build: build.common test ## Only build for linux platform
-	
 
 $(BIN_DIR):
 	@mkdir -p $(BIN_DIR)

@@ -13,7 +13,7 @@ type (
 		Get(id string, options ...core.RequestOptionFunc) (*Project, *http.Response, error)
 		Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error)
 		Default(options ...core.RequestOptionFunc) (*Project, *http.Response, error)
-		Create(opts *CreateProjectOptions, options ...core.RequestOptionFunc) (*Project, *http.Response, error)
+		Create(opts *CreateProjectOptions, options ...core.RequestOptionFunc) (*CreateProjectResponse, *http.Response, error)
 		Rename(id string, opts *RenameProjectOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
@@ -91,14 +91,6 @@ type ListProjectsResponse struct {
 	Projects []*Project `json:"projects"`
 }
 
-// RenameProjectOptions represents RenameProject() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/rename_project
-type RenameProjectOptions struct {
-	NewName string `json:"new-name"`
-}
-
 // ListProjects lists all projects that the requesting user has access to.
 //
 // Lakekeeper API docs:
@@ -132,7 +124,7 @@ type CreateProjectOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/create_project
-type createProjectResponse struct {
+type CreateProjectResponse struct {
 	ID string `json:"project-id"`
 }
 
@@ -140,25 +132,28 @@ type createProjectResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/create_project
-func (s *ProjectService) Create(opts *CreateProjectOptions, options ...core.RequestOptionFunc) (*Project, *http.Response, error) {
+func (s *ProjectService) Create(opts *CreateProjectOptions, options ...core.RequestOptionFunc) (*CreateProjectResponse, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodPost, "/project", opts, options)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	var prjResp createProjectResponse
+	var prjResp CreateProjectResponse
 
 	resp, apiErr := s.client.Do(req, &prjResp)
 	if apiErr != nil {
 		return nil, resp, apiErr
 	}
 
-	project, _, err := s.Get(prjResp.ID, options...)
-	if err != nil {
-		return nil, resp, fmt.Errorf("project is created but could not be read, %w", err)
-	}
+	return &prjResp, resp, nil
+}
 
-	return project, resp, nil
+// RenameProjectOptions represents RenameProject() options.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/rename_project
+type RenameProjectOptions struct {
+	NewName string `json:"new-name"`
 }
 
 // RenameProject renames a project.

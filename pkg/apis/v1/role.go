@@ -9,7 +9,7 @@ import (
 
 type (
 	RoleServiceInterface interface {
-		List(opts *ListRolesOptions, options ...core.RequestOptionFunc) ([]*Role, error)
+		List(opts *ListRolesOptions, options ...core.RequestOptionFunc) (*ListRolesResponse, *http.Response, error)
 		Get(id string, options ...core.RequestOptionFunc) (*Role, *http.Response, error)
 		Create(opts *CreateRoleOptions, options ...core.RequestOptionFunc) (*Role, *http.Response, error)
 		Update(id string, opts *UpdateRoleOptions, options ...core.RequestOptionFunc) (*Role, *http.Response, error)
@@ -51,7 +51,7 @@ type Role struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/get_role
 func (s *RoleService) Get(id string, options ...core.RequestOptionFunc) (*Role, *http.Response, error) {
-	options = append(options, WithProject(id))
+	options = append(options, WithProject(s.projectID))
 
 	req, err := s.client.NewRequest(http.MethodGet, "/role/"+id, nil, options)
 	if err != nil {
@@ -76,48 +76,36 @@ type ListRolesOptions struct {
 	Name      *string `url:"name,omitempty"`
 	PageToken *string `url:"pageToken,omitempty"`
 	PageSize  *string `url:"pageSize,omitempty"`
-	ProjectID *string `url:"projectId,omitempty"`
 }
 
-// listRoleResponse represents a response from list_roles API endpoint.
+// ListRolesResponse represents a response from list_roles API endpoint.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/list_roles
-type listRolesResponse struct {
+type ListRolesResponse struct {
 	NextPageToken *string `json:"next-page-token,omitempty"`
-	Roles         []*Role `json:"role"`
+	Roles         []*Role `json:"roles"`
 }
 
 // List returns all roles in the project that the current user has access to view.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/list_roles
-func (s *RoleService) List(opts *ListRolesOptions, options ...core.RequestOptionFunc) ([]*Role, error) {
-	options = append(options, WithProject(*opts.ProjectID))
+func (s *RoleService) List(opts *ListRolesOptions, options ...core.RequestOptionFunc) (*ListRolesResponse, *http.Response, error) {
+	options = append(options, WithProject(s.projectID))
 
-	var roles []*Role
-
-	for {
-		var r listRolesResponse
-		req, err := s.client.NewRequest(http.MethodGet, "/project-list", opts, options)
-		if err != nil {
-			return nil, err
-		}
-
-		_, apiErr := s.client.Do(req, &r)
-		if apiErr != nil {
-			return nil, apiErr
-		}
-
-		roles = append(roles, r.Roles...)
-
-		if r.NextPageToken == nil {
-			break
-		}
-		opts.PageToken = r.NextPageToken
+	req, err := s.client.NewRequest(http.MethodGet, "/role", opts, options)
+	if err != nil {
+		return nil, nil, err
 	}
 
-	return roles, nil
+	var r ListRolesResponse
+	resp, apiErr := s.client.Do(req, &r)
+	if apiErr != nil {
+		return nil, resp, apiErr
+	}
+
+	return &r, resp, nil
 }
 
 // CreateRoleOptions represents Create() options.
@@ -127,7 +115,6 @@ func (s *RoleService) List(opts *ListRolesOptions, options ...core.RequestOption
 type CreateRoleOptions struct {
 	Name        string  `json:"name"`
 	Description *string `json:"description"`
-	ProjectID   *string `json:"project-id"`
 }
 
 // Create creates a role with the specified name and description.
@@ -139,7 +126,7 @@ func (s *RoleService) Create(opts *CreateRoleOptions, options ...core.RequestOpt
 		return nil, nil, errors.New("CreateRole needs options to create a role")
 	}
 
-	options = append(options, WithProject(*opts.ProjectID))
+	options = append(options, WithProject(s.projectID))
 
 	req, err := s.client.NewRequest(http.MethodPost, "/role", opts, options)
 	if err != nil {
@@ -163,7 +150,6 @@ func (s *RoleService) Create(opts *CreateRoleOptions, options ...core.RequestOpt
 type UpdateRoleOptions struct {
 	Name        string  `json:"name"`
 	Description *string `json:"description,omitempty"`
-	ProjectID   *string `json:"-"`
 }
 
 // Update update a role with the specified name and description.
@@ -175,7 +161,7 @@ func (s *RoleService) Update(id string, opts *UpdateRoleOptions, options ...core
 		return nil, nil, errors.New("Role ID must be defined to be updated")
 	}
 
-	options = append(options, WithProject(*opts.ProjectID))
+	options = append(options, WithProject(s.projectID))
 
 	req, err := s.client.NewRequest(http.MethodPost, "/role/"+id, opts, options)
 	if err != nil {
@@ -197,7 +183,7 @@ func (s *RoleService) Update(id string, opts *UpdateRoleOptions, options ...core
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/delete_role
 func (s *RoleService) Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error) {
-	options = append(options, WithProject(id))
+	options = append(options, WithProject(s.projectID))
 
 	req, err := s.client.NewRequest(http.MethodDelete, "/role/"+id, nil, options)
 	if err != nil {
