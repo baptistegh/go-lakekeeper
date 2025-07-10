@@ -20,7 +20,6 @@ func TestRoleService_Get(t *testing.T) {
 		testutil.TestMethod(t, r, http.MethodGet)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_role.json")
-		w.WriteHeader(http.StatusCreated)
 	})
 
 	role, resp, err := client.RoleV1(projectID).Get(roleID)
