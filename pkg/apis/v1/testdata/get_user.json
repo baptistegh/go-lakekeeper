@@ -1,0 +1,9 @@
+{
+    "id": "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+    "name": "test-user",
+    "email": "test@example.com",
+    "user-type": "human",
+    "created-at": "2019-08-24T14:15:22Z",
+    "updated-at": "2019-08-24T14:15:22Z",
+    "last-updated-with": "create-endpoint"
+}

@@ -1,0 +1,13 @@
+{
+    "authz-backend": "openfga",
+    "aws-system-identities-enabled": false,
+    "azure-system-identities-enabled": false,
+    "bootstrapped": true,
+    "default-project-id": "01f2fdfc-81fc-444d-8368-5b6701566e35",
+    "gcp-system-identities-enabled": false,
+    "queues": [
+        "string"
+    ],
+    "server-id": "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+    "version": "v0.9.0"
+}

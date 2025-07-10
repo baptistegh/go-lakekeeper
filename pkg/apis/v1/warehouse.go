@@ -14,7 +14,7 @@ type (
 	WarehouseServiceInterface interface {
 		Get(id string, options ...core.RequestOptionFunc) (*Warehouse, *http.Response, error)
 		List(opts *ListWarehouseOptions, options ...core.RequestOptionFunc) (*ListWarehouseResponse, *http.Response, error)
-		Create(opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*Warehouse, *http.Response, error)
+		Create(opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error)
 		Delete(id string, opts *DeleteWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		SetProtection(id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error)
 		Activate(id string, options ...core.RequestOptionFunc) (*http.Response, error)
@@ -143,7 +143,7 @@ type CreateWarehouseOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/create_warehouse
-type createWarehouseResponse struct {
+type CreateWarehouseResponse struct {
 	ID string `json:"warehouse-id"`
 }
 
@@ -154,7 +154,7 @@ type createWarehouseResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/create_warehouse
-func (s *WarehouseService) Create(opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*Warehouse, *http.Response, error) {
+func (s *WarehouseService) Create(opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error) {
 	if opts == nil {
 		return nil, nil, errors.New("Create received empty options")
 	}
@@ -166,19 +166,14 @@ func (s *WarehouseService) Create(opts *CreateWarehouseOptions, options ...core.
 		return nil, nil, err
 	}
 
-	var whResp createWarehouseResponse
+	var whResp CreateWarehouseResponse
 
 	resp, apiErr := s.client.Do(req, &whResp)
 	if apiErr != nil {
 		return nil, resp, apiErr
 	}
 
-	warehouse, _, err := s.Get(whResp.ID)
-	if err != nil {
-		return nil, resp, fmt.Errorf("warehouse is created but error occured on get, %w", err)
-	}
-
-	return warehouse, resp, nil
+	return &whResp, resp, nil
 }
 
 // RenameWarehouseOptions represents WarehouseService.Rename() options.
@@ -272,7 +267,7 @@ func (s *WarehouseService) SetProtection(id string, protected bool, options ...c
 
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("/warehouse/%s/protection", id), &opts, options)
+	req, err := s.client.NewRequest(http.MethodPost, fmt.Sprintf("/warehouse/%s/protection", id), &opts, options)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -1,0 +1,176 @@
+# Acceptance tests depend on a running Lakekeeper instance.
+# Only one of these services should be run at a time.
+services:
+  lakekeeper:
+    image: quay.io/lakekeeper/catalog:${LAKEKEEPER_VERSION:-latest-main}
+    pull_policy: &lakekeeper-pull-policy if_not_present
+    labels:
+      go-lakekeeper/owned: ""
+    environment: &lakekeeper-environment
+      - LAKEKEEPER__PG_ENCRYPTION_KEY=This-is-NOT-Secure!
+      - LAKEKEEPER__PG_DATABASE_URL_READ=postgresql://postgres:postgres@db:5432/postgres
+      - LAKEKEEPER__PG_DATABASE_URL_WRITE=postgresql://postgres:postgres@db:5432/postgres
+      - LAKEKEEPER__AUTHZ_BACKEND=openfga
+      - LAKEKEEPER__OPENFGA__ENDPOINT=http://openfga:8081
+      # Externally taken from environment variables if set
+      - LAKEKEEPER__OPENID_PROVIDER_URI=http://keycloak:8080/realms/iceberg
+      - LAKEKEEPER__OPENID_ADDITIONAL_ISSUERS=http://localhost:30080/realms/iceberg
+      - LAKEKEEPER__OPENID_AUDIENCE=lakekeeper
+      - LAKEKEEPER__UI__OPENID_PROVIDER_URI=http://localhost:30080/realms/iceberg
+      - LAKEKEEPER__UI__OPENID_CLIENT_ID=lakekeeper
+      - RUST_LOG=INFO
+    command: ["serve"]
+    healthcheck:
+      test: [ "CMD", "/home/nonroot/lakekeeper", "healthcheck" ]
+      interval: 1s
+      timeout: 10s
+      retries: 3
+      start_period: 3s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      minio:
+        condition: service_healthy
+    ports:
+      - "8181:8181"
+    networks:
+      iceberg_net:
+  
+  migrate:
+    image: quay.io/lakekeeper/catalog:${LAKEKEEPER_VERSION:-latest-main}
+    pull_policy: *lakekeeper-pull-policy
+    environment:
+      - LAKEKEEPER__PG_ENCRYPTION_KEY=This-is-NOT-Secure!
+      - LAKEKEEPER__PG_DATABASE_URL_READ=postgresql://postgres:postgres@db:5432/postgres
+      - LAKEKEEPER__PG_DATABASE_URL_WRITE=postgresql://postgres:postgres@db:5432/postgres
+      - LAKEKEEPER__AUTHZ_BACKEND=openfga
+      - LAKEKEEPER__OPENFGA__ENDPOINT=http://openfga:8081
+    restart: "no"
+    command: [ "migrate" ]
+    depends_on:
+      db:
+        condition: service_healthy
+      openfga:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      iceberg_net:
+
+  db:
+    image: bitnami/postgresql:16.6.0
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -p 5432 -d postgres" ]
+      interval: 2s
+      timeout: 10s
+      retries: 2
+      start_period: 10s
+    volumes:
+      - volume-lakekeeper:/bitnami/postgresql
+    networks:
+      iceberg_net:
+  
+  openfga-db:
+    image: bitnami/postgresql:17.5.0
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -p 5432 -d postgres" ]
+      interval: 2s
+      timeout: 10s
+      retries: 2
+      start_period: 10s
+    networks:
+      iceberg_net:
+  
+  openfga-migrate:
+    image: openfga/openfga:v1.8
+    command: migrate
+    environment:
+      - OPENFGA_DATASTORE_ENGINE=postgres
+      - OPENFGA_DATASTORE_URI=postgres://postgres:postgres@openfga-db:5432/postgres?sslmode=disable
+    networks:
+      iceberg_net:
+    depends_on:
+      openfga-db:
+        condition: service_healthy
+
+  openfga:
+    depends_on:
+      openfga-db:
+        condition: service_healthy
+      openfga-migrate:
+        condition: service_completed_successfully
+    image: openfga/openfga:v1.8
+    command: run
+    environment:
+      - OPENFGA_DATASTORE_ENGINE=postgres
+      - OPENFGA_DATASTORE_URI=postgres://postgres:postgres@openfga-db:5432/postgres?sslmode=disable
+      - OPENFGA_DATASTORE_MAX_OPEN_CONNS=50
+      - OPENFGA_PLAYGROUND_ENABLED=false
+    networks:
+      iceberg_net:
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/usr/local/bin/grpc_health_probe",
+          "-addr=openfga:8081"
+        ]
+      interval: 5s
+      timeout: 30s
+      retries: 3
+  
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+    volumes:
+      - ./tests/keycloak-realm.json:/opt/keycloak/data/import/realm.json
+    healthcheck:
+      test: [ "CMD-SHELL", 'exec 3<>/dev/tcp/127.0.0.1/8080;echo -e "GET /realms/master/.well-known/openid-configuration HTTP/1.1\r\nhost: 127.0.0.1:8080\r\nConnection: close\r\n\r\n" >&3;grep "jwks_uri"  <&3' ]
+      interval: 2s
+      timeout: 10s
+      retries: 2
+      start_period: 60s
+    ports:
+      - "30080:8080"
+    command: [ "start-dev", "--metrics-enabled=true", "--health-enabled=true", "--import-realm", "--verbose", "--log-level=INFO", "--features=token-exchange" ]
+    networks:
+      iceberg_net:
+  
+  
+  minio:
+    image: bitnami/minio:2025.4.22
+    environment:
+      - MINIO_ROOT_USER=minio-root-user
+      - MINIO_ROOT_PASSWORD=minio-root-password
+      - MINIO_API_PORT_NUMBER=9000
+      - MINIO_CONSOLE_PORT_NUMBER=9001
+      - MINIO_SCHEME=http
+      - MINIO_DEFAULT_BUCKETS=testacc
+    healthcheck:
+      test: [ "CMD", "mc", "ls", "local", "|", "grep", "testacc" ]
+      interval: 2s
+      timeout: 10s
+      retries: 2
+      start_period: 15s
+    networks:
+      iceberg_net:
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+  
+
+networks:
+  iceberg_net:
+
+volumes:
+  volume-lakekeeper:

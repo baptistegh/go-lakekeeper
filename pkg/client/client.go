@@ -15,14 +15,13 @@ import (
 
 	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
+	"github.com/baptistegh/go-lakekeeper/pkg/version"
 	"github.com/google/go-querystring/query"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/go-retryablehttp"
 )
 
-const (
-	userAgent = "go-lakekeeper"
-)
+var userAgent = fmt.Sprintf("go-lakekeeper/%s", version.Version)
 
 type Client struct {
 	// HTTP client used to communicate with the API.
