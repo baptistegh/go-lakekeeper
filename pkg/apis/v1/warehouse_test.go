@@ -7,6 +7,7 @@ import (
 	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/apis/v1/storage/credential"
 	"github.com/baptistegh/go-lakekeeper/pkg/apis/v1/storage/profile"
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -245,13 +246,83 @@ func TestWarehouseService_Rename(t *testing.T) {
 }
 
 func TestWarehouseService_UpdateStorageProfile(t *testing.T) {
-	// TODO
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	sp, err := profile.NewGCSStorageSettings("test-bucket")
+	assert.NoError(t, err)
+
+	opts := &v1.UpdateStorageProfileOptions{
+		StorageCredential: nil,
+		StorageProfile:    sp.AsProfile(),
+	}
+
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/storage", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		if !testutil.TestBodyJSON(t, r, opts) {
+			t.Fatalf("error wrong body")
+		}
+	})
+
+	resp, err := client.WarehouseV1(projectID).UpdateStorageProfile(warehouseID, opts)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestWarehouseService_UpdateDeleteProfile(t *testing.T) {
-	// TODO
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	opts := v1.UpdateDeleteProfileOptions{
+		DeleteProfile: *profile.NewTabularDeleteProfileSoft(3600).AsProfile(),
+	}
+
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/delete-profile", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		if !testutil.TestBodyJSON(t, r, &opts) {
+			t.Fatalf("error wrong body")
+		}
+	})
+
+	resp, err := client.WarehouseV1(projectID).UpdateDeleteProfile(warehouseID, &opts)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestWarehouseService_UpdateStorageCredential(t *testing.T) {
-	// TODO
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	opts := v1.UpdateStorageCredentialOptions{
+		StorageCredential: core.Ptr(credential.NewGCSCredentialSystemIdentity().AsCredential()),
+	}
+
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/storage-credential", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		if !testutil.TestBodyJSON(t, r, &opts) {
+			t.Fatalf("error wrong body")
+		}
+	})
+
+	resp, err := client.WarehouseV1(projectID).UpdateStorageCredential(warehouseID, &opts)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
