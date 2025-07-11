@@ -210,7 +210,7 @@ func (s S3StorageSettings) MarshalJSON() ([]byte, error) {
 		Type string `json:"type"`
 		Alias
 	}{
-		Type:  "s3",
+		Type:  string(StorageFamilyS3),
 		Alias: Alias(s),
 	}
 	return json.Marshal(aux)

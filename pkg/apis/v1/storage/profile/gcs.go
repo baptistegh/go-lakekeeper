@@ -16,7 +16,7 @@ type GCSStorageSettings struct {
 type GCSStorageSettingsOptions func(*GCSStorageSettings) error
 
 func (sp *GCSStorageSettings) GetStorageFamily() StorageFamily {
-	return StorageFamilyADLS
+	return StorageFamilyGCS
 }
 
 // NewGCSStorageSettings creates a new GCS storage profile considering
@@ -54,7 +54,7 @@ func (s GCSStorageSettings) MarshalJSON() ([]byte, error) {
 		Type string `json:"type"`
 		Alias
 	}{
-		Type:  string(StorageFamilyADLS),
+		Type:  string(StorageFamilyGCS),
 		Alias: Alias(s),
 	}
 	return json.Marshal(aux)
