@@ -11,9 +11,9 @@ type AZCredentialSettings interface {
 type AZSCredentialType string
 
 const (
-	ClientCredentials   = "client-credentials"
-	SharedAccessKey     = "shared-access-key"
-	AzureSystemIdentity = "azure-system-identity"
+	ClientCredentials   AZSCredentialType = "client-credentials"
+	SharedAccessKey     AZSCredentialType = "shared-access-key"
+	AzureSystemIdentity AZSCredentialType = "azure-system-identity"
 )
 
 // verify implementations

@@ -32,7 +32,7 @@ type S3CredentialAccessKey struct {
 	AWSAccessKeyID string `json:"aws-access-key-id"`
 	// Secret key associated with the access key ID.
 	AWSSecretAccessKey string  `json:"aws-secret-access-key"`
-	ExternalID         *string `json:"external-id"`
+	ExternalID         *string `json:"external-id,omitempty"`
 }
 
 type S3CredentialAccessKeyOptions func(*S3CredentialAccessKey)
