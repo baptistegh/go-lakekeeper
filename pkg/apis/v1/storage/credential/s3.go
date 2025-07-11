@@ -35,22 +35,19 @@ type S3CredentialAccessKey struct {
 	ExternalID         *string `json:"external-id"`
 }
 
-type S3CredentialAccessKeyOptions func(*S3CredentialAccessKey) error
+type S3CredentialAccessKeyOptions func(*S3CredentialAccessKey)
 
-func NewS3CredentialAccessKey(accessKey, secretKey string, options ...S3CredentialAccessKeyOptions) (*S3CredentialAccessKey, error) {
+func NewS3CredentialAccessKey(accessKey, secretKey string, options ...S3CredentialAccessKeyOptions) *S3CredentialAccessKey {
 	s := S3CredentialAccessKey{
 		AWSAccessKeyID:     accessKey,
 		AWSSecretAccessKey: secretKey,
 	}
 
 	for _, v := range options {
-		err := v(&s)
-		if err != nil {
-			return nil, err
-		}
+		v(&s)
 	}
 
-	return &s, nil
+	return &s
 }
 
 type S3CredentialSystemIdentity struct {
@@ -87,9 +84,8 @@ func NewCloudflareR2Credential(accessKey, secretKey, accountID, token string) *C
 }
 
 func WithExternalID(externalID string) S3CredentialAccessKeyOptions {
-	return func(c *S3CredentialAccessKey) error {
+	return func(c *S3CredentialAccessKey) {
 		c.ExternalID = &externalID
-		return nil
 	}
 }
 
