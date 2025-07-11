@@ -13,7 +13,7 @@ type GCSStorageSettings struct {
 	KeyPrefix *string `json:"key-prefix,omitempty"`
 }
 
-type GCSStorageSettingsOptions func(*GCSStorageSettings) error
+type GCSStorageSettingsOptions func(*GCSStorageSettings)
 
 func (sp *GCSStorageSettings) GetStorageFamily() StorageFamily {
 	return StorageFamilyGCS
@@ -21,7 +21,7 @@ func (sp *GCSStorageSettings) GetStorageFamily() StorageFamily {
 
 // NewGCSStorageSettings creates a new GCS storage profile considering
 // the options given.
-func NewGCSStorageSettings(bucket string, opts ...GCSStorageSettingsOptions) (*GCSStorageSettings, error) {
+func NewGCSStorageSettings(bucket string, opts ...GCSStorageSettingsOptions) *GCSStorageSettings {
 	// Default configuration
 	profile := GCSStorageSettings{
 		Bucket: bucket,
@@ -29,18 +29,15 @@ func NewGCSStorageSettings(bucket string, opts ...GCSStorageSettingsOptions) (*G
 
 	// Apply options
 	for _, v := range opts {
-		if err := v(&profile); err != nil {
-			return nil, err
-		}
+		v(&profile)
 	}
 
-	return &profile, nil
+	return &profile
 }
 
 func WithGCSKeyPrefix(prefix string) GCSStorageSettingsOptions {
-	return func(sp *GCSStorageSettings) error {
+	return func(sp *GCSStorageSettings) {
 		sp.KeyPrefix = &prefix
-		return nil
 	}
 }
 

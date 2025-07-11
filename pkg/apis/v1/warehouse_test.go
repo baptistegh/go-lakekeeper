@@ -31,17 +31,13 @@ func TestWarehouseService_Get(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 	want := &v1.Warehouse{
-		ID:        warehouseID,
-		ProjectID: projectID,
-		Name:      "test-warehouse",
-		Protected: false,
-		Status:    v1.WarehouseStatusActive,
-		StorageProfile: profile.StorageProfile{
-			StorageSettings: &profile.S3StorageSettings{
-				Bucket: "test-bucket",
-			},
-		},
-		DeleteProfile: profile.NewTabularDeleteProfileHard().AsProfile(),
+		ID:             warehouseID,
+		ProjectID:      projectID,
+		Name:           "test-warehouse",
+		Protected:      false,
+		Status:         v1.WarehouseStatusActive,
+		StorageProfile: profile.NewS3StorageSettings("test-bucket", "eu-west-1").AsProfile(),
+		DeleteProfile:  profile.NewTabularDeleteProfileHard().AsProfile(),
 	}
 
 	assert.Equal(t, want, wh)
@@ -67,24 +63,20 @@ func TestWarehouseService_List(t *testing.T) {
 	want := &v1.ListWarehouseResponse{
 		Warehouses: []*v1.Warehouse{
 			{
-				ID:        "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
-				ProjectID: projectID,
-				Name:      "test-warehouse-1",
-				Protected: false,
-				Status:    v1.WarehouseStatusActive,
-				StorageProfile: profile.StorageProfile{
-					StorageSettings: &profile.S3StorageSettings{Bucket: "test-bucket-1"},
-				},
+				ID:             "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+				ProjectID:      projectID,
+				Name:           "test-warehouse-1",
+				Protected:      false,
+				Status:         v1.WarehouseStatusActive,
+				StorageProfile: profile.NewS3StorageSettings("test-bucket-1", "eu-west-1").AsProfile(),
 			},
 			{
-				ID:        "b5c3d2e1-f4a5-6b7c-8d9e-0f1a2b3c4d5e",
-				ProjectID: projectID,
-				Name:      "test-warehouse-2",
-				Protected: true,
-				Status:    v1.WarehouseStatusInactive,
-				StorageProfile: profile.StorageProfile{
-					StorageSettings: &profile.S3StorageSettings{Bucket: "test-bucket-2"},
-				},
+				ID:             "b5c3d2e1-f4a5-6b7c-8d9e-0f1a2b3c4d5e",
+				ProjectID:      projectID,
+				Name:           "test-warehouse-2",
+				Protected:      true,
+				Status:         v1.WarehouseStatusInactive,
+				StorageProfile: profile.NewS3StorageSettings("test-bucket-2", "eu-west-1").AsProfile(),
 			},
 		},
 	}
@@ -99,20 +91,14 @@ func TestWarehouseService_Create(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	sp := &profile.S3StorageSettings{
-		Bucket: "test-bucket",
-		Region: "eu-west-1",
-	}
+	sp := profile.NewS3StorageSettings("test-bucket", "eu-west-1").AsProfile()
 
-	sc := &credential.S3CredentialAccessKey{
-		AWSAccessKeyID:     "test-access-key",
-		AWSSecretAccessKey: "test-secret-key",
-	}
+	sc := credential.NewS3CredentialAccessKey("test-access-key", "test-secret-key").AsCredential()
 
 	opts := &v1.CreateWarehouseOptions{
 		Name:              "test-warehouse",
-		StorageProfile:    sp.AsProfile(),
-		StorageCredential: sc.AsCredential(),
+		StorageProfile:    sp,
+		StorageCredential: sc,
 	}
 
 	mux.HandleFunc("/management/v1/warehouse", func(w http.ResponseWriter, r *http.Request) {
@@ -252,12 +238,9 @@ func TestWarehouseService_UpdateStorageProfile(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	sp, err := profile.NewGCSStorageSettings("test-bucket")
-	assert.NoError(t, err)
-
 	opts := &v1.UpdateStorageProfileOptions{
 		StorageCredential: nil,
-		StorageProfile:    sp.AsProfile(),
+		StorageProfile:    profile.NewGCSStorageSettings("test-bucket").AsProfile(),
 	}
 
 	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/storage", func(w http.ResponseWriter, r *http.Request) {

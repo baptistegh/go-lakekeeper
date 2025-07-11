@@ -32,11 +32,11 @@ func (sp *ADLSStorageSettings) GetStorageFamily() StorageFamily {
 	return StorageFamilyADLS
 }
 
-type ADLSStorageSettingsOptions func(*ADLSStorageSettings) error
+type ADLSStorageSettingsOptions func(*ADLSStorageSettings)
 
 // NewADLSStorageSettings creates a new ADLS storage profile considering
 // the options given.
-func NewADLSStorageSettings(accountName, fs string, opts ...ADLSStorageSettingsOptions) (*ADLSStorageSettings, error) {
+func NewADLSStorageSettings(accountName, fs string, opts ...ADLSStorageSettingsOptions) *ADLSStorageSettings {
 	// Default configuration
 	profile := ADLSStorageSettings{
 		AccountName:             accountName,
@@ -48,47 +48,39 @@ func NewADLSStorageSettings(accountName, fs string, opts ...ADLSStorageSettingsO
 
 	// Apply options
 	for _, v := range opts {
-		if err := v(&profile); err != nil {
-			return nil, err
-		}
+		v(&profile)
 	}
 
-	return &profile, nil
+	return &profile
 }
 
 func WithADLSAlternativeProtocols() ADLSStorageSettingsOptions {
-	return func(sp *ADLSStorageSettings) error {
-		activated := true
-		sp.AllowAlternativeProtocols = &activated
-		return nil
+	return func(sp *ADLSStorageSettings) {
+		sp.AllowAlternativeProtocols = core.Ptr(true)
 	}
 }
 
 func WithAuthorityHost(host string) ADLSStorageSettingsOptions {
-	return func(sp *ADLSStorageSettings) error {
+	return func(sp *ADLSStorageSettings) {
 		sp.AuthorityHost = &host
-		return nil
 	}
 }
 
 func WithADLSKeyPrefix(prefix string) ADLSStorageSettingsOptions {
-	return func(sp *ADLSStorageSettings) error {
+	return func(sp *ADLSStorageSettings) {
 		sp.KeyPrefix = &prefix
-		return nil
 	}
 }
 
 func WithSASTokenValiditySeconds(seconds int64) ADLSStorageSettingsOptions {
-	return func(sp *ADLSStorageSettings) error {
+	return func(sp *ADLSStorageSettings) {
 		sp.SASTokenValiditySeconds = &seconds
-		return nil
 	}
 }
 
 func WithHost(host string) ADLSStorageSettingsOptions {
-	return func(sp *ADLSStorageSettings) error {
+	return func(sp *ADLSStorageSettings) {
 		sp.Host = &host
-		return nil
 	}
 }
 

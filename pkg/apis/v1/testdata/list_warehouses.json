@@ -8,7 +8,12 @@
             "status": "active",
             "storage-profile": {
                 "type": "s3",
-                "bucket": "test-bucket-1"
+                "bucket": "test-bucket-1",
+                "region": "eu-west-1",
+                "flavor": "aws",
+                "push-s3-delete-disabled": true,
+                "sts-token-validity-seconds": 3600,
+                "remote-signing-url-style": "auto"
             }
         },
         {
@@ -19,7 +24,12 @@
             "status": "inactive",
             "storage-profile": {
                 "type": "s3",
-                "bucket": "test-bucket-2"
+                "bucket": "test-bucket-2",
+                "region": "eu-west-1",
+                "flavor": "aws",
+                "push-s3-delete-disabled": true,
+                "sts-token-validity-seconds": 3600,
+                "remote-signing-url-style": "auto"
             }
         }
     ]

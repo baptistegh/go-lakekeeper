@@ -43,7 +43,7 @@ type GCSServiceKey struct {
 }
 
 func NewGCSCredentialServiceAccountKey(key GCSServiceKey) *GCSCredentialServiceAccountKey {
-	return &GCSCredentialServiceAccountKey{}
+	return &GCSCredentialServiceAccountKey{Key: key}
 }
 
 type GCSCredentialSystemIdentity struct{}
