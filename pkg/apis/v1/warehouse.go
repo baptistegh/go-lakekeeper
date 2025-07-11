@@ -94,6 +94,11 @@ func (s *WarehouseService) Get(id string, options ...core.RequestOptionFunc) (*W
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_warehouses
 type ListWarehouseOptions struct {
 	WarehouseStatus *WarehouseStatus `url:"warehouseStatus,omitempty"`
+
+	// Deprecated: This field will be removed in a future version.
+	// ProjectID should be obtained from the Service itself and is not intended to be used here.
+	// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
+	ProjectID *string `url:"projectId,omitempty"`
 }
 
 // listWarehouseResponse represents the response on list warehouses API action
@@ -110,6 +115,14 @@ type ListWarehouseResponse struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_warehouses
 func (s *WarehouseService) List(opts *ListWarehouseOptions, options ...core.RequestOptionFunc) (*ListWarehouseResponse, *http.Response, error) {
+	// This workaround will be removed once project-id is no longer required
+	// in the request by the API.
+	// https://github.com/lakekeeper/lakekeeper/issues/1234
+	if opts == nil {
+		opts = &ListWarehouseOptions{}
+	}
+	opts.ProjectID = &s.projectID
+
 	options = append(options, WithProject(s.projectID))
 
 	req, err := s.client.NewRequest(http.MethodGet, "/warehouse", opts, options)
@@ -132,7 +145,11 @@ func (s *WarehouseService) List(opts *ListWarehouseOptions, options ...core.Requ
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/create_warehouse
 type CreateWarehouseOptions struct {
-	Name              string                       `json:"warehouse-name"`
+	Name string `json:"warehouse-name"`
+	// Deprecated: This field will be removed in a future version.
+	// ProjectID should be obtained from the Service itself and is not intended to be used here.
+	// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
+	ProjectID         *string                      `json:"project-id,omitempty"`
 	StorageProfile    profile.StorageProfile       `json:"storage-profile"`
 	StorageCredential credential.StorageCredential `json:"storage-credential"`
 	DeleteProfile     *profile.DeleteProfile       `json:"delete-profile,omitempty"`
@@ -155,9 +172,13 @@ type CreateWarehouseResponse struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/create_warehouse
 func (s *WarehouseService) Create(opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error) {
+	// This workaround will be removed once project-id is no longer required
+	// in the request by the API.
+	// https://github.com/lakekeeper/lakekeeper/issues/1234
 	if opts == nil {
-		return nil, nil, errors.New("Create received empty options")
+		opts = &CreateWarehouseOptions{}
 	}
+	opts.ProjectID = &s.projectID
 
 	options = append(options, WithProject(s.projectID))
 
@@ -189,10 +210,6 @@ type RenameWarehouseOptions struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/rename_warehouse
 func (s *WarehouseService) Rename(id string, opts *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
-	if opts == nil {
-		return nil, errors.New("Rename received empty options")
-	}
-
 	options = append(options, WithProject(s.projectID))
 
 	req, err := s.client.NewRequest(http.MethodPost, fmt.Sprintf("/warehouse/%s/rename", id), opts, options)
