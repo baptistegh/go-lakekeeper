@@ -3,6 +3,8 @@ package profile
 import (
 	"encoding/json"
 	"errors"
+
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 )
 
 // S3StorageSettings represents the storage settings for a warehouse
@@ -75,7 +77,7 @@ type (
 
 const (
 	AWSFlavor      S3Flavor = "aws"
-	S3CompatFlavor S3Flavor = "s3"
+	S3CompatFlavor S3Flavor = "s3-compat"
 
 	AutoSigningURLStyle        RemoteSigningURLStyle = "auto"
 	PathSigningURLStyle        RemoteSigningURLStyle = "path-style"
@@ -93,9 +95,13 @@ type S3StorageSettingsOptions func(*S3StorageSettings) error
 func NewS3StorageSettings(bucket, region string, opts ...S3StorageSettingsOptions) (*S3StorageSettings, error) {
 	// Default configuration
 	profile := S3StorageSettings{
-		Bucket:     bucket,
-		Region:     region,
-		STSEnabled: false,
+		Bucket:                  bucket,
+		Region:                  region,
+		STSEnabled:              false,
+		Flavor:                  core.Ptr(AWSFlavor),
+		STSTokenValiditySeconds: core.Ptr(int64(3600)),
+		PushS3DeleteDisabled:    core.Ptr(true),
+		RemoteSigningURLStyle:   core.Ptr(AutoSigningURLStyle),
 	}
 
 	// Apply options
@@ -140,8 +146,7 @@ func WithEndpoint(endpoint string) S3StorageSettingsOptions {
 
 func WithS3AlternativeProtocols() S3StorageSettingsOptions {
 	return func(sp *S3StorageSettings) error {
-		activated := true
-		sp.AllowAlternativeProtocols = &activated
+		sp.AllowAlternativeProtocols = core.Ptr(true)
 		return nil
 	}
 }
@@ -169,8 +174,7 @@ func WithFlavor(flavor S3Flavor) S3StorageSettingsOptions {
 
 func WithPathStyleAccess() S3StorageSettingsOptions {
 	return func(sp *S3StorageSettings) error {
-		activated := true
-		sp.PathStyleAccess = &activated
+		sp.PathStyleAccess = core.Ptr(true)
 		return nil
 	}
 }

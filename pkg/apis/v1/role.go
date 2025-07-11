@@ -76,6 +76,10 @@ type ListRolesOptions struct {
 	Name      *string `url:"name,omitempty"`
 	PageToken *string `url:"pageToken,omitempty"`
 	PageSize  *string `url:"pageSize,omitempty"`
+	// Deprecated: This field will be removed in a future version.
+	// ProjectID should be obtained from the Service itself and is not intended to be used here.
+	// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
+	ProjectID *string `url:"projectId,omitempty"`
 }
 
 // ListRolesResponse represents a response from list_roles API endpoint.
@@ -92,6 +96,14 @@ type ListRolesResponse struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/list_roles
 func (s *RoleService) List(opts *ListRolesOptions, options ...core.RequestOptionFunc) (*ListRolesResponse, *http.Response, error) {
+	// This workaround will be removed once project-id is no longer required
+	// in the request by the API.
+	// https://github.com/lakekeeper/lakekeeper/issues/1234
+	if opts == nil {
+		opts = &ListRolesOptions{}
+	}
+	opts.ProjectID = &s.projectID
+
 	options = append(options, WithProject(s.projectID))
 
 	req, err := s.client.NewRequest(http.MethodGet, "/role", opts, options)
@@ -115,6 +127,10 @@ func (s *RoleService) List(opts *ListRolesOptions, options ...core.RequestOption
 type CreateRoleOptions struct {
 	Name        string  `json:"name"`
 	Description *string `json:"description"`
+	// Deprecated: This field will be removed in a future version.
+	// ProjectID should be obtained from the Service itself and is not intended to be used here.
+	// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
+	ProjectID *string `json:"project-id,omitempty"`
 }
 
 // Create creates a role with the specified name and description.
@@ -122,9 +138,13 @@ type CreateRoleOptions struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/create_role
 func (s *RoleService) Create(opts *CreateRoleOptions, options ...core.RequestOptionFunc) (*Role, *http.Response, error) {
+	// This workaround will be removed once project-id is no longer required
+	// in the request by the API.
+	// https://github.com/lakekeeper/lakekeeper/issues/1234
 	if opts == nil {
-		return nil, nil, errors.New("CreateRole needs options to create a role")
+		opts = &CreateRoleOptions{}
 	}
+	opts.ProjectID = &s.projectID
 
 	options = append(options, WithProject(s.projectID))
 

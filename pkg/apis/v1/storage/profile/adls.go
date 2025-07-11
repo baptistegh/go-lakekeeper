@@ -1,6 +1,10 @@
 package profile
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
+)
 
 // ADLSStorageSettings represents the storage settings for a warehouse
 // where data are stored on Azure Data Lake Storage.
@@ -35,8 +39,11 @@ type ADLSStorageSettingsOptions func(*ADLSStorageSettings) error
 func NewADLSStorageSettings(accountName, fs string, opts ...ADLSStorageSettingsOptions) (*ADLSStorageSettings, error) {
 	// Default configuration
 	profile := ADLSStorageSettings{
-		AccountName: accountName,
-		Filesystem:  fs,
+		AccountName:             accountName,
+		Filesystem:              fs,
+		AuthorityHost:           core.Ptr("https://login.microsoftonline.com"),
+		Host:                    core.Ptr("dfs.core.windows.net"),
+		SASTokenValiditySeconds: core.Ptr(int64(3600)),
 	}
 
 	// Apply options

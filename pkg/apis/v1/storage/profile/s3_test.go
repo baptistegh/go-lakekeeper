@@ -17,7 +17,7 @@ func TestS3StorageProfile_Marshal(t *testing.T) {
 		t.Fatalf("%v", err)
 	}
 
-	expected := `{"type":"s3","bucket":"bucket1","region":"eu-west-1","sts-enabled":false,"endpoint":"http://minio:9000/","key-prefix":"warehouse","path-style-access":true}`
+	expected := `{"type":"s3","bucket":"bucket1","region":"eu-west-1","sts-enabled":false,"endpoint":"http://minio:9000/","flavor":"aws","key-prefix":"warehouse","path-style-access":true,"push-s3-delete-disabled":true,"remote-signing-url-style":"auto","sts-token-validity-seconds":3600}`
 
 	b, err := json.Marshal(storageProfile)
 	if err != nil {
