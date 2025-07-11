@@ -14,6 +14,7 @@ import (
 	"time"
 
 	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	"github.com/baptistegh/go-lakekeeper/pkg/apis/v1/permission" // Import the permission package
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/version"
 	"github.com/google/go-querystring/query"
@@ -76,6 +77,10 @@ func (c *Client) RoleV1(projectID string) v1.RoleServiceInterface {
 
 func (c *Client) WarehouseV1(projectID string) v1.WarehouseServiceInterface {
 	return v1.NeWarehouseService(c, projectID)
+}
+
+func (c *Client) ServerPermissionV1() permission.ServerPermissionServiceInterface {
+	return c.ServerV1().ServerPermission()
 }
 
 // NewClient returns a new Lakekeeper API client.
