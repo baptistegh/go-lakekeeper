@@ -36,7 +36,7 @@ type ADLSStorageSettingsOptions func(*ADLSStorageSettings)
 
 // NewADLSStorageSettings creates a new ADLS storage profile considering
 // the options given.
-func NewADLSStorageSettings(accountName, fs string, opts ...ADLSStorageSettingsOptions) (*ADLSStorageSettings, error) {
+func NewADLSStorageSettings(accountName, fs string, opts ...ADLSStorageSettingsOptions) *ADLSStorageSettings {
 	// Default configuration
 	profile := ADLSStorageSettings{
 		AccountName:             accountName,
@@ -51,13 +51,12 @@ func NewADLSStorageSettings(accountName, fs string, opts ...ADLSStorageSettingsO
 		v(&profile)
 	}
 
-	return &profile, nil
+	return &profile
 }
 
 func WithADLSAlternativeProtocols() ADLSStorageSettingsOptions {
 	return func(sp *ADLSStorageSettings) {
-		activated := true
-		sp.AllowAlternativeProtocols = &activated
+		sp.AllowAlternativeProtocols = core.Ptr(true)
 	}
 }
 
