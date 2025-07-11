@@ -19,22 +19,20 @@ func TestWarehouse_Create_Default(t *testing.T) {
 
 	defaultPrj := "00000000-0000-0000-0000-000000000000"
 
-	sp, err := profile.NewS3StorageSettings(
+	sp := profile.NewS3StorageSettings(
 		"testacc",
 		"eu-local-1",
 		profile.WithPathStyleAccess(),
 		profile.WithEndpoint("http://minio:9000/"),
-	)
-	assert.NoError(t, err)
+	).AsProfile()
 
-	sc, err := credential.NewS3CredentialAccessKey("minio-root-user", "minio-root-password")
-	assert.NoError(t, err)
+	sc := credential.NewS3CredentialAccessKey("minio-root-user", "minio-root-password").AsCredential()
 
 	resp, r, err := client.WarehouseV1(defaultPrj).Create(
 		&v1.CreateWarehouseOptions{
 			Name:              "test",
-			StorageProfile:    sp.AsProfile(),
-			StorageCredential: sc.AsCredential(),
+			StorageProfile:    sp,
+			StorageCredential: sc,
 		},
 	)
 	assert.NoError(t, err)
@@ -55,7 +53,7 @@ func TestWarehouse_Create_Default(t *testing.T) {
 		ID:             resp.ID,
 		Name:           "test",
 		ProjectID:      "00000000-0000-0000-0000-000000000000",
-		StorageProfile: sp.AsProfile(),
+		StorageProfile: sp,
 		Status:         v1.WarehouseStatusActive,
 		DeleteProfile:  profile.NewTabularDeleteProfileHard().AsProfile(),
 		Protected:      false,
@@ -74,19 +72,15 @@ func TestWarehouse_Create_NewProject(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, p)
 
-	sp, err := profile.NewS3StorageSettings(
+	sp := profile.NewS3StorageSettings(
 		"testacc", "eu-local-1",
-		profile.WithPathStyleAccess(), profile.WithEndpoint("http://minio:9000/"))
-	assert.NoError(t, err)
-
-	sc, err := credential.NewS3CredentialAccessKey("minio-root-user", "minio-root-password")
-	assert.NoError(t, err)
+		profile.WithPathStyleAccess(), profile.WithEndpoint("http://minio:9000/")).AsProfile()
 
 	resp, r, err := client.WarehouseV1(p.ID).Create(
 		&v1.CreateWarehouseOptions{
 			Name:              "test",
-			StorageProfile:    sp.AsProfile(),
-			StorageCredential: sc.AsCredential(),
+			StorageProfile:    sp,
+			StorageCredential: credential.NewS3CredentialAccessKey("minio-root-user", "minio-root-password").AsCredential(),
 		},
 	)
 	assert.NoError(t, err)

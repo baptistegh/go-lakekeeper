@@ -6,7 +6,12 @@
     "status": "active",
     "storage-profile": {
         "type": "s3",
-        "bucket": "test-bucket"
+        "bucket": "test-bucket",
+        "region": "eu-west-1",
+        "flavor": "aws",
+        "push-s3-delete-disabled": true,
+        "sts-token-validity-seconds": 3600,
+        "remote-signing-url-style": "auto"
     },
     "delete-profile": {
         "type": "hard"

@@ -2,7 +2,6 @@ package profile
 
 import (
 	"encoding/json"
-	"errors"
 
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 )
@@ -88,11 +87,11 @@ func (sp *S3StorageSettings) GetStorageFamily() StorageFamily {
 	return StorageFamilyS3
 }
 
-type S3StorageSettingsOptions func(*S3StorageSettings) error
+type S3StorageSettingsOptions func(*S3StorageSettings)
 
 // NewS3StorageSettings creates a new S3 storage profile considering
 // the options given.
-func NewS3StorageSettings(bucket, region string, opts ...S3StorageSettingsOptions) (*S3StorageSettings, error) {
+func NewS3StorageSettings(bucket, region string, opts ...S3StorageSettingsOptions) *S3StorageSettings {
 	// Default configuration
 	profile := S3StorageSettings{
 		Bucket:                  bucket,
@@ -106,97 +105,81 @@ func NewS3StorageSettings(bucket, region string, opts ...S3StorageSettingsOption
 
 	// Apply options
 	for _, v := range opts {
-		if err := v(&profile); err != nil {
-			return nil, err
-		}
+		v(&profile)
 	}
 
-	return &profile, nil
+	return &profile
 }
 
-// WithSTSEnabled enable STS for the storage profile
-// stsRoleARN can be passed in order to select the correct role
-// or AssumeRoleARN will be used
-func WithSTSEnabled(stsRoleARN *string) S3StorageSettingsOptions {
-	return func(sp *S3StorageSettings) error {
-		if stsRoleARN == nil && sp.AssumeRoleARN == nil {
-			return errors.New("in order to activate STS, you must provider either STSRoleARN or AssumeRoleARN")
-		}
-		if stsRoleARN != nil {
-			sp.STSRoleARN = stsRoleARN
-		}
+func WithSTSEnabled() S3StorageSettingsOptions {
+	return func(sp *S3StorageSettings) {
 		sp.STSEnabled = true
-		return nil
+	}
+}
+
+func WithSTSRoleARN(stsRoleARN string) S3StorageSettingsOptions {
+	return func(sp *S3StorageSettings) {
+		sp.STSRoleARN = &stsRoleARN
 	}
 }
 
 func WithS3KeyPrefix(prefix string) S3StorageSettingsOptions {
-	return func(sp *S3StorageSettings) error {
+	return func(sp *S3StorageSettings) {
 		sp.KeyPrefix = &prefix
-		return nil
 	}
 }
 
 func WithEndpoint(endpoint string) S3StorageSettingsOptions {
-	return func(sp *S3StorageSettings) error {
+	return func(sp *S3StorageSettings) {
 		sp.Endpoint = &endpoint
-		return nil
 	}
 }
 
 func WithS3AlternativeProtocols() S3StorageSettingsOptions {
-	return func(sp *S3StorageSettings) error {
+	return func(sp *S3StorageSettings) {
 		sp.AllowAlternativeProtocols = core.Ptr(true)
-		return nil
 	}
 }
 
 func WithAssumeRoleARN(arn string) S3StorageSettingsOptions {
-	return func(sp *S3StorageSettings) error {
+	return func(sp *S3StorageSettings) {
 		sp.AssumeRoleARN = &arn
-		return nil
 	}
 }
 
 func WithAWSKMSKeyARN(arn string) S3StorageSettingsOptions {
-	return func(sp *S3StorageSettings) error {
+	return func(sp *S3StorageSettings) {
 		sp.AWSKMSKeyARN = &arn
-		return nil
 	}
 }
 
 func WithFlavor(flavor S3Flavor) S3StorageSettingsOptions {
-	return func(sp *S3StorageSettings) error {
+	return func(sp *S3StorageSettings) {
 		sp.Flavor = &flavor
-		return nil
 	}
 }
 
 func WithPathStyleAccess() S3StorageSettingsOptions {
-	return func(sp *S3StorageSettings) error {
+	return func(sp *S3StorageSettings) {
 		sp.PathStyleAccess = core.Ptr(true)
-		return nil
 	}
 }
 
 func WithPushS3DeleteDisabled(active bool) S3StorageSettingsOptions {
-	return func(sp *S3StorageSettings) error {
+	return func(sp *S3StorageSettings) {
 		sp.PushS3DeleteDisabled = &active
-		return nil
 	}
 }
 
 func WithRemoteSigningURLStyle(style RemoteSigningURLStyle) S3StorageSettingsOptions {
-	return func(sp *S3StorageSettings) error {
+	return func(sp *S3StorageSettings) {
 		sp.RemoteSigningURLStyle = &style
-		return nil
 	}
 }
 
 func WithSTSTokenValiditySeconds(seconds int64) S3StorageSettingsOptions {
-	return func(sp *S3StorageSettings) error {
+	return func(sp *S3StorageSettings) {
 		sp.STSTokenValiditySeconds = &seconds
-		return nil
 	}
 }
 
