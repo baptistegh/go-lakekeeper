@@ -12,16 +12,47 @@ import (
 
 type (
 	WarehouseServiceInterface interface {
-		Get(id string, options ...core.RequestOptionFunc) (*Warehouse, *http.Response, error)
+		// TODO: implement missing API endpoints
+		// ListSoftDeletedTabulard()
+		// UndropTabular
+		// GetNamespaceProtection
+		// SetNamespaceProtection
+		// GetStatistics
+		// GetTableProtection
+		// SetTableProtection
+		// GetViewProtection
+		// SetViewProtection
+		// GetTaskQueueConfig (expiration)
+		// SetTaskQueueConfig (expiration)
+		// GetTaskQueueConfig (purge)
+		// SetTaskQueueConfig (purge)
+
+		// Returns all warehouses in the project that the current user has access to.
+		// By default, deactivated warehouses are not included in the results.
 		List(opts *ListWarehouseOptions, options ...core.RequestOptionFunc) (*ListWarehouseResponse, *http.Response, error)
+		// Creates a new warehouse in the specified project with the provided configuration.
+		// The project of a warehouse cannot be changed after creation.
+		// This operation validates the storage configuration.
 		Create(opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error)
+		// Retrieves detailed information about a specific warehouse.
+		Get(id string, options ...core.RequestOptionFunc) (*Warehouse, *http.Response, error)
+		// Permanently removes a warehouse and all its associated resources.
+		// Use the force parameter to delete protected warehouses.
 		Delete(id string, opts *DeleteWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
-		SetProtection(id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error)
+		// Re-enables access to a previously deactivated warehouse.
 		Activate(id string, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Temporarily disables access to a warehouse without deleting its data.
 		Deactivate(id string, options ...core.RequestOptionFunc) (*http.Response, error)
-		Rename(id string, opts *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
-		UpdateStorageProfile(id string, opts *UpdateStorageProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Configures the soft-delete behavior for a warehouse.
 		UpdateDeleteProfile(id string, opts *UpdateDeleteProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Configures whether a warehouse should be protected from deletion.
+		SetProtection(id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error)
+		// Updates the name of a specific warehouse.
+		Rename(id string, opts *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Updates both the storage profile and credentials of a warehouse.
+		UpdateStorageProfile(id string, opts *UpdateStorageProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Updates only the storage credential of a warehouse without modifying the storage profile.
+		// Useful for refreshing expiring credentials.
 		UpdateStorageCredential(id string, opts *UpdateStorageCredentialOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 

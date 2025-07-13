@@ -9,10 +9,18 @@ import (
 
 type (
 	RoleServiceInterface interface {
+		// TODO: implement missing endpoint
+		// Search()
+
+		// Returns all roles in the project that the current user has access to view.
 		List(opts *ListRolesOptions, options ...core.RequestOptionFunc) (*ListRolesResponse, *http.Response, error)
+		// Retrieves detailed information about a specific role.
 		Get(id string, options ...core.RequestOptionFunc) (*Role, *http.Response, error)
+		// Creates a role with the specified name, description, and permissions.
 		Create(opts *CreateRoleOptions, options ...core.RequestOptionFunc) (*Role, *http.Response, error)
+		// Updates a role
 		Update(id string, opts *UpdateRoleOptions, options ...core.RequestOptionFunc) (*Role, *http.Response, error)
+		// Permanently removes a role and all its associated permissions.
 		Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
