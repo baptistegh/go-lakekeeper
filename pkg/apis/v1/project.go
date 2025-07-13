@@ -9,11 +9,24 @@ import (
 
 type (
 	ProjectServiceInterface interface {
-		List(options ...core.RequestOptionFunc) (*ListProjectsResponse, *http.Response, error)
-		Get(id string, options ...core.RequestOptionFunc) (*Project, *http.Response, error)
-		Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error)
+		// TODO: implement missing endpoints
+		// DeleteDefault
+		// RenameDefault
+		// GetAPIStatistics
+
+		// Retrieves information about the user's default project.
+		// Deprecated: This endpoint is deprecated and will be removed in a future version.
+		// TODO: rename Default to GetDefault
 		Default(options ...core.RequestOptionFunc) (*Project, *http.Response, error)
+		// Retrieves information about a project.
+		Get(id string, options ...core.RequestOptionFunc) (*Project, *http.Response, error)
+		// Creates a new project with the specified configuration.
 		Create(opts *CreateProjectOptions, options ...core.RequestOptionFunc) (*CreateProjectResponse, *http.Response, error)
+		// Deletes a project.
+		Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Lists all projects that the requesting user has access to.
+		List(options ...core.RequestOptionFunc) (*ListProjectsResponse, *http.Response, error)
+		// Renames a project.
 		Rename(id string, opts *RenameProjectOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
@@ -61,7 +74,7 @@ func (s *ProjectService) Get(id string, options ...core.RequestOptionFunc) (*Pro
 	return &prj, resp, nil
 }
 
-// GetDefaultProject retrieves information about the user's default project.
+// Default retrieves information about the user's default project.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/get_default_project

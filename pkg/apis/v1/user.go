@@ -8,9 +8,20 @@ import (
 
 type (
 	UserServiceInterface interface {
-		Get(id string, options ...core.RequestOptionFunc) (*User, *http.Response, error)
-		Whoami(options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		// TODO: implement missing endpoints
+		// Search()
+		// List()
+		// Replace()
+
+		// Creates a new user or updates an existing user's metadata from the provided token.
+		// The token should include "profile" and "email" scopes for complete user information.
 		Provision(opts *ProvisionUserOptions, options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		// Retrieves detailed information about a specific user.
+		Get(id string, options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		// Returns information about the user associated with the current authentication token.
+		Whoami(options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		// Permanently removes a user and all their associated permissions.
+		// If the user is re-registered later, their permissions will need to be re-added.
 		Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
