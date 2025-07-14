@@ -31,6 +31,28 @@ func TestProjectService_Get(t *testing.T) {
 	assert.Equal(t, want, project)
 }
 
+func TestProjectService_GetDefault(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	mux.HandleFunc("/management/v1/default-project", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestHeader(t, r, "x-project-id", "")
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_project.json")
+	})
+
+	project, resp, err := client.ProjectV1().GetDefault()
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	want := &managementv1.Project{
+		ID:   "01f2fdfc-81fc-444d-8368-5b6701566e35",
+		Name: "test-project",
+	}
+
+	assert.Equal(t, want, project)
+}
+
 func TestProjectService_List(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
