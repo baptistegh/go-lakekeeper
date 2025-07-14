@@ -13,3 +13,12 @@ const (
 func WithProject(id string) core.RequestOptionFunc {
 	return core.WithHeader(ProjectIDHeader, id)
 }
+
+type ListOptions struct {
+	PageToken *string `url:"pageToken,omitempty"`
+	PageSize  *int64  `url:"pageSize,omitempty"`
+}
+
+type ListResponse struct {
+	NextPageToken *string `json:"next-page-token,omitempty"`
+}

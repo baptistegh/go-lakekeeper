@@ -130,13 +130,13 @@ func (s *RoleService) Search(opts *SearchRoleOptions, options ...core.RequestOpt
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/create_project
 type ListRolesOptions struct {
-	Name      *string `url:"name,omitempty"`
-	PageToken *string `url:"pageToken,omitempty"`
-	PageSize  *string `url:"pageSize,omitempty"`
+	Name *string `url:"name,omitempty"`
 	// Deprecated: This field will be removed in a future version.
 	// ProjectID should be obtained from the Service itself and is not intended to be used here.
 	// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
 	ProjectID *string `url:"projectId,omitempty"`
+
+	ListOptions `url:",inline"` // Embed ListOptions for pagination support
 }
 
 // ListRolesResponse represents a response from list_roles API endpoint.
@@ -144,8 +144,9 @@ type ListRolesOptions struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/list_roles
 type ListRolesResponse struct {
-	NextPageToken *string `json:"next-page-token,omitempty"`
-	Roles         []*Role `json:"roles"`
+	Roles []*Role `json:"roles"`
+
+	ListResponse `json:",inline"` // Embed ListResponse for pagination support
 }
 
 // List returns all roles in the project that the current user has access to view.
