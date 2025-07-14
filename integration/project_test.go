@@ -41,6 +41,7 @@ func TestProject_Rename(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
+	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusCreated, r.StatusCode)
 	assert.NotEmpty(t, resp.ID)
 
@@ -60,6 +61,33 @@ func TestProject_Rename(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
 	project, r, err := client.ProjectV1().Get(resp.ID)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+	assert.Equal(t, "test-project-renamed", project.Name)
+}
+
+func TestProject_RenameDefault(t *testing.T) {
+	client := Setup(t)
+
+	t.Cleanup(func() {
+		r, err := client.ProjectV1().RenameDefault(&managementv1.RenameProjectOptions{
+			NewName: "Default Project",
+		})
+		if err != nil {
+			t.Fatalf("could not rename default project, %v", err)
+		}
+		assert.Equal(t, http.StatusOK, r.StatusCode)
+	})
+
+	r, err := client.ProjectV1().RenameDefault(&managementv1.RenameProjectOptions{
+		NewName: "test-project-renamed",
+	})
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+
+	project, r, err := client.ProjectV1().GetDefault()
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
