@@ -82,6 +82,50 @@ func TestProjectService_List(t *testing.T) {
 	assert.Equal(t, want, project)
 }
 
+func TestProjectService_RenameDefault(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	opts := &managementv1.RenameProjectOptions{
+		NewName: "project-renamed",
+	}
+
+	mux.HandleFunc("/management/v1/default-project/rename", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		if !testutil.TestBodyJSON(t, r, opts) {
+			t.Fatalf("wrong json body")
+		}
+	})
+
+	resp, err := client.ProjectV1().RenameDefault(opts)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestProjectService_Rename(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	opts := &managementv1.RenameProjectOptions{
+		NewName: "project-renamed",
+	}
+
+	mux.HandleFunc("/management/v1/project/rename", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", "01f2fdfc-81fc-444d-8368-5b6701566e35")
+		if !testutil.TestBodyJSON(t, r, opts) {
+			t.Fatalf("wrong json body")
+		}
+	})
+
+	resp, err := client.ProjectV1().Rename("01f2fdfc-81fc-444d-8368-5b6701566e35", opts)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestProjectService_Delete(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
@@ -93,6 +137,21 @@ func TestProjectService_Delete(t *testing.T) {
 	})
 
 	resp, err := client.ProjectV1().Delete("01f2fdfc-81fc-444d-8368-5b6701566e35")
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+}
+
+func TestProjectService_DeleteDefault(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	mux.HandleFunc("/management/v1/default-project", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodDelete)
+		testutil.TestHeader(t, r, "x-project-id", "")
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	resp, err := client.ProjectV1().DeleteDefault()
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 }
