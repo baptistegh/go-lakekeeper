@@ -16,8 +16,7 @@ type (
 
 		// Retrieves information about the user's default project.
 		// Deprecated: This endpoint is deprecated and will be removed in a future version.
-		// TODO: rename Default to GetDefault
-		Default(options ...core.RequestOptionFunc) (*Project, *http.Response, error)
+		GetDefault(options ...core.RequestOptionFunc) (*Project, *http.Response, error)
 		// Retrieves information about a project.
 		Get(id string, options ...core.RequestOptionFunc) (*Project, *http.Response, error)
 		// Creates a new project with the specified configuration.
@@ -80,7 +79,7 @@ func (s *ProjectService) Get(id string, options ...core.RequestOptionFunc) (*Pro
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/get_default_project
 //
 // Deprecated: This endpoint is deprecated and will be removed in a future version.
-func (s *ProjectService) Default(options ...core.RequestOptionFunc) (*Project, *http.Response, error) {
+func (s *ProjectService) GetDefault(options ...core.RequestOptionFunc) (*Project, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "/default-project", nil, options)
 	if err != nil {
 		return nil, nil, err

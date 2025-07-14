@@ -69,7 +69,7 @@ func TestProject_Rename(t *testing.T) {
 func TestProject_Default(t *testing.T) {
 	client := Setup(t)
 
-	project, r, err := client.ProjectV1().Default()
+	project, r, err := client.ProjectV1().GetDefault()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
