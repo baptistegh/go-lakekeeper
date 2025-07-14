@@ -90,7 +90,7 @@ func (w *Warehouse) IsActive() bool {
 	return w.Status == WarehouseStatusActive
 }
 
-func NeWarehouseService(client core.Client, projectID string) WarehouseServiceInterface {
+func NewWarehouseService(client core.Client, projectID string) WarehouseServiceInterface {
 	return &WarehouseService{
 		projectID: projectID,
 		client:    client,

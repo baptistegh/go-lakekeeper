@@ -14,6 +14,7 @@ import (
 	"time"
 
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
+	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/version"
 	"github.com/google/go-querystring/query"
@@ -58,24 +59,34 @@ type Client struct {
 
 var _ core.Client = (*Client)(nil)
 
+// ServerV1 return a new ServerService for servers v1 management
 func (c *Client) ServerV1() managementv1.ServerServiceInterface {
 	return managementv1.NewServerService(c)
 }
 
+// ProjectV1 return a new ProjectService for projects v1 management
 func (c *Client) ProjectV1() managementv1.ProjectServiceInterface {
 	return managementv1.NewProjectService(c)
 }
 
+// UserV1 return a new UserService for users v1 management
 func (c *Client) UserV1() managementv1.UserServiceInterface {
 	return managementv1.NewUserService(c)
 }
 
+// RoleV1 return a new RoleService for roles v1 management
 func (c *Client) RoleV1(projectID string) managementv1.RoleServiceInterface {
 	return managementv1.NewRoleService(c, projectID)
 }
 
+// WarehouseV1 return a new Warehouse for warehouses v1 management
 func (c *Client) WarehouseV1(projectID string) managementv1.WarehouseServiceInterface {
-	return managementv1.NeWarehouseService(c, projectID)
+	return managementv1.NewWarehouseService(c, projectID)
+}
+
+// PermissionV1 return a new PermissionService for permissions v1 management
+func (c *Client) PermissionV1() permissionv1.PermissionServiceInterface {
+	return permissionv1.NewPermissionService(c)
 }
 
 // NewClient returns a new Lakekeeper API client.
@@ -136,13 +147,10 @@ func NewAuthSourceClient(as core.AuthSource, baseURL string, options ...ClientOp
 			return
 		}
 
-		isOperator := true
-		userType := managementv1.ApplicationUserType
-
 		bootstrapOpts := managementv1.BootstrapServerOptions{
 			AcceptTermsOfUse: true,
-			IsOperator:       &isOperator,
-			UserType:         &userType,
+			IsOperator:       core.Ptr(false),
+			UserType:         core.Ptr(managementv1.ApplicationUserType),
 		}
 		_, err = c.ServerV1().Bootstrap(&bootstrapOpts)
 	})
