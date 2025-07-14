@@ -7,14 +7,14 @@ import (
 	"net/http"
 	"testing"
 
-	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestProject_Create(t *testing.T) {
 	client := Setup(t)
 
-	resp, r, err := client.ProjectV1().Create(&v1.CreateProjectOptions{
+	resp, r, err := client.ProjectV1().Create(&managementv1.CreateProjectOptions{
 		Name: "test-project",
 	})
 
@@ -35,7 +35,7 @@ func TestProject_Create(t *testing.T) {
 func TestProject_Rename(t *testing.T) {
 	client := Setup(t)
 
-	resp, r, err := client.ProjectV1().Create(&v1.CreateProjectOptions{
+	resp, r, err := client.ProjectV1().Create(&managementv1.CreateProjectOptions{
 		Name: "test-project-2",
 	})
 
@@ -52,7 +52,7 @@ func TestProject_Rename(t *testing.T) {
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 	})
 
-	r, err = client.ProjectV1().Rename(resp.ID, &v1.RenameProjectOptions{
+	r, err = client.ProjectV1().Rename(resp.ID, &managementv1.RenameProjectOptions{
 		NewName: "test-project-renamed",
 	})
 
@@ -82,7 +82,7 @@ func TestProject_Default(t *testing.T) {
 func TestProject_Delete(t *testing.T) {
 	client := Setup(t)
 
-	project, r, err := client.ProjectV1().Create(&v1.CreateProjectOptions{
+	project, r, err := client.ProjectV1().Create(&managementv1.CreateProjectOptions{
 		Name: "test-project-3",
 	})
 
@@ -110,8 +110,8 @@ func TestProject_List(t *testing.T) {
 
 	resp, r, err := client.ProjectV1().List()
 
-	want := &v1.ListProjectsResponse{
-		Projects: []*v1.Project{
+	want := &managementv1.ListProjectsResponse{
+		Projects: []*managementv1.Project{
 			{
 				ID:   "00000000-0000-0000-0000-000000000000",
 				Name: "Default Project",

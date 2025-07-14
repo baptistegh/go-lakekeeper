@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -22,7 +22,7 @@ func TestServerService_Info(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
-	want := &v1.ServerInfo{
+	want := &managementv1.ServerInfo{
 		AuthzBackend:                 "openfga",
 		Bootstrapped:                 true,
 		DefaultProjectID:             "01f2fdfc-81fc-444d-8368-5b6701566e35",
@@ -41,7 +41,7 @@ func TestServerService_Bootstrap(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
-	opts := &v1.BootstrapServerOptions{AcceptTermsOfUse: true}
+	opts := &managementv1.BootstrapServerOptions{AcceptTermsOfUse: true}
 
 	mux.HandleFunc("/management/v1/bootstrap", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)

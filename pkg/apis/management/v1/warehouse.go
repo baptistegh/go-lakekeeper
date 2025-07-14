@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/baptistegh/go-lakekeeper/pkg/apis/v1/storage/credential"
-	"github.com/baptistegh/go-lakekeeper/pkg/apis/v1/storage/profile"
+	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/credential"
+	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/profile"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 )
 

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
@@ -26,11 +26,11 @@ func TestUserService_Get(t *testing.T) {
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	want := &v1.User{
+	want := &managementv1.User{
 		ID:              userID,
 		Name:            "test-user",
 		Email:           core.Ptr("test@example.com"),
-		UserType:        v1.HumanUserType,
+		UserType:        managementv1.HumanUserType,
 		CreatedAt:       "2019-08-24T14:15:22Z",
 		UpdatedAt:       core.Ptr("2019-08-24T14:15:22Z"),
 		LastUpdatedWith: "create-endpoint",
@@ -53,11 +53,11 @@ func TestUserService_Whoami(t *testing.T) {
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	want := &v1.User{
+	want := &managementv1.User{
 		ID:              "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
 		Name:            "test-user",
 		Email:           core.Ptr("test@example.com"),
-		UserType:        v1.HumanUserType,
+		UserType:        managementv1.HumanUserType,
 		CreatedAt:       "2019-08-24T14:15:22Z",
 		UpdatedAt:       core.Ptr("2019-08-24T14:15:22Z"),
 		LastUpdatedWith: "create-endpoint",
@@ -71,11 +71,11 @@ func TestUserService_Provision(t *testing.T) {
 
 	mux, client := testutil.ServerMux(t)
 
-	opts := v1.ProvisionUserOptions{
+	opts := managementv1.ProvisionUserOptions{
 		ID:             core.Ptr("a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"),
 		Email:          core.Ptr("test@example.com"),
 		Name:           core.Ptr("test-user"),
-		UserType:       core.Ptr(v1.HumanUserType),
+		UserType:       core.Ptr(managementv1.HumanUserType),
 		UpdateIfExists: core.Ptr(true),
 	}
 
@@ -88,11 +88,11 @@ func TestUserService_Provision(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_user.json")
 	})
 
-	want := &v1.User{
+	want := &managementv1.User{
 		ID:              "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
 		Email:           core.Ptr("test@example.com"),
 		Name:            "test-user",
-		UserType:        v1.HumanUserType,
+		UserType:        managementv1.HumanUserType,
 		CreatedAt:       "2019-08-24T14:15:22Z",
 		UpdatedAt:       core.Ptr("2019-08-24T14:15:22Z"),
 		LastUpdatedWith: "create-endpoint",

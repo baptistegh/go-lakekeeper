@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"testing"
 
-	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
-	"github.com/baptistegh/go-lakekeeper/pkg/apis/v1/storage/credential"
-	"github.com/baptistegh/go-lakekeeper/pkg/apis/v1/storage/profile"
+	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
+	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/credential"
+	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/profile"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
@@ -30,12 +30,12 @@ func TestWarehouseService_Get(t *testing.T) {
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	want := &v1.Warehouse{
+	want := &managementv1.Warehouse{
 		ID:             warehouseID,
 		ProjectID:      projectID,
 		Name:           "test-warehouse",
 		Protected:      false,
-		Status:         v1.WarehouseStatusActive,
+		Status:         managementv1.WarehouseStatusActive,
 		StorageProfile: profile.NewS3StorageSettings("test-bucket", "eu-west-1").AsProfile(),
 		DeleteProfile:  profile.NewTabularDeleteProfileHard().AsProfile(),
 	}
@@ -60,14 +60,14 @@ func TestWarehouseService_List(t *testing.T) {
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	want := &v1.ListWarehouseResponse{
-		Warehouses: []*v1.Warehouse{
+	want := &managementv1.ListWarehouseResponse{
+		Warehouses: []*managementv1.Warehouse{
 			{
 				ID:             "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
 				ProjectID:      projectID,
 				Name:           "test-warehouse-1",
 				Protected:      false,
-				Status:         v1.WarehouseStatusActive,
+				Status:         managementv1.WarehouseStatusActive,
 				StorageProfile: profile.NewS3StorageSettings("test-bucket-1", "eu-west-1").AsProfile(),
 			},
 			{
@@ -75,7 +75,7 @@ func TestWarehouseService_List(t *testing.T) {
 				ProjectID:      projectID,
 				Name:           "test-warehouse-2",
 				Protected:      true,
-				Status:         v1.WarehouseStatusInactive,
+				Status:         managementv1.WarehouseStatusInactive,
 				StorageProfile: profile.NewS3StorageSettings("test-bucket-2", "eu-west-1").AsProfile(),
 			},
 		},
@@ -95,7 +95,7 @@ func TestWarehouseService_Create(t *testing.T) {
 
 	sc := credential.NewS3CredentialAccessKey("test-access-key", "test-secret-key").AsCredential()
 
-	opts := &v1.CreateWarehouseOptions{
+	opts := &managementv1.CreateWarehouseOptions{
 		Name:              "test-warehouse",
 		StorageProfile:    sp,
 		StorageCredential: sc,
@@ -111,7 +111,7 @@ func TestWarehouseService_Create(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/create_warehouse.json")
 	})
 
-	want := &v1.CreateWarehouseResponse{
+	want := &managementv1.CreateWarehouseResponse{
 		ID: warehouseID,
 	}
 
@@ -212,7 +212,7 @@ func TestWarehouseService_Rename(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	opts := &v1.RenameWarehouseOptions{
+	opts := &managementv1.RenameWarehouseOptions{
 		NewName: "new-name",
 	}
 
@@ -238,7 +238,7 @@ func TestWarehouseService_UpdateStorageProfile(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	opts := &v1.UpdateStorageProfileOptions{
+	opts := &managementv1.UpdateStorageProfileOptions{
 		StorageCredential: nil,
 		StorageProfile:    profile.NewGCSStorageSettings("test-bucket").AsProfile(),
 	}
@@ -265,7 +265,7 @@ func TestWarehouseService_UpdateDeleteProfile(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	opts := v1.UpdateDeleteProfileOptions{
+	opts := managementv1.UpdateDeleteProfileOptions{
 		DeleteProfile: *profile.NewTabularDeleteProfileSoft(3600).AsProfile(),
 	}
 
@@ -291,7 +291,7 @@ func TestWarehouseService_UpdateStorageCredential(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	opts := v1.UpdateStorageCredentialOptions{
+	opts := managementv1.UpdateStorageCredentialOptions{
 		StorageCredential: core.Ptr(credential.NewGCSCredentialSystemIdentity().AsCredential()),
 	}
 

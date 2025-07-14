@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -23,7 +23,7 @@ func TestNewClient(t *testing.T) {
 			t.Fatalf("Failed to create client: %v", err)
 		}
 
-		expectedBaseURL := "http://localhost:8080" + v1.ApiManagementVersionPath
+		expectedBaseURL := "http://localhost:8080" + managementv1.ApiManagementVersionPath
 
 		if c.BaseURL().String() != expectedBaseURL {
 			t.Errorf("NewClient BaseURL is %s, want %s", c.BaseURL().String(), expectedBaseURL)
@@ -40,7 +40,7 @@ func TestNewClient(t *testing.T) {
 			t.Fatalf("Failed to create client: %v", err)
 		}
 
-		expectedBaseURL := "http://localhost:8080" + v1.ApiManagementVersionPath
+		expectedBaseURL := "http://localhost:8080" + managementv1.ApiManagementVersionPath
 
 		if c.BaseURL().String() != expectedBaseURL {
 			t.Errorf("NewClient BaseURL is %s, want %s", c.BaseURL().String(), expectedBaseURL)
