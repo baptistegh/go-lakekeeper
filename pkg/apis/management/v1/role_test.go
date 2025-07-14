@@ -172,3 +172,45 @@ func TestRoleService_List(t *testing.T) {
 
 	assert.Equal(t, &want, roles)
 }
+
+func TestRoleService_Search(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+
+	opts := &managementv1.SearchRoleOptions{
+		Search: "test-role",
+	}
+
+	mux.HandleFunc("/management/v1/search/role", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		if !testutil.TestBodyJSON(t, r, opts) {
+			t.Fatalf("wrong json body")
+		}
+		testutil.MustWriteHTTPResponse(t, w, "testdata/search_roles.json")
+	})
+
+	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	r := &managementv1.Role{
+		ID:          roleID,
+		ProjectID:   projectID,
+		Name:        "test-role",
+		Description: core.Ptr("description of the role"),
+		CreatedAt:   "2019-08-24T14:15:22Z",
+		UpdatedAt:   core.Ptr("2019-08-24T14:15:22Z"),
+	}
+
+	want := managementv1.SearchRoleResponse{
+		Roles: []*managementv1.Role{r, r},
+	}
+
+	roles, resp, err := client.RoleV1(projectID).Search(opts)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+	assert.Equal(t, &want, roles)
+}
