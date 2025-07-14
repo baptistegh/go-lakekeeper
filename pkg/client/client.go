@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/version"
 	"github.com/google/go-querystring/query"
@@ -58,24 +58,24 @@ type Client struct {
 
 var _ core.Client = (*Client)(nil)
 
-func (c *Client) ServerV1() v1.ServerServiceInterface {
-	return v1.NewServerService(c)
+func (c *Client) ServerV1() managementv1.ServerServiceInterface {
+	return managementv1.NewServerService(c)
 }
 
-func (c *Client) ProjectV1() v1.ProjectServiceInterface {
-	return v1.NewProjectService(c)
+func (c *Client) ProjectV1() managementv1.ProjectServiceInterface {
+	return managementv1.NewProjectService(c)
 }
 
-func (c *Client) UserV1() v1.UserServiceInterface {
-	return v1.NewUserService(c)
+func (c *Client) UserV1() managementv1.UserServiceInterface {
+	return managementv1.NewUserService(c)
 }
 
-func (c *Client) RoleV1(projectID string) v1.RoleServiceInterface {
-	return v1.NewRoleService(c, projectID)
+func (c *Client) RoleV1(projectID string) managementv1.RoleServiceInterface {
+	return managementv1.NewRoleService(c, projectID)
 }
 
-func (c *Client) WarehouseV1(projectID string) v1.WarehouseServiceInterface {
-	return v1.NeWarehouseService(c, projectID)
+func (c *Client) WarehouseV1(projectID string) managementv1.WarehouseServiceInterface {
+	return managementv1.NeWarehouseService(c, projectID)
 }
 
 // NewClient returns a new Lakekeeper API client.
@@ -126,7 +126,7 @@ func NewAuthSourceClient(as core.AuthSource, baseURL string, options ...ClientOp
 			return
 		}
 
-		var info *v1.ServerInfo
+		var info *managementv1.ServerInfo
 		info, _, err = c.ServerV1().Info()
 		if err != nil {
 			return
@@ -137,9 +137,9 @@ func NewAuthSourceClient(as core.AuthSource, baseURL string, options ...ClientOp
 		}
 
 		isOperator := true
-		userType := v1.ApplicationUserType
+		userType := managementv1.ApplicationUserType
 
-		bootstrapOpts := v1.BootstrapServerOptions{
+		bootstrapOpts := managementv1.BootstrapServerOptions{
 			AcceptTermsOfUse: true,
 			IsOperator:       &isOperator,
 			UserType:         &userType,
@@ -173,8 +173,8 @@ func (c *Client) setBaseURL(urlStr string) error {
 		return err
 	}
 
-	if !strings.HasSuffix(baseURL.Path, v1.ApiManagementVersionPath) {
-		baseURL.Path += v1.ApiManagementVersionPath
+	if !strings.HasSuffix(baseURL.Path, managementv1.ApiManagementVersionPath) {
+		baseURL.Path += managementv1.ApiManagementVersionPath
 	}
 
 	// Update the base URL of the client.

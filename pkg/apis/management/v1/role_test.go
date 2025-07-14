@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +27,7 @@ func TestRoleService_Get(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
-	want := &v1.Role{
+	want := &managementv1.Role{
 		ID:          roleID,
 		ProjectID:   projectID,
 		Name:        "test-role",
@@ -47,7 +47,7 @@ func TestRoleService_Create(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	want := &v1.Role{
+	want := &managementv1.Role{
 		ID:          roleID,
 		ProjectID:   projectID,
 		Name:        "test-role",
@@ -56,7 +56,7 @@ func TestRoleService_Create(t *testing.T) {
 		UpdatedAt:   core.Ptr("2019-08-24T14:15:22Z"),
 	}
 
-	opts := v1.CreateRoleOptions{
+	opts := managementv1.CreateRoleOptions{
 		Name:        "test-role",
 		Description: core.Ptr("description of the role"),
 	}
@@ -86,7 +86,7 @@ func TestRoleService_Update(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	want := &v1.Role{
+	want := &managementv1.Role{
 		ID:          roleID,
 		ProjectID:   projectID,
 		Name:        "test-role",
@@ -95,7 +95,7 @@ func TestRoleService_Update(t *testing.T) {
 		UpdatedAt:   core.Ptr("2019-08-24T14:15:22Z"),
 	}
 
-	opts := v1.UpdateRoleOptions{
+	opts := managementv1.UpdateRoleOptions{
 		Name:        "test-role",
 		Description: core.Ptr("description of the role"),
 	}
@@ -151,7 +151,7 @@ func TestRoleService_List(t *testing.T) {
 	nextPage := "8bd02c7f-1d9a-4c5c-afbb-eba7f174da09"
 	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	r := &v1.Role{
+	r := &managementv1.Role{
 		ID:          roleID,
 		ProjectID:   projectID,
 		Name:        "test-role",
@@ -160,9 +160,9 @@ func TestRoleService_List(t *testing.T) {
 		UpdatedAt:   core.Ptr("2019-08-24T14:15:22Z"),
 	}
 
-	want := v1.ListRolesResponse{
+	want := managementv1.ListRolesResponse{
 		NextPageToken: &nextPage,
-		Roles:         []*v1.Role{r, r},
+		Roles:         []*managementv1.Role{r, r},
 	}
 
 	roles, resp, err := client.RoleV1(projectID).List(nil)

@@ -6,7 +6,7 @@ package integration
 import (
 	"testing"
 
-	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,7 +25,7 @@ func TestServer_Info(t *testing.T) {
 func TestServer_Bootstrap(t *testing.T) {
 	client := Setup(t)
 
-	resp, err := client.ServerV1().Bootstrap(&v1.BootstrapServerOptions{
+	resp, err := client.ServerV1().Bootstrap(&managementv1.BootstrapServerOptions{
 		AcceptTermsOfUse: true,
 	})
 

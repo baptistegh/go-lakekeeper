@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	v1 "github.com/baptistegh/go-lakekeeper/pkg/apis/v1"
+	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -23,7 +23,7 @@ func TestProjectService_Get(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
-	want := &v1.Project{
+	want := &managementv1.Project{
 		ID:   "01f2fdfc-81fc-444d-8368-5b6701566e35",
 		Name: "test-project",
 	}
@@ -44,8 +44,8 @@ func TestProjectService_List(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
-	want := &v1.ListProjectsResponse{
-		Projects: []*v1.Project{
+	want := &managementv1.ListProjectsResponse{
+		Projects: []*managementv1.Project{
 			{
 				ID:   "01f2fdfc-81fc-444d-8368-5b6701566e35",
 				Name: "test-project-1",
@@ -79,7 +79,7 @@ func TestProjectService_Create(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
-	opts := v1.CreateProjectOptions{
+	opts := managementv1.CreateProjectOptions{
 		Name: "test-project",
 	}
 
@@ -95,7 +95,7 @@ func TestProjectService_Create(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
-	want := &v1.CreateProjectResponse{
+	want := &managementv1.CreateProjectResponse{
 		ID: "01f2fdfc-81fc-444d-8368-5b6701566e35",
 	}
 
