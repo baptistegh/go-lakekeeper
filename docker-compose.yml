@@ -3,10 +3,10 @@
 services:
   lakekeeper:
     image: quay.io/lakekeeper/catalog:${LAKEKEEPER_VERSION:-latest-main}
-    pull_policy: &lakekeeper-pull-policy if_not_present
+    pull_policy: &lakekeeper-pull-policy always
     labels:
       go-lakekeeper/owned: ""
-    environment: &lakekeeper-environment
+    environment:
       - LAKEKEEPER__PG_ENCRYPTION_KEY=This-is-NOT-Secure!
       - LAKEKEEPER__PG_DATABASE_URL_READ=postgresql://postgres:postgres@db:5432/postgres
       - LAKEKEEPER__PG_DATABASE_URL_WRITE=postgresql://postgres:postgres@db:5432/postgres

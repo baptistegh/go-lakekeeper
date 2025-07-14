@@ -9,9 +9,6 @@ import (
 
 type (
 	RoleServiceInterface interface {
-		// TODO: implement missing endpoint
-		// Search()
-
 		// Returns all roles in the project that the current user has access to view.
 		List(opts *ListRolesOptions, options ...core.RequestOptionFunc) (*ListRolesResponse, *http.Response, error)
 		// Retrieves detailed information about a specific role.
@@ -22,6 +19,8 @@ type (
 		Update(id string, opts *UpdateRoleOptions, options ...core.RequestOptionFunc) (*Role, *http.Response, error)
 		// Permanently removes a role and all its associated permissions.
 		Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Performs a fuzzy search for roles based on the provided criteria.
+		Search(opts *SearchRoleOptions, options ...core.RequestOptionFunc) (*SearchRoleResponse, *http.Response, error)
 	}
 
 	// RoleService handles communication with role endpoints of the Lakekeeper API.
@@ -74,6 +73,56 @@ func (s *RoleService) Get(id string, options ...core.RequestOptionFunc) (*Role, 
 	}
 
 	return &role, resp, nil
+}
+
+// SearchRoleOptions reprensents Search() options.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/search_role
+type SearchRoleOptions struct {
+	// Deprecated: This field will be removed in a future version.
+	// ProjectID should be obtained from the Service itself and is not intended to be used here.
+	// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
+	ProjectID *string `json:"project-id,omitempty"`
+	// Search string for fuzzy search. Length is truncated to 64 characters.
+	Search string `json:"search"`
+}
+
+// SearchRoleResponse reprensents a Search() response.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/search_role
+type SearchRoleResponse struct {
+	Roles []*Role `json:"roles"`
+}
+
+// Search performs a fuzzy search for roles based on the provided criteria.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/search_role
+func (s *RoleService) Search(opts *SearchRoleOptions, options ...core.RequestOptionFunc) (*SearchRoleResponse, *http.Response, error) {
+	// This workaround will be removed once project-id is no longer required
+	// in the request by the API.
+	// https://github.com/lakekeeper/lakekeeper/issues/1234
+	if opts == nil {
+		opts = &SearchRoleOptions{}
+	}
+	opts.ProjectID = &s.projectID
+
+	options = append(options, WithProject(s.projectID))
+
+	req, err := s.client.NewRequest(http.MethodPost, "/search/role", opts, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var roles SearchRoleResponse
+	resp, apiErr := s.client.Do(req, &roles)
+	if apiErr != nil {
+		return nil, resp, apiErr
+	}
+
+	return &roles, resp, nil
 }
 
 // ListRolesOptions represents List() options.
