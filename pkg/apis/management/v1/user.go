@@ -160,30 +160,30 @@ func (s *UserService) Delete(id string, options ...core.RequestOptionFunc) (*htt
 	return resp, nil
 }
 
-// ListUsersOptions represents options for the Search() method.
+// ListUsersOptions represents options for the List() method.
 //
 // Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/list_user
 type ListUsersOptions struct {
 	Name *string `url:"name,omitempty"`
 
 	ListOptions `url:",inline"` // Embed ListOptions for pagination support
 }
 
-// ListUsersResponse represents the response from the Search() method.
+// ListUsersResponse represents the response from the List() method.
 //
 // Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/list_user
 type ListUsersResponse struct {
 	Users []*User `json:"users"`
 
 	ListResponse `json:",inline"` // Embed ListResponse for pagination support
 }
 
-// Search performs a fuzzy search for users based on the provided criteria.
+// List returns a paginated list of users based on the provided query parameters.
 //
 // Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/list_user
 func (s *UserService) List(opt *ListUsersOptions, options ...core.RequestOptionFunc) (*ListUsersResponse, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "/user", opt, options)
 	if err != nil {
