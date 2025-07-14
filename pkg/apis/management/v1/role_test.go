@@ -145,14 +145,13 @@ func TestRoleService_List(t *testing.T) {
 	mux.HandleFunc("/management/v1/role", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodGet)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.TestParam(t, r, "pageSize", "2")
+		testutil.TestParam(t, r, "pageToken", "cd298407-556e-49b6-a12b-92c212a7df3b")
 		testutil.MustWriteHTTPResponse(t, w, "testdata/list_roles.json")
 	})
 
-	nextPage := "8bd02c7f-1d9a-4c5c-afbb-eba7f174da09"
-	roleID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
-
 	r := &managementv1.Role{
-		ID:          roleID,
+		ID:          "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
 		ProjectID:   projectID,
 		Name:        "test-role",
 		Description: core.Ptr("description of the role"),
@@ -161,11 +160,18 @@ func TestRoleService_List(t *testing.T) {
 	}
 
 	want := managementv1.ListRolesResponse{
-		NextPageToken: &nextPage,
-		Roles:         []*managementv1.Role{r, r},
+		ListResponse: managementv1.ListResponse{
+			NextPageToken: core.Ptr("8bd02c7f-1d9a-4c5c-afbb-eba7f174da09"),
+		},
+		Roles: []*managementv1.Role{r, r},
 	}
 
-	roles, resp, err := client.RoleV1(projectID).List(nil)
+	roles, resp, err := client.RoleV1(projectID).List(&managementv1.ListRolesOptions{
+		ListOptions: managementv1.ListOptions{
+			PageSize:  core.Ptr(int64(2)),
+			PageToken: core.Ptr("cd298407-556e-49b6-a12b-92c212a7df3b"),
+		},
+	})
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)

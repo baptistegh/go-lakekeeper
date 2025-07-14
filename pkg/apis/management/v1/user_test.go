@@ -122,3 +122,96 @@ func TestUserService_Delete(t *testing.T) {
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
 }
+
+func TestUserService_List(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	mux.HandleFunc("/management/v1/user", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestParam(t, r, "pageSize", "2")
+		testutil.TestParam(t, r, "pageToken", "cd298407-556e-49b6-a12b-92c212a7df3b")
+		testutil.MustWriteHTTPResponse(t, w, "testdata/list_users.json")
+	})
+
+	resp, r, err := client.UserV1().List(&managementv1.ListUsersOptions{
+		ListOptions: managementv1.ListOptions{
+			PageSize:  core.Ptr(int64(2)),
+			PageToken: core.Ptr("cd298407-556e-49b6-a12b-92c212a7df3b"),
+		},
+	})
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+
+	want := &managementv1.ListUsersResponse{
+		ListResponse: managementv1.ListResponse{
+			NextPageToken: core.Ptr("cd298407-556e-49b6-a12b-92c212a7df3b"),
+		},
+		Users: []*managementv1.User{
+			{
+				ID:              "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+				Name:            "test-user",
+				Email:           core.Ptr("test@example.com"),
+				UserType:        managementv1.HumanUserType,
+				CreatedAt:       "2019-08-24T14:15:22Z",
+				UpdatedAt:       core.Ptr("2019-08-24T14:15:22Z"),
+				LastUpdatedWith: "create-endpoint",
+			},
+			{
+				ID:              "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+				Name:            "test-user",
+				Email:           core.Ptr("test@example.com"),
+				UserType:        managementv1.HumanUserType,
+				CreatedAt:       "2019-08-24T14:15:22Z",
+				UpdatedAt:       core.Ptr("2019-08-24T14:15:22Z"),
+				LastUpdatedWith: "create-endpoint",
+			},
+		},
+	}
+
+	assert.Equal(t, want, resp)
+}
+
+func TestUserService_Search(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	mux.HandleFunc("/management/v1/search/user", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestParam(t, r, "search", "test")
+		testutil.MustWriteHTTPResponse(t, w, "testdata/search_user.json")
+	})
+
+	resp, r, err := client.UserV1().Search(&managementv1.SearchUserOptions{
+		Search: "test",
+	})
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+
+	want := &managementv1.SearchUserResponse{
+		Users: []*managementv1.User{
+			{
+				ID:              "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+				Name:            "test-user",
+				Email:           core.Ptr("test@example.com"),
+				UserType:        managementv1.HumanUserType,
+				CreatedAt:       "2019-08-24T14:15:22Z",
+				UpdatedAt:       core.Ptr("2019-08-24T14:15:22Z"),
+				LastUpdatedWith: "create-endpoint",
+			},
+			{
+				ID:              "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d",
+				Name:            "test-user",
+				Email:           core.Ptr("test@example.com"),
+				UserType:        managementv1.HumanUserType,
+				CreatedAt:       "2019-08-24T14:15:22Z",
+				UpdatedAt:       core.Ptr("2019-08-24T14:15:22Z"),
+				LastUpdatedWith: "create-endpoint",
+			},
+		},
+	}
+
+	assert.Equal(t, want, resp)
+}

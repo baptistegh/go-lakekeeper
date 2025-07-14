@@ -9,8 +9,6 @@ import (
 type (
 	UserServiceInterface interface {
 		// TODO: implement missing endpoints
-		// Search()
-		// List()
 		// Replace()
 
 		// Creates a new user or updates an existing user's metadata from the provided token.
@@ -23,6 +21,10 @@ type (
 		// Permanently removes a user and all their associated permissions.
 		// If the user is re-registered later, their permissions will need to be re-added.
 		Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Performs a fuzzy search for users based on the provided criteria.
+		Search(opt *SearchUserOptions, options ...core.RequestOptionFunc) (*SearchUserResponse, *http.Response, error)
+		// Returns a paginated list of users based on the provided query parameters.
+		List(opt *ListUsersOptions, options ...core.RequestOptionFunc) (*ListUsersResponse, *http.Response, error)
 	}
 
 	// UserService handles communication with user endpoints of the Lakekeeper API.
@@ -156,4 +158,78 @@ func (s *UserService) Delete(id string, options ...core.RequestOptionFunc) (*htt
 	}
 
 	return resp, nil
+}
+
+// ListUsersOptions represents options for the Search() method.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
+type ListUsersOptions struct {
+	Name *string `url:"name,omitempty"`
+
+	ListOptions `url:",inline"` // Embed ListOptions for pagination support
+}
+
+// ListUsersResponse represents the response from the Search() method.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
+type ListUsersResponse struct {
+	Users []*User `json:"users"`
+
+	ListResponse `json:",inline"` // Embed ListResponse for pagination support
+}
+
+// Search performs a fuzzy search for users based on the provided criteria.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
+func (s *UserService) List(opt *ListUsersOptions, options ...core.RequestOptionFunc) (*ListUsersResponse, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, "/user", opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resp ListUsersResponse
+	httpResp, apiErr := s.client.Do(req, &resp)
+	if apiErr != nil {
+		return nil, httpResp, apiErr
+	}
+
+	return &resp, httpResp, nil
+}
+
+// SearchUserOptions represents options for the Search() method.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
+type SearchUserOptions struct {
+	Search string `url:"search"`
+}
+
+// SearchUserResponse represents the response from the Search() method.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
+type SearchUserResponse struct {
+	Users []*User `json:"users"`
+}
+
+// Search performs a fuzzy search for users based on the provided criteria.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
+func (s *UserService) Search(opt *SearchUserOptions, options ...core.RequestOptionFunc) (*SearchUserResponse, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, "/search/user", opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resp SearchUserResponse
+	httpResp, apiErr := s.client.Do(req, &resp)
+	if apiErr != nil {
+		return nil, httpResp, apiErr
+	}
+
+	return &resp, httpResp, nil
 }
