@@ -98,7 +98,7 @@ log.Printf("Connected to Lakekeeper version: %s\n", serverInfo.Version)
 
 ```go
 // Get default project
-project, _, err := client.ProjectV1().Default()
+project, _, err := client.ProjectV1().GetDefault()
 if err != nil {
     log.Fatalf("Failed to get project: %v", err)
 }
