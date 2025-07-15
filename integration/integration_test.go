@@ -14,6 +14,8 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
+var adminID = "oidc~6deeb417-cdf9-4320-8a30-ddecea77a4bd"
+
 func Setup(t *testing.T) *client.Client {
 	err := godotenv.Load("../.env")
 	if err != nil {

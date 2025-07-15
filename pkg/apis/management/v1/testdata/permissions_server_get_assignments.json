@@ -1,0 +1,8 @@
+{
+    "assignments": [
+        {
+            "user": "oidc~test-user-1",
+            "type": "admin"
+        }
+    ]
+}

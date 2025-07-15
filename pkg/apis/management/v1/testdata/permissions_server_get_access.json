@@ -1,0 +1,11 @@
+{
+    "allowed-actions": [
+        "create_project",
+        "update_users",
+        "delete_users",
+        "list_users",
+        "grant_admin",
+        "provision_users",  
+        "read_assignments"
+    ]
+}
