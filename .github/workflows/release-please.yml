@@ -21,5 +21,3 @@ jobs:
           token: ${{ secrets.RELEASE_PLEASE_PAT }}
           release-type: go
           repo-url: baptistegh/go-lakekeeper
-          config-file: release-please/release-please-config.json
-          manifest-file: release-please/.release-please-manifest.json
