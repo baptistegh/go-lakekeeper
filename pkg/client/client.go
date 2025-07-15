@@ -82,7 +82,7 @@ func (c *Client) WarehouseV1(projectID string) managementv1.WarehouseServiceInte
 // You must provide a valid access token.
 func NewClient(token string, baseURL string, options ...ClientOptionFunc) (*Client, error) {
 	as := core.AccessTokenAuthSource{Token: token}
-	return NewAuthSourceClient(as, baseURL, options...)
+	return NewAuthSourceClient(&as, baseURL, options...)
 }
 
 // NewAuthSourceClient returns a new Lakekeeper API client that uses the AuthSource for authentication.

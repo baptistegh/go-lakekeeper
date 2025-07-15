@@ -4,7 +4,7 @@
 [![GoDoc](https://godoc.org/github.com/baptistegh/go-lakekeeper?status.svg)](https://godoc.org/github.com/baptistegh/go-lakekeeper)
 [![codecov](https://codecov.io/gh/baptistegh/go-lakekeeper/graph/badge.svg?token=2WF3AB10RA)](https://codecov.io/gh/baptistegh/go-lakekeeper)
 
-Go Client for [Lakekeeper API](https://docs.lakekeeper.io). 
+Go Client for [Lakekeeper API](https://docs.lakekeeper.io).
 
 It provides a convenient way to interact with Lakekeeper services from your Go applications.
 
@@ -20,7 +20,10 @@ go get github.com/baptistegh/go-lakekeeper
 
 ### Client Initialization
 
-First, import the client package. Then, create a new client using your API access token and the base URL of your Lakekeeper instance.
+First, import the client package.
+Then, create a new client using your authentication configurations and the base URL of your Lakekeeper instance.
+
+#### Client Credentials (OIDC)
 
 ```go
 import (
@@ -43,7 +46,29 @@ func main() {
 
     as := core.OAuthTokenSource{TokenSource: oauthConfig.TokenSource()}
 
-    client, err := lakekeeper.NewAuthSourceClient(as, baseURL)
+    client, err := lakekeeper.NewAuthSourceClient(&as, baseURL)
+    if err != nil {
+        log.Fatalf("error creating lakekeeper client, %v", err)
+    }
+
+    // You can now use the client to interact with the API
+}
+```
+
+#### Kubernetes Service Account
+
+```go
+import (
+    "log"
+
+    "github.com/baptistegh/go-lakekeeper/pkg/core"
+    lakekeeper "github.com/baptistegh/go-lakekeeper/pkg/client"
+)
+
+func main() {
+    as := core.K8sServiceAccountAuthSource{}
+
+    client, err := lakekeeper.NewAuthSourceClient(&as, baseURL)
     if err != nil {
         log.Fatalf("error creating lakekeeper client, %v", err)
     }
