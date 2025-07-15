@@ -14,7 +14,6 @@ import (
 )
 
 func TestPermissions_Server_GetAccess(t *testing.T) {
-	t.Parallel()
 	client := Setup(t)
 
 	resp, r, err := client.PermissionV1().ServerPermissions().GetAccess(nil)
@@ -39,7 +38,6 @@ func TestPermissions_Server_GetAccess(t *testing.T) {
 }
 
 func TestPermissions_Server_GetAssignments(t *testing.T) {
-	t.Parallel()
 	client := Setup(t)
 
 	resp, r, err := client.PermissionV1().ServerPermissions().GetAssignments(nil)
@@ -53,7 +51,7 @@ func TestPermissions_Server_GetAssignments(t *testing.T) {
 			{
 				Assignee: permissionv1.UserOrRole{
 					Type:  permissionv1.UserType,
-					Value: "oidc~6deeb417-cdf9-4320-8a30-ddecea77a4bd",
+					Value: adminID,
 				},
 				Assignment: permissionv1.AdminServerAssignment,
 			},
@@ -64,7 +62,6 @@ func TestPermissions_Server_GetAssignments(t *testing.T) {
 }
 
 func TestPermissions_Server_Update(t *testing.T) {
-	t.Parallel()
 	client := Setup(t)
 
 	user, _, err := client.UserV1().Provision(&managementv1.ProvisionUserOptions{
@@ -83,21 +80,145 @@ func TestPermissions_Server_Update(t *testing.T) {
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 	})
 
-	resp, r, err := client.PermissionV1().ServerPermissions().GetAccess(&permissionv1.GetServerAccessOptions{
-		Principal: permissionv1.UserOrRole{
-			Type:  permissionv1.UserType,
-			Value: user.ID,
-		},
-	})
+	resp, _, err := client.PermissionV1().ServerPermissions().GetAssignments(nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
-	assert.Equal(t, http.StatusOK, r.StatusCode)
 
-	want := &permissionv1.GetServerAccessResponse{
-		AllowedActions: []permissionv1.ProjectAction{
-			permissionv1.CreateProject,
+	// initial permissions
+	want := &permissionv1.GetServerAssignmentsResponse{
+		Assignments: []*permissionv1.ServerAssignment{
+			{
+				Assignee: permissionv1.UserOrRole{
+					Type:  permissionv1.UserType,
+					Value: adminID,
+				},
+				Assignment: permissionv1.AdminServerAssignment,
+			},
 		},
 	}
 
 	assert.Equal(t, want, resp)
+
+	// adding permission
+	r, err := client.PermissionV1().ServerPermissions().Update(&permissionv1.UpdateServerPermissionsOptions{
+		Writes: []*permissionv1.ServerAssignment{
+			{
+				Assignee: permissionv1.UserOrRole{
+					Type:  permissionv1.UserType,
+					Value: "oidc~7b98af91-a814-4498-98cb-2730064db4bc",
+				},
+				Assignment: permissionv1.OperatorServerAssignment,
+			},
+		},
+	})
+
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, http.StatusNoContent, r.StatusCode)
+
+	resp, _, err = client.PermissionV1().ServerPermissions().GetAssignments(nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	// permission added
+	want = &permissionv1.GetServerAssignmentsResponse{
+		Assignments: []*permissionv1.ServerAssignment{
+			{
+				Assignee: permissionv1.UserOrRole{
+					Type:  permissionv1.UserType,
+					Value: adminID,
+				},
+				Assignment: permissionv1.AdminServerAssignment,
+			},
+			{
+				Assignee: permissionv1.UserOrRole{
+					Type:  permissionv1.UserType,
+					Value: "oidc~7b98af91-a814-4498-98cb-2730064db4bc",
+				},
+				Assignment: permissionv1.OperatorServerAssignment,
+			},
+		},
+	}
+
+	assert.Equal(t, want, resp)
+
+	// removing permission
+	r, err = client.PermissionV1().ServerPermissions().Update(&permissionv1.UpdateServerPermissionsOptions{
+		Deletes: []*permissionv1.ServerAssignment{
+			{
+				Assignee: permissionv1.UserOrRole{
+					Type:  permissionv1.UserType,
+					Value: "oidc~7b98af91-a814-4498-98cb-2730064db4bc",
+				},
+				Assignment: permissionv1.OperatorServerAssignment,
+			},
+		},
+	})
+
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, http.StatusNoContent, r.StatusCode)
+
+	resp, _, err = client.PermissionV1().ServerPermissions().GetAssignments(nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	// permission deleted
+	want = &permissionv1.GetServerAssignmentsResponse{
+		Assignments: []*permissionv1.ServerAssignment{
+			{
+				Assignee: permissionv1.UserOrRole{
+					Type:  permissionv1.UserType,
+					Value: adminID,
+				},
+				Assignment: permissionv1.AdminServerAssignment,
+			},
+		},
+	}
+
+	assert.Equal(t, want, resp)
+}
+
+func TestPermissions_Server_SameAdd(t *testing.T) {
+	client := Setup(t)
+
+	user, _, err := client.UserV1().Provision(&managementv1.ProvisionUserOptions{
+		ID:             core.Ptr("oidc~fe7b7575-b390-4404-90ce-375421f936bd"),
+		Email:          core.Ptr("test-user@exemple.com"),
+		Name:           core.Ptr("Test User"),
+		UpdateIfExists: core.Ptr(true),
+		UserType:       core.Ptr(managementv1.HumanUserType),
+	})
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
+
+	t.Cleanup(func() {
+		r, err := client.UserV1().Delete(user.ID)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusNoContent, r.StatusCode)
+	})
+
+	opt := &permissionv1.UpdateServerPermissionsOptions{
+		Writes: []*permissionv1.ServerAssignment{
+			{
+				Assignee: permissionv1.UserOrRole{
+					Type:  permissionv1.UserType,
+					Value: "oidc~fe7b7575-b390-4404-90ce-375421f936bd",
+				},
+				Assignment: permissionv1.OperatorServerAssignment,
+			},
+		},
+	}
+
+	// adding permission
+	r, err := client.PermissionV1().ServerPermissions().Update(opt)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, http.StatusNoContent, r.StatusCode)
+
+	// adding same permission
+	r, err = client.PermissionV1().ServerPermissions().Update(opt)
+
+	assert.ErrorContains(t, err, "TupleAlreadyExistsError")
 }

@@ -57,7 +57,7 @@ type GetServerAccessOptions struct {
 	Principal UserOrRole `url:"principal"`
 }
 
-// GetServerAccessResponse represents the response from the GetAccess endpoint.
+// GetServerAccessResponse represents the response from the GetAccess() endpoint.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_access
@@ -65,7 +65,7 @@ type GetServerAccessResponse struct {
 	AllowedActions []ProjectAction `json:"allowed-actions"`
 }
 
-// GetAccess retrieves the current user's access to a project.
+// GetAccess retrieves user or role access to the server.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_access
@@ -87,24 +87,24 @@ func (s *ServerPermissionsService) GetAccess(opt *GetServerAccessOptions, option
 // GetServerAssignmentsOptions represents the GetAssignments() options.
 //
 // Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_project_assignments_by_id
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_assignments
 type GetServerAssignmentsOptions struct {
-	Relations ServerAssignmentType `url:"relations[],omitempty"`
+	Relations []ServerAssignmentType `url:"relations[],omitempty"`
 }
 
-// GetServerAssignmentsResponse represents the response from the GetAssignments endpoint.
+// GetServerAssignmentsResponse represents the response from the GetAssignments() endpoint.
 //
 // Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_project_assignments_by_id
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_assignments
 type GetServerAssignmentsResponse struct {
 	Assignments []*ServerAssignment `json:"assignments"`
 	ProjectID   string              `json:"project-id"`
 }
 
-// GetAccess retrieves the current user's access to a project.
+// GetAccess gets user and role assignments of the server.
 //
 // Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_project_assignments_by_id
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_assignments
 func (s *ServerPermissionsService) GetAssignments(opt *GetServerAssignmentsOptions, options ...core.RequestOptionFunc) (*GetServerAssignmentsResponse, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "/permissions/server/assignments", opt, options)
 	if err != nil {
@@ -131,7 +131,7 @@ type UpdateServerPermissionsOptions struct {
 	Writes []*ServerAssignment `json:"writes,omitempty"`
 }
 
-// Updates updates the server permissions.
+// Update updates the server assignments.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_server_assignments

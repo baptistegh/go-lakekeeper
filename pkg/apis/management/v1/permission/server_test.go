@@ -56,7 +56,7 @@ func TestServerPermissionsService_GetAssignments(t *testing.T) {
 			{
 				Assignee: permissionv1.UserOrRole{
 					Type:  permissionv1.UserType,
-					Value: "oidc~6deeb417-cdf9-4320-8a30-ddecea77a4bd",
+					Value: "oidc~test-user-1",
 				},
 				Assignment: permissionv1.AdminServerAssignment,
 			},
@@ -75,7 +75,7 @@ func TestServerPermissionsService_Update(t *testing.T) {
 			{
 				Assignee: permissionv1.UserOrRole{
 					Type:  permissionv1.UserType,
-					Value: "oidc~6deeb417-cdf9-4320-8a30-ddecea77a4bd",
+					Value: "oidc~test-user-1",
 				},
 				Assignment: permissionv1.AdminServerAssignment,
 			},
@@ -84,7 +84,7 @@ func TestServerPermissionsService_Update(t *testing.T) {
 			{
 				Assignee: permissionv1.UserOrRole{
 					Type:  permissionv1.UserType,
-					Value: "oidc~6deeb417-cdf9-4320-8a30-ddecea77a4bd",
+					Value: "oidc~test-user-2",
 				},
 				Assignment: permissionv1.OperatorServerAssignment,
 			},
