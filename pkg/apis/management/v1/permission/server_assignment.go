@@ -21,24 +21,12 @@ var (
 	_ json.Marshaler   = (*ServerAssignment)(nil)
 )
 
-type (
-	UserOrRoleType string
-
-	ServerAssignmentType string
-)
+type ServerAssignmentType string
 
 const (
-	UserType UserOrRoleType = "user"
-	RoleType UserOrRoleType = "role"
-
 	OperatorServerAssignment ServerAssignmentType = "operator"
 	AdminServerAssignment    ServerAssignmentType = "admin"
 )
-
-type UserOrRole struct {
-	Type  UserOrRoleType
-	Value string
-}
 
 func (sa *ServerAssignment) UnmarshalJSON(data []byte) error {
 	aux := &struct {

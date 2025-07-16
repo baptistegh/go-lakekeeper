@@ -5,38 +5,38 @@ import (
 	"testing"
 )
 
-func TestServerAssignment_MarshalJSON(t *testing.T) {
+func TestProjectAssignment_MarshalJSON(t *testing.T) {
 	expected := []string{
-		`{"role":"a6e5a780-258e-4bee-9bd8-f8ae3f675415","type":"admin"}`,
-		`{"role":"9cc096bf-db1f-43f3-bea6-f0819df32db0","type":"operator"}`,
-		`{"type":"admin","user":"f5c2329c-8679-44d0-8ea3-167ee14fa94e"}`,
-		`{"type":"operator","user":"a0d21f3d-2cbb-4066-8b77-5ec5a21680be"}`,
+		`{"role":"a6e5a780-258e-4bee-9bd8-f8ae3f675415","type":"project_admin"}`,
+		`{"role":"9cc096bf-db1f-43f3-bea6-f0819df32db0","type":"select"}`,
+		`{"type":"security_admin","user":"f5c2329c-8679-44d0-8ea3-167ee14fa94e"}`,
+		`{"type":"role_creator","user":"a0d21f3d-2cbb-4066-8b77-5ec5a21680be"}`,
 	}
 
-	given := []ServerAssignment{
+	given := []ProjectAssignment{
 		{
-			Assignment: AdminServerAssignment,
+			Assignment: AdminProjectAssignment,
 			Assignee: UserOrRole{
 				Type:  RoleType,
 				Value: "a6e5a780-258e-4bee-9bd8-f8ae3f675415",
 			},
 		},
 		{
-			Assignment: OperatorServerAssignment,
+			Assignment: SelectProjectAssignment,
 			Assignee: UserOrRole{
 				Type:  RoleType,
 				Value: "9cc096bf-db1f-43f3-bea6-f0819df32db0",
 			},
 		},
 		{
-			Assignment: AdminServerAssignment,
+			Assignment: SecurityAdminProjectAssignment,
 			Assignee: UserOrRole{
 				Type:  UserType,
 				Value: "f5c2329c-8679-44d0-8ea3-167ee14fa94e",
 			},
 		},
 		{
-			Assignment: OperatorServerAssignment,
+			Assignment: RoleCreatorProjectAssignment,
 			Assignee: UserOrRole{
 				Type:  UserType,
 				Value: "a0d21f3d-2cbb-4066-8b77-5ec5a21680be",
@@ -50,36 +50,36 @@ func TestServerAssignment_MarshalJSON(t *testing.T) {
 			t.Fatalf("%v", err)
 		}
 		if string(b) != v {
-			t.Fatalf("exepected %s got %s", v, string(b))
+			t.Fatalf("exepcted %s got %s", v, string(b))
 		}
 	}
 }
 
-func TestServerAssignment_UnmarshalJSON(t *testing.T) {
-	expected := []ServerAssignment{
+func TestProjectAssignment_UnmarshalJSON(t *testing.T) {
+	expected := []ProjectAssignment{
 		{
-			Assignment: AdminServerAssignment,
+			Assignment: DataAdminProjectAssignment,
 			Assignee: UserOrRole{
 				Type:  RoleType,
 				Value: "a6e5a780-258e-4bee-9bd8-f8ae3f675415",
 			},
 		},
 		{
-			Assignment: OperatorServerAssignment,
+			Assignment: DescribeProjectAssignment,
 			Assignee: UserOrRole{
 				Type:  RoleType,
 				Value: "9cc096bf-db1f-43f3-bea6-f0819df32db0",
 			},
 		},
 		{
-			Assignment: AdminServerAssignment,
+			Assignment: CreateProjectAssignment,
 			Assignee: UserOrRole{
 				Type:  UserType,
 				Value: "f5c2329c-8679-44d0-8ea3-167ee14fa94e",
 			},
 		},
 		{
-			Assignment: OperatorServerAssignment,
+			Assignment: ModifyProjectAssignment,
 			Assignee: UserOrRole{
 				Type:  UserType,
 				Value: "a0d21f3d-2cbb-4066-8b77-5ec5a21680be",
@@ -88,14 +88,14 @@ func TestServerAssignment_UnmarshalJSON(t *testing.T) {
 	}
 
 	given := []string{
-		`{"role":"a6e5a780-258e-4bee-9bd8-f8ae3f675415","type":"admin"}`,
-		`{"role":"9cc096bf-db1f-43f3-bea6-f0819df32db0","type":"operator"}`,
-		`{"type":"admin","user":"f5c2329c-8679-44d0-8ea3-167ee14fa94e"}`,
-		`{"type":"operator","user":"a0d21f3d-2cbb-4066-8b77-5ec5a21680be"}`,
+		`{"role":"a6e5a780-258e-4bee-9bd8-f8ae3f675415","type":"data_admin"}`,
+		`{"role":"9cc096bf-db1f-43f3-bea6-f0819df32db0","type":"describe"}`,
+		`{"type":"create","user":"f5c2329c-8679-44d0-8ea3-167ee14fa94e"}`,
+		`{"type":"modify","user":"a0d21f3d-2cbb-4066-8b77-5ec5a21680be"}`,
 	}
 
 	for k, v := range expected {
-		var aux ServerAssignment
+		var aux ProjectAssignment
 		err := json.Unmarshal([]byte(given[k]), &aux)
 		if err != nil {
 			t.Fatalf("%v", err)
