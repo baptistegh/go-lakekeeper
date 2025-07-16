@@ -153,3 +153,31 @@ func TestProject_List(t *testing.T) {
 
 	assert.Equal(t, want, resp)
 }
+
+// APIStatistics gives 0 called endpoints because when tests are run,
+// no endpoints are being called before this test (or the call comes too fast).
+//
+// TODO: this integration test needs to be fixed
+//
+// func TestProject_GetAPIStatistics(t *testing.T) {
+// 	client := Setup(t)
+//
+// 	resp, r, err := client.ProjectV1().GetAPIStatistics("00000000-0000-0000-0000-000000000000", &v1.GetAPIStatisticsOptions{
+// 		Warehouse: struct {
+// 			Type string  `json:"type"`
+// 			ID   *string `json:"id,omitempty"`
+// 		}{
+// 			Type: "all",
+// 		},
+// 	})
+//
+// 	assert.NoError(t, err)
+// 	assert.NotNil(t, r)
+// 	assert.Equal(t, http.StatusOK, r.StatusCode)
+//
+// 	assert.IsType(t, &v1.GetAPIStatisticsResponse{}, resp)
+// 	assert.NotEmpty(t, resp.CalledEnpoints)
+// 	assert.NotEmpty(t, resp.NextPageToken)
+// 	assert.NotEmpty(t, resp.PreviousPageToken)
+// 	assert.NotEmpty(t, resp.Timestamps)
+// }

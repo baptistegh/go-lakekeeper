@@ -1,0 +1,20 @@
+{
+  "called-endpoints": [
+    [
+      {
+        "count": 0,
+        "created-at": "2019-08-24T14:15:22Z",
+        "http-route": "string",
+        "status-code": 0,
+        "updated-at": "2019-08-24T14:15:22Z",
+        "warehouse-id": "019eee1f-0cac-41a0-9932-f7e58ee24619",
+        "warehouse-name": "string"
+      }
+    ]
+  ],
+  "next-page-token": "string",
+  "previous-page-token": "string",
+  "timestamps": [
+    "2019-08-24T14:15:22Z"
+  ]
+}
