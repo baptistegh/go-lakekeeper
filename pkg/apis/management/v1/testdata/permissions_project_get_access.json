@@ -1,0 +1,20 @@
+{
+    "allowed-actions": [
+        "create_warehouse",
+        "delete",
+        "rename",
+        "list_warehouses",
+        "create_role",
+        "list_roles",
+        "search_roles",
+        "read_assignments",
+        "grant_role_creator",
+        "grant_create",
+        "grant_describe",
+        "grant_modify",
+        "grant_select",
+        "grant_project_admin",
+        "grant_security_admin",
+        "grant_data_admin"
+    ]
+}
