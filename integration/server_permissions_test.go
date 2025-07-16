@@ -16,19 +16,19 @@ import (
 func TestPermissions_Server_GetAccess(t *testing.T) {
 	client := Setup(t)
 
-	resp, r, err := client.PermissionV1().ServerPermissions().GetAccess(nil)
+	resp, r, err := client.PermissionV1().ServerPermission().GetAccess(nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
-	// User should have all permissions on the default project
+	// User should have all permissions on the server
 	want := &permissionv1.GetServerAccessResponse{
-		AllowedActions: []permissionv1.ProjectAction{
+		AllowedActions: []permissionv1.ServerAction{
 			permissionv1.CreateProject,
 			permissionv1.UpdateUsers,
 			permissionv1.DeleteUsers,
 			permissionv1.ListUsers,
-			permissionv1.GrantAdmin,
+			permissionv1.GrantServerAdmin,
 			permissionv1.ProvisionUsers,
 			permissionv1.ReadAssignments,
 		},
@@ -40,12 +40,12 @@ func TestPermissions_Server_GetAccess(t *testing.T) {
 func TestPermissions_Server_GetAssignments(t *testing.T) {
 	client := Setup(t)
 
-	resp, r, err := client.PermissionV1().ServerPermissions().GetAssignments(nil)
+	resp, r, err := client.PermissionV1().ServerPermission().GetAssignments(nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
-	// User should have all permissions on the default project
+	// User should have all permissions on the server
 	want := &permissionv1.GetServerAssignmentsResponse{
 		Assignments: []*permissionv1.ServerAssignment{
 			{
@@ -80,7 +80,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 	})
 
-	resp, _, err := client.PermissionV1().ServerPermissions().GetAssignments(nil)
+	resp, _, err := client.PermissionV1().ServerPermission().GetAssignments(nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -100,7 +100,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 	assert.Equal(t, want, resp)
 
 	// adding permission
-	r, err := client.PermissionV1().ServerPermissions().Update(&permissionv1.UpdateServerPermissionsOptions{
+	r, err := client.PermissionV1().ServerPermission().Update(&permissionv1.UpdateServerPermissionsOptions{
 		Writes: []*permissionv1.ServerAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -116,7 +116,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, _, err = client.PermissionV1().ServerPermissions().GetAssignments(nil)
+	resp, _, err = client.PermissionV1().ServerPermission().GetAssignments(nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -143,7 +143,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 	assert.Equal(t, want, resp)
 
 	// removing permission
-	r, err = client.PermissionV1().ServerPermissions().Update(&permissionv1.UpdateServerPermissionsOptions{
+	r, err = client.PermissionV1().ServerPermission().Update(&permissionv1.UpdateServerPermissionsOptions{
 		Deletes: []*permissionv1.ServerAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -159,7 +159,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, _, err = client.PermissionV1().ServerPermissions().GetAssignments(nil)
+	resp, _, err = client.PermissionV1().ServerPermission().GetAssignments(nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -211,14 +211,14 @@ func TestPermissions_Server_SameAdd(t *testing.T) {
 	}
 
 	// adding permission
-	r, err := client.PermissionV1().ServerPermissions().Update(opt)
+	r, err := client.PermissionV1().ServerPermission().Update(opt)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	// adding same permission
-	r, err = client.PermissionV1().ServerPermissions().Update(opt)
+	r, err = client.PermissionV1().ServerPermission().Update(opt)
 
 	assert.ErrorContains(t, err, "TupleAlreadyExistsError")
 }

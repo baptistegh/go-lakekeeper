@@ -10,7 +10,7 @@ import (
 	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 )
 
-func TestServerPermissionsService_GetAccess(t *testing.T) {
+func TestServerPermissionService_GetAccess(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
@@ -19,17 +19,17 @@ func TestServerPermissionsService_GetAccess(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "../testdata/permissions_server_get_access.json")
 	})
 
-	access, resp, err := client.PermissionV1().ServerPermissions().GetAccess(nil)
+	access, resp, err := client.PermissionV1().ServerPermission().GetAccess(nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &permissionv1.GetServerAccessResponse{
-		AllowedActions: []permissionv1.ProjectAction{
+		AllowedActions: []permissionv1.ServerAction{
 			permissionv1.CreateProject,
 			permissionv1.UpdateUsers,
 			permissionv1.DeleteUsers,
 			permissionv1.ListUsers,
-			permissionv1.GrantAdmin,
+			permissionv1.GrantServerAdmin,
 			permissionv1.ProvisionUsers,
 			permissionv1.ReadAssignments,
 		},
@@ -38,7 +38,7 @@ func TestServerPermissionsService_GetAccess(t *testing.T) {
 	assert.Equal(t, want, access)
 }
 
-func TestServerPermissionsService_GetAssignments(t *testing.T) {
+func TestServerPermissionService_GetAssignments(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
@@ -47,7 +47,7 @@ func TestServerPermissionsService_GetAssignments(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "../testdata/permissions_server_get_assignments.json")
 	})
 
-	access, resp, err := client.PermissionV1().ServerPermissions().GetAssignments(nil)
+	access, resp, err := client.PermissionV1().ServerPermission().GetAssignments(nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -66,7 +66,7 @@ func TestServerPermissionsService_GetAssignments(t *testing.T) {
 	assert.Equal(t, want, access)
 }
 
-func TestServerPermissionsService_Update(t *testing.T) {
+func TestServerPermissionService_Update(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
@@ -99,7 +99,7 @@ func TestServerPermissionsService_Update(t *testing.T) {
 		}
 	})
 
-	resp, err := client.PermissionV1().ServerPermissions().Update(opt)
+	resp, err := client.PermissionV1().ServerPermission().Update(opt)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 

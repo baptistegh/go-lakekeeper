@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestServerPermissions_MarshalJSON(t *testing.T) {
+func TestServerPermission_MarshalJSON(t *testing.T) {
 	expected := []string{
 		`{"role":"a6e5a780-258e-4bee-9bd8-f8ae3f675415","type":"admin"}`,
 		`{"role":"9cc096bf-db1f-43f3-bea6-f0819df32db0","type":"operator"}`,
@@ -55,7 +55,7 @@ func TestServerPermissions_MarshalJSON(t *testing.T) {
 	}
 }
 
-func TestServerPermissions_UnmarshalJSON(t *testing.T) {
+func TestServerPermission_UnmarshalJSON(t *testing.T) {
 	expected := []ServerAssignment{
 		{
 			Assignment: AdminServerAssignment,
