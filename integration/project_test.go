@@ -162,7 +162,7 @@ func TestProject_List(t *testing.T) {
 // func TestProject_GetAPIStatistics(t *testing.T) {
 // 	client := Setup(t)
 //
-// 	resp, r, err := client.ProjectV1().GetAPIStatistics("00000000-0000-0000-0000-000000000000", &v1.GetAPIStatisticsOptions{
+// 	resp, r, err := client.ProjectV1().GetAPIStatistics(defaultProjectID, &v1.GetAPIStatisticsOptions{
 // 		Warehouse: struct {
 // 			Type string  `json:"type"`
 // 			ID   *string `json:"id,omitempty"`

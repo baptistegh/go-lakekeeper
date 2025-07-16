@@ -93,3 +93,21 @@ func MustCreateRole(t *testing.T, c *client.Client, projectID string) *managemen
 
 	return r
 }
+
+func MustCreateProject(t *testing.T, c *client.Client) string {
+	p, _, err := c.ProjectV1().Create(&managementv1.CreateProjectOptions{
+		Name: fmt.Sprintf("test-project-%d", rand.Int()),
+	})
+	if err != nil {
+		t.Fatalf("could not create user, %v", err)
+	}
+
+	t.Cleanup(func() {
+		if _, err := c.ProjectV1().Delete(p.ID); err != nil {
+			t.Fatalf("could not delete user, %v", err)
+		}
+
+	})
+
+	return p.ID
+}
