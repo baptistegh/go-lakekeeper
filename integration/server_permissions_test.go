@@ -64,15 +64,7 @@ func TestPermissions_Server_GetAssignments(t *testing.T) {
 func TestPermissions_Server_Update(t *testing.T) {
 	client := Setup(t)
 
-	user, _, err := client.UserV1().Provision(&managementv1.ProvisionUserOptions{
-		ID:             core.Ptr("oidc~7b98af91-a814-4498-98cb-2730064db4bc"),
-		Email:          core.Ptr("test-user@lakekeeper.io"),
-		Name:           core.Ptr("Test User"),
-		UpdateIfExists: core.Ptr(true),
-		UserType:       core.Ptr(managementv1.HumanUserType),
-	})
-	assert.NoError(t, err)
-	assert.NotNil(t, user)
+	user := MustProvisionUser(t, client)
 
 	t.Cleanup(func() {
 		r, err := client.UserV1().Delete(user.ID)
@@ -105,7 +97,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 			{
 				Assignee: permissionv1.UserOrRole{
 					Type:  permissionv1.UserType,
-					Value: "oidc~7b98af91-a814-4498-98cb-2730064db4bc",
+					Value: user.ID,
 				},
 				Assignment: permissionv1.OperatorServerAssignment,
 			},
@@ -133,7 +125,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 			{
 				Assignee: permissionv1.UserOrRole{
 					Type:  permissionv1.UserType,
-					Value: "oidc~7b98af91-a814-4498-98cb-2730064db4bc",
+					Value: user.ID,
 				},
 				Assignment: permissionv1.OperatorServerAssignment,
 			},
@@ -148,7 +140,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 			{
 				Assignee: permissionv1.UserOrRole{
 					Type:  permissionv1.UserType,
-					Value: "oidc~7b98af91-a814-4498-98cb-2730064db4bc",
+					Value: user.ID,
 				},
 				Assignment: permissionv1.OperatorServerAssignment,
 			},
@@ -221,4 +213,110 @@ func TestPermissions_Server_SameAdd(t *testing.T) {
 	r, err = client.PermissionV1().ServerPermissions().Update(opt)
 
 	assert.ErrorContains(t, err, "TupleAlreadyExistsError")
+}
+
+func TestPermissions_Server_GetAccess_UserFilter(t *testing.T) {
+	client := Setup(t)
+
+	user := MustProvisionUser(t, client)
+
+	opt := permissionv1.GetServerAccessOptions{
+		PrincipalUser: &user.ID,
+	}
+
+	resp, _, err := client.PermissionV1().ServerPermissions().GetAccess(&opt)
+	assert.NoError(t, err)
+
+	// initial permissions
+	want := &permissionv1.GetServerAccessResponse{
+		AllowedActions: []permissionv1.ProjectAction{},
+	}
+
+	assert.Equal(t, want, resp)
+
+	// add user permission
+	_, err = client.PermissionV1().ServerPermissions().Update(&permissionv1.UpdateServerPermissionsOptions{
+		Writes: []*permissionv1.ServerAssignment{
+			{
+				Assignee: permissionv1.UserOrRole{
+					Type:  permissionv1.UserType,
+					Value: user.ID,
+				},
+				Assignment: permissionv1.AdminServerAssignment,
+			},
+		},
+	})
+	assert.NoError(t, err)
+
+	resp, _, err = client.PermissionV1().ServerPermissions().GetAccess(&opt)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	// updated permissions
+	want = &permissionv1.GetServerAccessResponse{
+		AllowedActions: []permissionv1.ProjectAction{
+			permissionv1.CreateProject,
+			permissionv1.UpdateUsers,
+			permissionv1.DeleteUsers,
+			permissionv1.ListUsers,
+			permissionv1.GrantAdmin,
+			permissionv1.ProvisionUsers,
+			permissionv1.ReadAssignments,
+		},
+	}
+
+	assert.Equal(t, want, resp)
+}
+
+func TestPermissions_Server_GetAccess_RoleFilter(t *testing.T) {
+	client := Setup(t)
+
+	role := MustCreateRole(t, client, defaultProjectID)
+
+	opt := permissionv1.GetServerAccessOptions{
+		PrincipalRole: &role.ID,
+	}
+
+	resp, _, err := client.PermissionV1().ServerPermissions().GetAccess(&opt)
+	assert.NoError(t, err)
+
+	// initial permissions
+	want := &permissionv1.GetServerAccessResponse{
+		AllowedActions: []permissionv1.ProjectAction{},
+	}
+
+	assert.Equal(t, want, resp)
+
+	// add user permission
+	_, err = client.PermissionV1().ServerPermissions().Update(&permissionv1.UpdateServerPermissionsOptions{
+		Writes: []*permissionv1.ServerAssignment{
+			{
+				Assignee: permissionv1.UserOrRole{
+					Type:  permissionv1.RoleType,
+					Value: role.ID,
+				},
+				Assignment: permissionv1.AdminServerAssignment,
+			},
+		},
+	})
+	assert.NoError(t, err)
+
+	resp, _, err = client.PermissionV1().ServerPermissions().GetAccess(&opt)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	// updated permissions
+	want = &permissionv1.GetServerAccessResponse{
+		AllowedActions: []permissionv1.ProjectAction{
+			permissionv1.CreateProject,
+			permissionv1.UpdateUsers,
+			permissionv1.DeleteUsers,
+			permissionv1.ListUsers,
+			permissionv1.GrantAdmin,
+			permissionv1.ProvisionUsers,
+			permissionv1.ReadAssignments,
+		},
+	}
+
+	assert.Equal(t, want, resp)
 }

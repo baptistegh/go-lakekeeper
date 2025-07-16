@@ -17,7 +17,7 @@ func TestWarehouse_Create_Default(t *testing.T) {
 	t.Parallel()
 	client := Setup(t)
 
-	defaultPrj := "00000000-0000-0000-0000-000000000000"
+	defaultPrj := defaultProjectID
 
 	sp := profile.NewS3StorageSettings(
 		"testacc",
@@ -40,7 +40,7 @@ func TestWarehouse_Create_Default(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, r.StatusCode)
 
 	t.Cleanup(func() {
-		r, err = client.WarehouseV1("00000000-0000-0000-0000-000000000000").Delete(resp.ID, nil)
+		r, err = client.WarehouseV1(defaultProjectID).Delete(resp.ID, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 	})
@@ -52,7 +52,7 @@ func TestWarehouse_Create_Default(t *testing.T) {
 	want := &managementv1.Warehouse{
 		ID:             resp.ID,
 		Name:           "test",
-		ProjectID:      "00000000-0000-0000-0000-000000000000",
+		ProjectID:      defaultProjectID,
 		StorageProfile: sp,
 		Status:         managementv1.WarehouseStatusActive,
 		DeleteProfile:  profile.NewTabularDeleteProfileHard().AsProfile(),

@@ -49,12 +49,14 @@ func NewServerPermissionsService(client core.Client) ServerPermissionsInterface 
 
 // GetServerAccessOptions represents the GetAccess() options.
 //
+// Only one of PrincipalUser or PrincipalRole should be set at a time.
+// Setting both fields simultaneously is not allowed.
+//
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_access
 type GetServerAccessOptions struct {
-	// The user or role to show access for.
-	// If not specified, shows access for the current user.
-	Principal UserOrRole `url:"principal"`
+	PrincipalUser *string `url:"principalUser,omitempty"`
+	PrincipalRole *string `url:"principalRole,omitempty"`
 }
 
 // GetServerAccessResponse represents the response from the GetAccess() endpoint.

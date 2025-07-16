@@ -96,7 +96,7 @@ $(YQ): $(BIN_DIR)
 	@curl -s -JL https://github.com/mikefarah/yq/releases/download/$(YQ_VERSION)/yq_$(REAL_HOST_PLATFORM) -o $(YQ)
 	@chmod +x $(YQ)
 
-GOLANGCI_LINT_VERSION ?= $(strip $(shell $(YQ) .jobs.golangci.steps[2].with.version .github/workflows/lint.yml))
+GOLANGCI_LINT_VERSION ?= $(strip $(shell $(YQ) .jobs.golangci.steps[2].with.version .github/workflows/test.yml))
 GOLANGCI_LINT ?= $(BIN_DIR)/golangci-lint
 $(GOLANGCI_LINT):
 	@echo === installing golangci-lint
