@@ -17,8 +17,6 @@ func TestWarehouse_Create_Default(t *testing.T) {
 	t.Parallel()
 	client := Setup(t)
 
-	defaultPrj := defaultProjectID
-
 	sp := profile.NewS3StorageSettings(
 		"testacc",
 		"eu-local-1",
@@ -28,7 +26,7 @@ func TestWarehouse_Create_Default(t *testing.T) {
 
 	sc := credential.NewS3CredentialAccessKey("minio-root-user", "minio-root-password").AsCredential()
 
-	resp, r, err := client.WarehouseV1(defaultPrj).Create(
+	resp, r, err := client.WarehouseV1(defaultProjectID).Create(
 		&managementv1.CreateWarehouseOptions{
 			Name:              "test",
 			StorageProfile:    sp,
@@ -45,7 +43,7 @@ func TestWarehouse_Create_Default(t *testing.T) {
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 	})
 
-	w, r, err := client.WarehouseV1(defaultPrj).Get(resp.ID)
+	w, r, err := client.WarehouseV1(defaultProjectID).Get(resp.ID)
 	assert.NoError(t, err)
 	assert.NotNil(t, w)
 

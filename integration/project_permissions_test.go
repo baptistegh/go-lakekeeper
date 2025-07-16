@@ -4,21 +4,17 @@
 package integration
 
 import (
-	"fmt"
-	"math/rand"
 	"net/http"
 	"testing"
 
-	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
-	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPermissions_Project_GetAccess(t *testing.T) {
 	client := Setup(t)
 
-	resp, r, err := client.PermissionV1().ProjectPermission().GetAccess("00000000-0000-0000-0000-000000000000", nil)
+	resp, r, err := client.PermissionV1().ProjectPermission().GetAccess(defaultProjectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -51,7 +47,7 @@ func TestPermissions_Project_GetAccess(t *testing.T) {
 func TestPermissions_Project_GetAssignments(t *testing.T) {
 	client := Setup(t)
 
-	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments("00000000-0000-0000-0000-000000000000", nil)
+	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(defaultProjectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -67,7 +63,7 @@ func TestPermissions_Project_GetAssignments(t *testing.T) {
 				Assignment: permissionv1.AdminProjectAssignment,
 			},
 		},
-		ProjectID: "00000000-0000-0000-0000-000000000000",
+		ProjectID: defaultProjectID,
 	}
 
 	assert.Equal(t, want, resp)
@@ -76,23 +72,9 @@ func TestPermissions_Project_GetAssignments(t *testing.T) {
 func TestPermissions_Project_Update(t *testing.T) {
 	client := Setup(t)
 
-	user, _, err := client.UserV1().Provision(&managementv1.ProvisionUserOptions{
-		ID:             core.Ptr("oidc~7b98af91-a814-4498-98cb-2730064db4bc"),
-		Email:          core.Ptr("test-user@lakekeeper.io"),
-		Name:           core.Ptr("Test User"),
-		UpdateIfExists: core.Ptr(true),
-		UserType:       core.Ptr(managementv1.HumanUserType),
-	})
-	assert.NoError(t, err)
-	assert.NotNil(t, user)
+	user := MustProvisionUser(t, client)
 
-	t.Cleanup(func() {
-		r, err := client.UserV1().Delete(user.ID)
-		assert.NoError(t, err)
-		assert.Equal(t, http.StatusNoContent, r.StatusCode)
-	})
-
-	resp, _, err := client.PermissionV1().ProjectPermission().GetAssignments("00000000-0000-0000-0000-000000000000", nil)
+	resp, _, err := client.PermissionV1().ProjectPermission().GetAssignments(defaultProjectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -107,13 +89,13 @@ func TestPermissions_Project_Update(t *testing.T) {
 				Assignment: permissionv1.AdminProjectAssignment,
 			},
 		},
-		ProjectID: "00000000-0000-0000-0000-000000000000",
+		ProjectID: defaultProjectID,
 	}
 
 	assert.Equal(t, want, resp)
 
 	// adding permission
-	r, err := client.PermissionV1().ProjectPermission().Update("00000000-0000-0000-0000-000000000000", &permissionv1.UpdateProjectPermissionsOptions{
+	r, err := client.PermissionV1().ProjectPermission().Update(defaultProjectID, &permissionv1.UpdateProjectPermissionsOptions{
 		Writes: []*permissionv1.ProjectAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -129,7 +111,7 @@ func TestPermissions_Project_Update(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, _, err = client.PermissionV1().ProjectPermission().GetAssignments("00000000-0000-0000-0000-000000000000", nil)
+	resp, _, err = client.PermissionV1().ProjectPermission().GetAssignments(defaultProjectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -151,13 +133,13 @@ func TestPermissions_Project_Update(t *testing.T) {
 				Assignment: permissionv1.SelectProjectAssignment,
 			},
 		},
-		ProjectID: "00000000-0000-0000-0000-000000000000",
+		ProjectID: defaultProjectID,
 	}
 
 	assert.Equal(t, want, resp)
 
 	// removing permission
-	r, err = client.PermissionV1().ProjectPermission().Update("00000000-0000-0000-0000-000000000000", &permissionv1.UpdateProjectPermissionsOptions{
+	r, err = client.PermissionV1().ProjectPermission().Update(defaultProjectID, &permissionv1.UpdateProjectPermissionsOptions{
 		Deletes: []*permissionv1.ProjectAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -173,7 +155,7 @@ func TestPermissions_Project_Update(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, _, err = client.PermissionV1().ProjectPermission().GetAssignments("00000000-0000-0000-0000-000000000000", nil)
+	resp, _, err = client.PermissionV1().ProjectPermission().GetAssignments(defaultProjectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -188,7 +170,7 @@ func TestPermissions_Project_Update(t *testing.T) {
 				Assignment: permissionv1.AdminProjectAssignment,
 			},
 		},
-		ProjectID: "00000000-0000-0000-0000-000000000000",
+		ProjectID: defaultProjectID,
 	}
 
 	assert.Equal(t, want, resp)
@@ -197,21 +179,7 @@ func TestPermissions_Project_Update(t *testing.T) {
 func TestPermissions_Project_SameAdd(t *testing.T) {
 	client := Setup(t)
 
-	user, _, err := client.UserV1().Provision(&managementv1.ProvisionUserOptions{
-		ID:             core.Ptr("oidc~fe7b7575-b390-4404-90ce-375421f936bd"),
-		Email:          core.Ptr("test-user@exemple.com"),
-		Name:           core.Ptr("Test User"),
-		UpdateIfExists: core.Ptr(true),
-		UserType:       core.Ptr(managementv1.HumanUserType),
-	})
-	assert.NoError(t, err)
-	assert.NotNil(t, user)
-
-	t.Cleanup(func() {
-		r, err := client.UserV1().Delete(user.ID)
-		assert.NoError(t, err)
-		assert.Equal(t, http.StatusNoContent, r.StatusCode)
-	})
+	user := MustProvisionUser(t, client)
 
 	opt := &permissionv1.UpdateProjectPermissionsOptions{
 		Writes: []*permissionv1.ProjectAssignment{
@@ -226,14 +194,14 @@ func TestPermissions_Project_SameAdd(t *testing.T) {
 	}
 
 	// adding permission
-	r, err := client.PermissionV1().ProjectPermission().Update("00000000-0000-0000-0000-000000000000", opt)
+	r, err := client.PermissionV1().ProjectPermission().Update(defaultProjectID, opt)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	// adding same permission
-	r, err = client.PermissionV1().ProjectPermission().Update("00000000-0000-0000-0000-000000000000", opt)
+	r, err = client.PermissionV1().ProjectPermission().Update(defaultProjectID, opt)
 
 	assert.ErrorContains(t, err, "TupleAlreadyExistsError")
 }
@@ -241,33 +209,11 @@ func TestPermissions_Project_SameAdd(t *testing.T) {
 func TestPermissions_Project_Add_NewProject(t *testing.T) {
 	client := Setup(t)
 
-	user, _, err := client.UserV1().Provision(&managementv1.ProvisionUserOptions{
-		ID:             core.Ptr("oidc~fe7b7575-b390-4404-90ce-375421f936bd"),
-		Email:          core.Ptr("test-user@exemple.com"),
-		Name:           core.Ptr("Test User"),
-		UpdateIfExists: core.Ptr(true),
-		UserType:       core.Ptr(managementv1.HumanUserType),
-	})
-	assert.NoError(t, err)
-	assert.NotNil(t, user)
+	user := MustProvisionUser(t, client)
 
-	project, _, err := client.ProjectV1().Create(&managementv1.CreateProjectOptions{
-		Name: fmt.Sprintf("test-project-%d", rand.Int()),
-	})
-	assert.NoError(t, err)
-	assert.NotNil(t, project)
+	projectID := MustCreateProject(t, client)
 
-	t.Cleanup(func() {
-		r, err := client.UserV1().Delete(user.ID)
-		assert.NoError(t, err)
-		assert.Equal(t, http.StatusNoContent, r.StatusCode)
-
-		r, err = client.ProjectV1().Delete(project.ID)
-		assert.NoError(t, err)
-		assert.Equal(t, http.StatusNoContent, r.StatusCode)
-	})
-
-	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(project.ID, nil)
+	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(projectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -283,7 +229,7 @@ func TestPermissions_Project_Add_NewProject(t *testing.T) {
 				Assignment: permissionv1.AdminProjectAssignment,
 			},
 		},
-		ProjectID: project.ID,
+		ProjectID: projectID,
 	}
 
 	assert.Equal(t, want, resp)
@@ -301,12 +247,12 @@ func TestPermissions_Project_Add_NewProject(t *testing.T) {
 	}
 
 	// adding permission
-	r, err = client.PermissionV1().ProjectPermission().Update(project.ID, opt)
+	r, err = client.PermissionV1().ProjectPermission().Update(projectID, opt)
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, r, err = client.PermissionV1().ProjectPermission().GetAssignments(project.ID, nil)
+	resp, r, err = client.PermissionV1().ProjectPermission().GetAssignments(projectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -329,7 +275,7 @@ func TestPermissions_Project_Add_NewProject(t *testing.T) {
 				Assignment: permissionv1.ModifyProjectAssignment,
 			},
 		},
-		ProjectID: project.ID,
+		ProjectID: projectID,
 	}
 
 	assert.Equal(t, want, resp)
@@ -338,19 +284,9 @@ func TestPermissions_Project_Add_NewProject(t *testing.T) {
 func TestPermissions_Project_Add_Role(t *testing.T) {
 	client := Setup(t)
 
-	role, _, err := client.RoleV1("00000000-0000-0000-0000-000000000000").Create(&managementv1.CreateRoleOptions{
-		Name: fmt.Sprintf("test-role-%d", rand.Int()),
-	})
-	assert.NoError(t, err)
-	assert.NotNil(t, role)
+	role := MustCreateRole(t, client, defaultProjectID)
 
-	t.Cleanup(func() {
-		r, err := client.RoleV1("00000000-0000-0000-0000-000000000000").Delete(role.ID)
-		assert.NoError(t, err)
-		assert.Equal(t, http.StatusNoContent, r.StatusCode)
-	})
-
-	r, err := client.PermissionV1().ProjectPermission().Update("00000000-0000-0000-0000-000000000000", &permissionv1.UpdateProjectPermissionsOptions{
+	r, err := client.PermissionV1().ProjectPermission().Update(defaultProjectID, &permissionv1.UpdateProjectPermissionsOptions{
 		Writes: []*permissionv1.ProjectAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -365,7 +301,7 @@ func TestPermissions_Project_Add_Role(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments("00000000-0000-0000-0000-000000000000", nil)
+	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(defaultProjectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 
@@ -386,7 +322,7 @@ func TestPermissions_Project_Add_Role(t *testing.T) {
 				Assignment: permissionv1.DescribeProjectAssignment,
 			},
 		},
-		ProjectID: "00000000-0000-0000-0000-000000000000",
+		ProjectID: defaultProjectID,
 	}
 
 	assert.Equal(t, want, resp)
