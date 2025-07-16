@@ -103,7 +103,7 @@ func TestProject_Default(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
-	assert.Equal(t, "00000000-0000-0000-0000-000000000000", project.ID)
+	assert.Equal(t, defaultProjectID, project.ID)
 	assert.Equal(t, "Default Project", project.Name)
 }
 
@@ -141,7 +141,7 @@ func TestProject_List(t *testing.T) {
 	want := &managementv1.ListProjectsResponse{
 		Projects: []*managementv1.Project{
 			{
-				ID:   "00000000-0000-0000-0000-000000000000",
+				ID:   defaultProjectID,
 				Name: "Default Project",
 			},
 		},
