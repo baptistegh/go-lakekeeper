@@ -5,8 +5,6 @@ import (
 	"net/http"
 
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
-
-	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 )
 
 type (
@@ -154,9 +152,9 @@ type UpdateProjectPermissionsOptions struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_project_assignments
 func (s *ProjectPermissionService) Update(id string, opt *UpdateProjectPermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
-	options = append(options, managementv1.WithProject(id))
+	path := fmt.Sprintf("/permissions/project/%s/assignments", id)
 
-	req, err := s.client.NewRequest(http.MethodPost, "/permissions/project/assignments", opt, options)
+	req, err := s.client.NewRequest(http.MethodPost, path, opt, options)
 	if err != nil {
 		return nil, err
 	}

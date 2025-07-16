@@ -100,9 +100,8 @@ func TestProjectPermissionService_Update(t *testing.T) {
 		},
 	}
 
-	mux.HandleFunc("/management/v1/permissions/project/assignments", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/management/v1/permissions/project/6068343f-7e97-4438-b5c1-866618e3619d/assignments", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
-		testutil.TestHeader(t, r, "x-project-id", "6068343f-7e97-4438-b5c1-866618e3619d")
 		w.WriteHeader(http.StatusNoContent)
 		if !testutil.TestBodyJSON(t, r, opt) {
 			t.Errorf("invalid request JSON body")
