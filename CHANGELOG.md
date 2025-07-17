@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.0.8 (2025-07-17)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### 🎉 Features
+* feat(permission): add role interfaces by @baptistegh in https://github.com/baptistegh/go-lakekeeper/pull/78
+
+
+**Full Changelog**: https://github.com/baptistegh/go-lakekeeper/compare/v0.0.7...v0.0.8
+
 ## 0.0.7 (2025-07-16)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
