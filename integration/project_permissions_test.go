@@ -284,9 +284,10 @@ func TestPermissions_Project_Add_NewProject(t *testing.T) {
 func TestPermissions_Project_Add_Role(t *testing.T) {
 	client := Setup(t)
 
-	role := MustCreateRole(t, client, defaultProjectID)
+	project := MustCreateProject(t, client)
+	role := MustCreateRole(t, client, project)
 
-	r, err := client.PermissionV1().ProjectPermission().Update(defaultProjectID, &permissionv1.UpdateProjectPermissionsOptions{
+	r, err := client.PermissionV1().ProjectPermission().Update(project, &permissionv1.UpdateProjectPermissionsOptions{
 		Writes: []*permissionv1.ProjectAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -301,7 +302,7 @@ func TestPermissions_Project_Add_Role(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(defaultProjectID, nil)
+	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(project, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 
@@ -322,7 +323,7 @@ func TestPermissions_Project_Add_Role(t *testing.T) {
 				Assignment: permissionv1.DescribeProjectAssignment,
 			},
 		},
-		ProjectID: defaultProjectID,
+		ProjectID: project,
 	}
 
 	assert.Equal(t, want, resp)

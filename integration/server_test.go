@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestServer_Info(t *testing.T) {
+func TestServerService_Info(t *testing.T) {
 	client := Setup(t)
 
 	info, _, err := client.ServerV1().Info()
@@ -22,7 +22,7 @@ func TestServer_Info(t *testing.T) {
 	assert.Equal(t, info.AuthzBackend, "openfga")
 }
 
-func TestServer_Bootstrap(t *testing.T) {
+func TestServerService_Bootstrap(t *testing.T) {
 	client := Setup(t)
 
 	resp, err := client.ServerV1().Bootstrap(&managementv1.BootstrapServerOptions{

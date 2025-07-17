@@ -8,6 +8,7 @@ type (
 	PermissionServiceInterface interface {
 		ServerPermission() ServerPermissionServiceInterface
 		ProjectPermission() ProjectPermissionServiceInterface
+		RolePermission() RolePermissionServiceInterface
 	}
 
 	// PermissionService handles communication with permission endpoints of the Lakekeeper API.
@@ -31,4 +32,8 @@ func (s *PermissionService) ServerPermission() ServerPermissionServiceInterface 
 
 func (s *PermissionService) ProjectPermission() ProjectPermissionServiceInterface {
 	return NewProjectPermissionService(s.client)
+}
+
+func (s *PermissionService) RolePermission() RolePermissionServiceInterface {
+	return NewRolePermissionService(s.client)
 }
