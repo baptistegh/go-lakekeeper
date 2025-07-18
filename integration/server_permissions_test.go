@@ -51,7 +51,7 @@ func TestPermissions_Server_GetAssignments(t *testing.T) {
 					Type:  permissionv1.UserType,
 					Value: adminID,
 				},
-				Assignment: permissionv1.AdminServerAssignment,
+				Assignment: permissionv1.OperatorServerAssignment,
 			},
 		},
 	}
@@ -76,7 +76,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 					Type:  permissionv1.UserType,
 					Value: adminID,
 				},
-				Assignment: permissionv1.AdminServerAssignment,
+				Assignment: permissionv1.OperatorServerAssignment,
 			},
 		},
 	}
@@ -91,7 +91,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 					Type:  permissionv1.UserType,
 					Value: user.ID,
 				},
-				Assignment: permissionv1.OperatorServerAssignment,
+				Assignment: permissionv1.AdminServerAssignment,
 			},
 		},
 	})
@@ -110,14 +110,14 @@ func TestPermissions_Server_Update(t *testing.T) {
 			{
 				Assignee: permissionv1.UserOrRole{
 					Type:  permissionv1.UserType,
-					Value: adminID,
+					Value: user.ID,
 				},
 				Assignment: permissionv1.AdminServerAssignment,
 			},
 			{
 				Assignee: permissionv1.UserOrRole{
 					Type:  permissionv1.UserType,
-					Value: user.ID,
+					Value: adminID,
 				},
 				Assignment: permissionv1.OperatorServerAssignment,
 			},
@@ -134,7 +134,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 					Type:  permissionv1.UserType,
 					Value: user.ID,
 				},
-				Assignment: permissionv1.OperatorServerAssignment,
+				Assignment: permissionv1.AdminServerAssignment,
 			},
 		},
 	})
@@ -155,7 +155,7 @@ func TestPermissions_Server_Update(t *testing.T) {
 					Type:  permissionv1.UserType,
 					Value: adminID,
 				},
-				Assignment: permissionv1.AdminServerAssignment,
+				Assignment: permissionv1.OperatorServerAssignment,
 			},
 		},
 	}

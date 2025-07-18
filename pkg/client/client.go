@@ -52,6 +52,13 @@ type Client struct {
 	// server at startup.
 	bootstrap bool
 
+	// bootstrapAsOperator controls if the user bootstraping
+	// the server will have the operator role.
+	bootstrapAsOperator bool
+
+	// bootstrap user type
+	bootstrapUserType managementv1.UserType
+
 	// bootstrapInit is used to ensure that the bootstrap flow
 	// is executed once
 	bootstrapInit sync.Once
@@ -101,9 +108,11 @@ func NewAuthSourceClient(as core.AuthSource, baseURL string, options ...ClientOp
 	var err error
 
 	c := &Client{
-		UserAgent:  userAgent,
-		authSource: as,
-		bootstrap:  false,
+		UserAgent:           userAgent,
+		authSource:          as,
+		bootstrap:           false,
+		bootstrapAsOperator: false,
+		bootstrapUserType:   managementv1.ApplicationUserType,
 	}
 
 	// Configure the HTTP client.
@@ -149,7 +158,7 @@ func NewAuthSourceClient(as core.AuthSource, baseURL string, options ...ClientOp
 
 		bootstrapOpts := managementv1.BootstrapServerOptions{
 			AcceptTermsOfUse: true,
-			IsOperator:       core.Ptr(false),
+			IsOperator:       core.Ptr(c.bootstrapAsOperator),
 			UserType:         core.Ptr(managementv1.ApplicationUserType),
 		}
 		_, err = c.ServerV1().Bootstrap(&bootstrapOpts)

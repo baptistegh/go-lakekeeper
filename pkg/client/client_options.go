@@ -6,6 +6,8 @@ import (
 
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/hashicorp/go-retryablehttp"
+
+	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 )
 
 // ClientOptionFunc can be used to customize a new Lakekeeper API client.
@@ -85,11 +87,33 @@ func WithHTTPClient(httpClient *http.Client) ClientOptionFunc {
 	}
 }
 
-// WithInitialBootstrapEnabled enables automatic server
+// WithInitialBootstrapV1Enabled enables automatic server
 // bootstrap on client startup.
-func WithInitialBootstrapEnabled() ClientOptionFunc {
+//
+// acceptTermsOfUse is here to be sure the user is aware.
+// if false, this client options will do nothing.
+//
+// isOperator controls wether the provisioned user will
+// have the operator role. default is false.
+//
+// userType can be human or application, default is application.
+func WithInitialBootstrapV1Enabled(
+	acceptTermsOfUse bool,
+	isOperator bool,
+	userType *managementv1.UserType,
+) ClientOptionFunc {
 	return func(c *Client) error {
+		if !acceptTermsOfUse {
+			return nil
+		}
+
+		c.bootstrapAsOperator = isOperator
 		c.bootstrap = true
+
+		if userType != nil {
+			c.bootstrapUserType = *userType
+		}
+
 		return nil
 	}
 }
