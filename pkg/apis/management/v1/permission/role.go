@@ -9,6 +9,10 @@ import (
 
 type (
 	RolePermissionServiceInterface interface {
+		// Get the access to a role
+		// opt filters the access by a specific user or role.
+		// If not specified, it returns the access for the current user.
+		GetAccess(id string, opts *GetRoleAccessOptions, options ...core.RequestOptionFunc) (*GetRoleAccessResponse, *http.Response, error)
 		// Get a role assignments
 		// opt filters the assignments by relations.
 		// If not specified, it returns all assignments.
@@ -30,6 +34,59 @@ func NewRolePermissionService(client core.Client) RolePermissionServiceInterface
 	return &RolePermissionService{
 		client: client,
 	}
+}
+
+type RoleAction string
+
+const (
+	Assume              RoleAction = "assume"
+	CanGrantAssignee    RoleAction = "can_grant_assignee"
+	CanChangeOwnership  RoleAction = "can_change_ownership"
+	DeleteRole          RoleAction = "delete"
+	UpdateRole          RoleAction = "update"
+	ReadRole            RoleAction = "read"
+	ReadRoleAssignments RoleAction = "read_assignments"
+)
+
+// GetRoleAccessOptions represents the GetAccess() options.
+//
+// Only one of PrincipalUser or PrincipalRole should be set at a time.
+// Setting both fields simultaneously is not allowed.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_access
+type GetRoleAccessOptions struct {
+	PrincipalUser *string `url:"principalUser,omitempty"`
+	PrincipalRole *string `url:"principalRole,omitempty"`
+}
+
+// GetRoleAccessResponse represents the response from the GetAccess() endpoint.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_access
+type GetRoleAccessResponse struct {
+	AllowedActions []RoleAction `json:"allowed-actions"`
+}
+
+// GetAccess retrieves user or role access to a role.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_access
+func (s *RolePermissionService) GetAccess(id string, opt *GetRoleAccessOptions, options ...core.RequestOptionFunc) (*GetRoleAccessResponse, *http.Response, error) {
+	path := fmt.Sprintf("/permissions/role/%s/access", id)
+
+	req, err := s.client.NewRequest(http.MethodGet, path, opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var response GetRoleAccessResponse
+	resp, apiErr := s.client.Do(req, &response)
+	if apiErr != nil {
+		return nil, resp, apiErr
+	}
+
+	return &response, resp, nil
 }
 
 // GetRoleAssignmentsOptions represents the GetAssignments() options.

@@ -10,6 +10,34 @@ import (
 	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 )
 
+func TestRolePermissionService_GetAccess(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	mux.HandleFunc("/management/v1/permissions/role/ed149356-70a0-4a9b-af80-b54b411dae33/access", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.MustWriteHTTPResponse(t, w, "../testdata/permissions_role_get_access.json")
+	})
+
+	access, resp, err := client.PermissionV1().RolePermission().GetAccess("ed149356-70a0-4a9b-af80-b54b411dae33", nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	want := &permissionv1.GetRoleAccessResponse{
+		AllowedActions: []permissionv1.RoleAction{
+			permissionv1.Assume,
+			permissionv1.CanGrantAssignee,
+			permissionv1.CanChangeOwnership,
+			permissionv1.DeleteRole,
+			permissionv1.UpdateRole,
+			permissionv1.ReadRole,
+			permissionv1.ReadRoleAssignments,
+		},
+	}
+
+	assert.Equal(t, want, access)
+}
+
 func TestRolePermissionService_GetAssignments(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
