@@ -41,7 +41,7 @@ func Setup(t *testing.T) *client.Client {
 		TokenSource: oauth.TokenSource(context.Background()),
 	}
 
-	c, err := client.NewAuthSourceClient(&as, os.Getenv("LAKEKEEPER_BASE_URL"), client.WithInitialBootstrapEnabled())
+	c, err := client.NewAuthSourceClient(&as, os.Getenv("LAKEKEEPER_BASE_URL"), client.WithInitialBootstrapV1Enabled(true, true, core.Ptr(managementv1.ApplicationUserType)))
 	if err != nil {
 		t.Fatalf("could not create client, %v", err)
 	}

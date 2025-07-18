@@ -36,7 +36,7 @@ import (
 )
 
 func main() {
-    // Create a new client with your access token and instance URL
+    // Create the OAuth configuration
     oauthConfig := &clientcredentials.Config{
         ClientID:     "lakekeeper-client-id",
         ClientSecret: "lakekeeper-client-secret",
@@ -45,8 +45,13 @@ func main() {
     }
 
     as := core.OAuthTokenSource{TokenSource: oauthConfig.TokenSource()}
-
-    client, err := lakekeeper.NewAuthSourceClient(&as, baseURL)
+    
+    // Create the client and enable the initial bootstrap
+    client, err := lakekeeper.NewAuthSourceClient(
+        &as,
+        baseURL,
+        lakekeeper.WithInitialBootstrapV1Enabled(true, true, core.Ptr(managementv1.ApplicationUserType))
+    )
     if err != nil {
         log.Fatalf("error creating lakekeeper client, %v", err)
     }
