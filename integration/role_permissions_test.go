@@ -11,6 +11,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestPermissions_Role_GetAccess(t *testing.T) {
+	client := Setup(t)
+
+	role := MustCreateRole(t, client, defaultProjectID)
+
+	resp, r, err := client.PermissionV1().RolePermission().GetAccess(role.ID, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+
+	// User should be owner on this role
+	want := &permissionv1.GetRoleAccessResponse{
+		AllowedActions: []permissionv1.RoleAction{
+			permissionv1.Assume,
+			permissionv1.CanGrantAssignee,
+			permissionv1.CanChangeOwnership,
+			permissionv1.DeleteRole,
+			permissionv1.UpdateRole,
+			permissionv1.ReadRole,
+			permissionv1.ReadRoleAssignments,
+		},
+	}
+
+	assert.Equal(t, want, resp)
+}
+
 func TestPermissions_Role_GetAssignments(t *testing.T) {
 	client := Setup(t)
 
