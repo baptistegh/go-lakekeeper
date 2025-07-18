@@ -11,6 +11,9 @@ import (
 	"testing"
 
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
+	credentialv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/credential"
+	profilev1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/profile"
+
 	"github.com/baptistegh/go-lakekeeper/pkg/client"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/google/uuid"
@@ -110,4 +113,26 @@ func MustCreateProject(t *testing.T, c *client.Client) string {
 	})
 
 	return p.ID
+}
+
+func MustCreateWarehouse(t *testing.T, c *client.Client, projectID string) string {
+	rNb := rand.Int()
+
+	w, _, err := c.WarehouseV1(projectID).Create(&managementv1.CreateWarehouseOptions{
+		Name:              fmt.Sprintf("test-role-%d", rNb),
+		StorageProfile:    profilev1.NewS3StorageSettings("testacc", "eu-local-1").AsProfile(),
+		StorageCredential: credentialv1.NewS3CredentialAccessKey("access-key", "secret-key").AsCredential(),
+	})
+	if err != nil {
+		t.Fatalf("could not create warehouse, %v", err)
+	}
+
+	t.Cleanup(func() {
+		if _, err := c.WarehouseV1(projectID).Delete(w.ID, &managementv1.DeleteWarehouseOptions{Force: core.Ptr(true)}); err != nil {
+			t.Fatalf("could not delete warehouse, %v", err)
+		}
+
+	})
+
+	return w.ID
 }

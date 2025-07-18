@@ -263,7 +263,7 @@ func (s *WarehouseService) Rename(id string, opts *RenameWarehouseOptions, optio
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/delete_warehouse
 type DeleteWarehouseOptions struct {
-	Force bool `url:"force"`
+	Force *bool `url:"force,omitempty"`
 }
 
 // Delete permanently removes a warehouse and all its associated resources.
