@@ -9,3 +9,33 @@ go:
 ci:
   - changed-files:
     - any-glob-to-any-file: .github/**
+    - any-glob-to-any-file: .golangci.yml
+    - any-glob-to-any-file: codecov.yml
+  - title: ['^ci','^chore\(ci\)']
+
+enhancement:
+ - title: '^feat'
+
+bug:
+ - title: '^fix'
+
+breaking-change:
+ - title: '^\w+(\(\w+\))?!:'
+
+'area: permissions':
+  - title: '^\w+\(permissions\)!?:'
+
+'area: project':
+  - title: '^\w+\(project\)!?:'
+
+'area: role':
+  - title: '^\w+\(role\)!?:'
+
+'area: server':
+  - title: '^\w+\(server\)!?:'
+
+'area: user':
+  - title: '^\w+\(user\)!?:'
+
+'area: warehouse':
+  - title: '^\w+\(warehouse\)!?:'
