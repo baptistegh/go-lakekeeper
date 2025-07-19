@@ -5,8 +5,6 @@ import (
 	"net/http"
 
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
-
-	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 )
 
 type (
@@ -31,15 +29,13 @@ type (
 	// Lakekeeper API docs:
 	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions
 	WarehousePermissionService struct {
-		client    core.Client
-		projectID string
+		client core.Client
 	}
 )
 
-func NewWarehousePermissionService(client core.Client, projectID string) WarehousePermissionServiceInterface {
+func NewWarehousePermissionService(client core.Client) WarehousePermissionServiceInterface {
 	return &WarehousePermissionService{
-		client:    client,
-		projectID: projectID,
+		client: client,
 	}
 }
 
@@ -81,8 +77,6 @@ type GetWarehouseAuthzPropertiesResponse struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
 func (s *WarehousePermissionService) GetAuthzProperties(id string, options ...core.RequestOptionFunc) (*GetWarehouseAuthzPropertiesResponse, *http.Response, error) {
-	options = append(options, managementv1.WithProject(s.projectID))
-
 	path := fmt.Sprintf("/permissions/warehouse/%s", id)
 
 	req, err := s.client.NewRequest(http.MethodGet, path, nil, options)
@@ -124,8 +118,6 @@ type GetWarehouseAccessResponse struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
 func (s *WarehousePermissionService) GetAccess(id string, opt *GetWarehouseAccessOptions, options ...core.RequestOptionFunc) (*GetWarehouseAccessResponse, *http.Response, error) {
-	options = append(options, managementv1.WithProject(s.projectID))
-
 	path := fmt.Sprintf("/permissions/warehouse/%s/access", id)
 
 	req, err := s.client.NewRequest(http.MethodGet, path, opt, options)
@@ -163,8 +155,6 @@ type GetWarehouseAssignmentsResponse struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_assignments
 func (s *WarehousePermissionService) GetAssignments(id string, opt *GetWarehouseAssignmentsOptions, options ...core.RequestOptionFunc) (*GetWarehouseAssignmentsResponse, *http.Response, error) {
-	options = append(options, managementv1.WithProject(s.projectID))
-
 	path := fmt.Sprintf("/permissions/warehouse/%s/assignments", id)
 
 	req, err := s.client.NewRequest(http.MethodGet, path, opt, options)
@@ -197,8 +187,6 @@ type UpdateWarehousePermissionsOptions struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_warehouse_assignments
 func (s *WarehousePermissionService) Update(id string, opt *UpdateWarehousePermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
-	options = append(options, managementv1.WithProject(s.projectID))
-
 	path := fmt.Sprintf("/permissions/warehouse/%s/assignments", id)
 
 	req, err := s.client.NewRequest(http.MethodPost, path, opt, options)
@@ -227,8 +215,6 @@ type SetWarehouseManagedAccessOptions struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/set_warehouse_managed_access
 func (s *WarehousePermissionService) SetManagedAccess(id string, opt *SetWarehouseManagedAccessOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
-	options = append(options, managementv1.WithProject(s.projectID))
-
 	path := fmt.Sprintf("/permissions/warehouse/%s/managed-access", id)
 
 	req, err := s.client.NewRequest(http.MethodPost, path, opt, options)
