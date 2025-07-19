@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.0.10 (2025-07-19)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### 🎉 Features
+* feat(permission): remove project scope on warehouse by @baptistegh in https://github.com/baptistegh/go-lakekeeper/pull/87
+
+
+**Full Changelog**: https://github.com/baptistegh/go-lakekeeper/compare/v0.0.9...v0.0.10
+
 ## 0.0.9 (2025-07-18)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
