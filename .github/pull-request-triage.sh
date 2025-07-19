@@ -32,26 +32,4 @@ Expected format: \`type(scope?): description\`, e.g. \`feat(login): add new logi
     exit 1
 fi
 
-TYPE=$(echo "$PR_TITLE" | sed -E 's/^([a-z]+)(\([^)]+\))?(!)?:.*/\1/')
-BREAKING=$(echo "$PR_TITLE" | grep -q '!' && echo "true" || echo "false")
-
-echo "Detected type: $TYPE"
-echo "Breaking change: $BREAKING"
-
-if [[ "$BREAKING" == "true" ]]; then
-    echo "🛑 Detected breaking change. Adding label."
-    gh pr edit "$PR_NUMBER" --add-label "breaking-change"
-    exit 0
-fi
-
-if [[ "$TYPE" == "feat" ]]; then
-    echo "🏷️ Added label: enhancement"
-    gh pr edit "$PR_NUMBER" --add-label "enhancement"
-    exit 0
-fi
-
-if [[ "$TYPE" == "fix" ]]; then
-    echo "🏷️ Added label: bug"
-    gh pr edit "$PR_NUMBER" --add-label "bug"
-    exit 0
-fi
+exit 0
