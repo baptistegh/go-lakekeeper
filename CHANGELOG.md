@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.0.9 (2025-07-18)
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### 🎉 Features
+* feat: add control on bootstrap user role by @baptistegh in https://github.com/baptistegh/go-lakekeeper/pull/82
+* feat(permission): add warehouse interfaces by @baptistegh in https://github.com/baptistegh/go-lakekeeper/pull/85
+* feat(permission): add missing GetAccess on role by @baptistegh in https://github.com/baptistegh/go-lakekeeper/pull/86
+### Other Changes
+* chore(ci): add v0.9.3 support by @baptistegh in https://github.com/baptistegh/go-lakekeeper/pull/80
+
+
+**Full Changelog**: https://github.com/baptistegh/go-lakekeeper/compare/v0.0.8...v0.0.9
+
 ## 0.0.8 (2025-07-17)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
