@@ -18,10 +18,18 @@ go get github.com/baptistegh/go-lakekeeper
 
 ## Usage
 
+The client is organized into services that correspond to different parts of the Lakekeeper API.
+
+The two main parts are [Management](#management-api) and [Catalog](#catalog-api-iceberg-rest-catalog).
+
+The Catalog part is handled by the Iceberg Go implementation : [go-iceberg](https://github.com/apache/iceberg-go).
+
 ### Client Initialization
 
 First, import the client package.
 Then, create a new client using your authentication configurations and the base URL of your Lakekeeper instance.
+
+If you're using the [Lakekeeper Examples](https://github.com/lakekeeper/lakekeeper/tree/main/examples), then you can create the client as follow:
 
 #### Client Credentials (OIDC)
 
@@ -38,9 +46,9 @@ import (
 func main() {
     // Create the OAuth configuration
     oauthConfig := &clientcredentials.Config{
-        ClientID:     "lakekeeper-client-id",
-        ClientSecret: "lakekeeper-client-secret",
-        TokenURL:     "<oidc_provider>/oauth/token",
+        ClientID:     "spark",
+        ClientSecret: "2OR3eRvYfSZzzZ16MlPd95jhLnOaLM52",
+        TokenURL:     "http://localhost:30080/realms/iceberg/protocol/openid-connect/token",
         Scopes:       []string{"lakekeeper"},
     }
 
@@ -57,38 +65,26 @@ func main() {
     }
 
     // You can now use the client to interact with the API
+    project, err := client.ProjectV1().Create(...)
 }
 ```
 
 #### Kubernetes Service Account
 
 ```go
-import (
-    "log"
-
-    "github.com/baptistegh/go-lakekeeper/pkg/core"
-    lakekeeper "github.com/baptistegh/go-lakekeeper/pkg/client"
-)
-
-func main() {
-    as := core.K8sServiceAccountAuthSource{}
-
-    client, err := lakekeeper.NewAuthSourceClient(&as, baseURL)
-    if err != nil {
-        log.Fatalf("error creating lakekeeper client, %v", err)
-    }
-
-    // You can now use the client to interact with the API
+// This gets the service account token 
+// usually stored in /var/run/secrets/kubernetes.io/serviceaccount/token
+client, err := lakekeeper.NewAuthSourceClient(&core.K8sServiceAccountAuthSource{}, baseURL)
+if err != nil {
+    log.Fatalf("error creating lakekeeper client, %v", err)
 }
 ```
 
-### Accessing API Services
+### Management API
 
-The client is organized into services that correspond to different parts of the Lakekeeper API.
+#### Server Information
 
-#### Get Server Information
-
-You can get information about the Lakekeeper server instance.
+You can get information about the Lakekeeper server instance:
 
 ```go
 serverInfo, _, err := client.ServerV1().Info()
@@ -96,10 +92,10 @@ if err != nil {
     log.Fatalf("Failed to get server info: %v", err)
 }
 
-log.Printf("Connected to Lakekeeper version: %s\n", serverInfo.Version)
+log.Printf("Connected to Lakekeeper version, %s\n", serverInfo.Version)
 ```
 
-#### Working with Projects
+#### Projects
 
 ```go
 // Get default project
@@ -108,10 +104,14 @@ if err != nil {
     log.Fatalf("Failed to get project: %v", err)
 }
 
-fmt.Printf("Default Project ID: %s, Name: %s\n", project.ID, project.Name)
+// Get Project By ID
+project, _, err := client.ProjectV1().Get(projectID)
+if err != nil {
+    log.Fatalf("Failed to get project %s, %v", projectID, err)
+}
 ```
 
-#### Working with Project-Scoped Resources (e.g., Roles)
+#### Project-Scoped Resources (e.g., Roles, Warehouses)
 
 Services for resources like Roles and Warehouses are scoped to a specific project.
 You first create a service for that project ID.
@@ -120,34 +120,53 @@ You first create a service for that project ID.
 // Get a specific role within a project
 role, _, err := client.RoleV1(project.ID).Get("a-role-id")
 if err != nil {
-    log.Fatalf("Failed to get role: %v", err)
+    return err
 }
-fmt.Printf("Role Name: %s\n", role.Name)
+
+// Get a warehouse within a project
+warehouse, _, err := client.WarehouseV1(project.ID).Get("a-warehouse-id")
+if err != nil {
+    return err
+}
 ```
 
 #### Create resources (e.g., Warehouse)
 
 ```go
 // Set the storage settings (eg. MinIO)
-storage, _ := profile.NewS3StorageSettings("bucket-name", "local-01",
-    profile.WithEndpoint("http://minio:9000/"),
-    profile.WithPathStyleAccess()
+storage, _ := profilev1.NewS3StorageSettings("bucket-name", "local-01",
+    profilev1.WithEndpoint("http://minio:9000/"),
+    profilev1.WithPathStyleAccess()
 )
 
 creds, _ := credential.NewS3CredentialAccessKey("access-key-id", "secret-access-key")
 
 opts := v1.CreateWarehouseOptions{
-    Name:              acctest.RandString(8),
+    Name:              "my-warehouse",
     StorageProfile:    storage.AsProfile(),
     StorageCredential: creds.AsCredential(),
-    DeleteProfile:     profile.NewTabularDeleteProfileHard().AsProfile(),
+    DeleteProfile:     profilev1.NewTabularDeleteProfileHard().AsProfile(),
 }
 
-// Create the warehouse within a project
+// Create the warehouse
 warehouse, _, err := client.WarehouseV1(project.ID).Create(&opts)
 if err != nil {
-    log.Fatalf("Failed to create warehouse: %v", err)
+    return err
 }
 
 fmt.Printf("Warehouse with ID %s created!\n", warehouse.ID)
+```
+
+
+### Catalog API (Iceberg REST Catalog)
+
+#### Getting a REST Catalog interface
+
+```go
+catalog, err := client.Catalog(ctx, projectID, warehouseName)
+if err != {
+    log.Fatalf("Failed to get REST catalog for warehouse %s in project %s, %v", warehouseName, projectID, err)
+}
+
+// catalog is a *rest.Catalog, you can use it to interact with the Iceberg REST catalog API.
 ```
