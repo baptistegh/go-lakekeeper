@@ -9,7 +9,7 @@ type (
 		ServerPermission() ServerPermissionServiceInterface
 		ProjectPermission() ProjectPermissionServiceInterface
 		RolePermission() RolePermissionServiceInterface
-		WarehousePermission(projectID string) WarehousePermissionServiceInterface
+		WarehousePermission() WarehousePermissionServiceInterface
 	}
 
 	// PermissionService handles communication with permission endpoints of the Lakekeeper API.
@@ -39,6 +39,6 @@ func (s *PermissionService) RolePermission() RolePermissionServiceInterface {
 	return NewRolePermissionService(s.client)
 }
 
-func (s *PermissionService) WarehousePermission(projectID string) WarehousePermissionServiceInterface {
-	return NewWarehousePermissionService(s.client, projectID)
+func (s *PermissionService) WarehousePermission() WarehousePermissionServiceInterface {
+	return NewWarehousePermissionService(s.client)
 }
