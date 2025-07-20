@@ -1,6 +1,7 @@
 package permission
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -9,19 +10,19 @@ import (
 
 type (
 	WarehousePermissionServiceInterface interface {
-		GetAuthzProperties(id string, options ...core.RequestOptionFunc) (*GetWarehouseAuthzPropertiesResponse, *http.Response, error)
+		GetAuthzProperties(ctx context.Context, id string, options ...core.RequestOptionFunc) (*GetWarehouseAuthzPropertiesResponse, *http.Response, error)
 		// Get the access to a warehouse
 		// opt filters the access by a specific user or role.
 		// If not specified, it returns the access for the current user.
-		GetAccess(id string, opt *GetWarehouseAccessOptions, options ...core.RequestOptionFunc) (*GetWarehouseAccessResponse, *http.Response, error)
+		GetAccess(ctx context.Context, id string, opt *GetWarehouseAccessOptions, options ...core.RequestOptionFunc) (*GetWarehouseAccessResponse, *http.Response, error)
 		// Get a warehouse assignments
 		// opt filters the assignments by relations.
 		// If not specified, it returns all assignments.
-		GetAssignments(id string, opt *GetWarehouseAssignmentsOptions, options ...core.RequestOptionFunc) (*GetWarehouseAssignmentsResponse, *http.Response, error)
+		GetAssignments(ctx context.Context, id string, opt *GetWarehouseAssignmentsOptions, options ...core.RequestOptionFunc) (*GetWarehouseAssignmentsResponse, *http.Response, error)
 		// Update permissions for a warehouse
-		Update(id string, opts *UpdateWarehousePermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		Update(ctx context.Context, id string, opts *UpdateWarehousePermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Set managed access property of a warehouse
-		SetManagedAccess(id string, opts *SetWarehouseManagedAccessOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		SetManagedAccess(ctx context.Context, id string, opts *SetWarehouseManagedAccessOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
 	// WarehousePermissionService handles communication with warehouse permissions endpoints of the Lakekeeper API.
@@ -76,10 +77,10 @@ type GetWarehouseAuthzPropertiesResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
-func (s *WarehousePermissionService) GetAuthzProperties(id string, options ...core.RequestOptionFunc) (*GetWarehouseAuthzPropertiesResponse, *http.Response, error) {
+func (s *WarehousePermissionService) GetAuthzProperties(ctx context.Context, id string, options ...core.RequestOptionFunc) (*GetWarehouseAuthzPropertiesResponse, *http.Response, error) {
 	path := fmt.Sprintf("/permissions/warehouse/%s", id)
 
-	req, err := s.client.NewRequest(http.MethodGet, path, nil, options)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -117,10 +118,10 @@ type GetWarehouseAccessResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
-func (s *WarehousePermissionService) GetAccess(id string, opt *GetWarehouseAccessOptions, options ...core.RequestOptionFunc) (*GetWarehouseAccessResponse, *http.Response, error) {
+func (s *WarehousePermissionService) GetAccess(ctx context.Context, id string, opt *GetWarehouseAccessOptions, options ...core.RequestOptionFunc) (*GetWarehouseAccessResponse, *http.Response, error) {
 	path := fmt.Sprintf("/permissions/warehouse/%s/access", id)
 
-	req, err := s.client.NewRequest(http.MethodGet, path, opt, options)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -154,10 +155,10 @@ type GetWarehouseAssignmentsResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_assignments
-func (s *WarehousePermissionService) GetAssignments(id string, opt *GetWarehouseAssignmentsOptions, options ...core.RequestOptionFunc) (*GetWarehouseAssignmentsResponse, *http.Response, error) {
+func (s *WarehousePermissionService) GetAssignments(ctx context.Context, id string, opt *GetWarehouseAssignmentsOptions, options ...core.RequestOptionFunc) (*GetWarehouseAssignmentsResponse, *http.Response, error) {
 	path := fmt.Sprintf("/permissions/warehouse/%s/assignments", id)
 
-	req, err := s.client.NewRequest(http.MethodGet, path, opt, options)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -186,10 +187,10 @@ type UpdateWarehousePermissionsOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_warehouse_assignments
-func (s *WarehousePermissionService) Update(id string, opt *UpdateWarehousePermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehousePermissionService) Update(ctx context.Context, id string, opt *UpdateWarehousePermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	path := fmt.Sprintf("/permissions/warehouse/%s/assignments", id)
 
-	req, err := s.client.NewRequest(http.MethodPost, path, opt, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, opt, options)
 	if err != nil {
 		return nil, err
 	}
@@ -214,10 +215,10 @@ type SetWarehouseManagedAccessOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/set_warehouse_managed_access
-func (s *WarehousePermissionService) SetManagedAccess(id string, opt *SetWarehouseManagedAccessOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehousePermissionService) SetManagedAccess(ctx context.Context, id string, opt *SetWarehouseManagedAccessOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	path := fmt.Sprintf("/permissions/warehouse/%s/managed-access", id)
 
-	req, err := s.client.NewRequest(http.MethodPost, path, opt, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, opt, options)
 	if err != nil {
 		return nil, err
 	}

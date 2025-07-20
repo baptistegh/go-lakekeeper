@@ -4,6 +4,7 @@
 package integration
 
 import (
+	"context"
 	"net/http"
 	"testing"
 
@@ -14,7 +15,7 @@ import (
 func TestProject_Create(t *testing.T) {
 	client := Setup(t)
 
-	resp, r, err := client.ProjectV1().Create(&managementv1.CreateProjectOptions{
+	resp, r, err := client.ProjectV1().Create(t.Context(), &managementv1.CreateProjectOptions{
 		Name: "test-project",
 	})
 
@@ -24,7 +25,7 @@ func TestProject_Create(t *testing.T) {
 	assert.NotEmpty(t, resp.ID)
 
 	t.Cleanup(func() {
-		r, err = client.ProjectV1().Delete(resp.ID)
+		r, err = client.ProjectV1().Delete(context.Background(), resp.ID)
 		if err != nil {
 			t.Fatalf("could not delete project, %v", err)
 		}
@@ -35,7 +36,7 @@ func TestProject_Create(t *testing.T) {
 func TestProject_Rename(t *testing.T) {
 	client := Setup(t)
 
-	resp, r, err := client.ProjectV1().Create(&managementv1.CreateProjectOptions{
+	resp, r, err := client.ProjectV1().Create(t.Context(), &managementv1.CreateProjectOptions{
 		Name: "test-project-2",
 	})
 
@@ -46,21 +47,21 @@ func TestProject_Rename(t *testing.T) {
 	assert.NotEmpty(t, resp.ID)
 
 	t.Cleanup(func() {
-		r, err = client.ProjectV1().Delete(resp.ID)
+		r, err = client.ProjectV1().Delete(context.Background(), resp.ID)
 		if err != nil {
 			t.Fatalf("could not delete project, %v", err)
 		}
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 	})
 
-	r, err = client.ProjectV1().Rename(resp.ID, &managementv1.RenameProjectOptions{
+	r, err = client.ProjectV1().Rename(t.Context(), resp.ID, &managementv1.RenameProjectOptions{
 		NewName: "test-project-renamed",
 	})
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
-	project, r, err := client.ProjectV1().Get(resp.ID)
+	project, r, err := client.ProjectV1().Get(t.Context(), resp.ID)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -71,7 +72,7 @@ func TestProject_RenameDefault(t *testing.T) {
 	client := Setup(t)
 
 	t.Cleanup(func() {
-		r, err := client.ProjectV1().RenameDefault(&managementv1.RenameProjectOptions{
+		r, err := client.ProjectV1().RenameDefault(context.Background(), &managementv1.RenameProjectOptions{
 			NewName: "Default Project",
 		})
 		if err != nil {
@@ -80,14 +81,14 @@ func TestProject_RenameDefault(t *testing.T) {
 		assert.Equal(t, http.StatusOK, r.StatusCode)
 	})
 
-	r, err := client.ProjectV1().RenameDefault(&managementv1.RenameProjectOptions{
+	r, err := client.ProjectV1().RenameDefault(t.Context(), &managementv1.RenameProjectOptions{
 		NewName: "test-project-renamed",
 	})
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
-	project, r, err := client.ProjectV1().GetDefault()
+	project, r, err := client.ProjectV1().GetDefault(t.Context())
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -97,7 +98,7 @@ func TestProject_RenameDefault(t *testing.T) {
 func TestProject_Default(t *testing.T) {
 	client := Setup(t)
 
-	project, r, err := client.ProjectV1().GetDefault()
+	project, r, err := client.ProjectV1().GetDefault(t.Context())
 
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
@@ -110,7 +111,7 @@ func TestProject_Default(t *testing.T) {
 func TestProject_Delete(t *testing.T) {
 	client := Setup(t)
 
-	project, r, err := client.ProjectV1().Create(&managementv1.CreateProjectOptions{
+	project, r, err := client.ProjectV1().Create(t.Context(), &managementv1.CreateProjectOptions{
 		Name: "test-project-3",
 	})
 
@@ -119,13 +120,13 @@ func TestProject_Delete(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, r.StatusCode)
 	assert.NotEmpty(t, project.ID)
 
-	r, err = client.ProjectV1().Delete(project.ID)
+	r, err = client.ProjectV1().Delete(t.Context(), project.ID)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	p, r, err := client.ProjectV1().Get(project.ID)
+	p, r, err := client.ProjectV1().Get(t.Context(), project.ID)
 
 	// Lakekeeper API sends 403 when trying to read a non existent object
 	assert.ErrorContains(t, err, "Forbidden")
@@ -136,7 +137,7 @@ func TestProject_Delete(t *testing.T) {
 func TestProject_List(t *testing.T) {
 	client := Setup(t)
 
-	resp, r, err := client.ProjectV1().List()
+	resp, r, err := client.ProjectV1().List(t.Context())
 
 	want := &managementv1.ListProjectsResponse{
 		Projects: []*managementv1.Project{

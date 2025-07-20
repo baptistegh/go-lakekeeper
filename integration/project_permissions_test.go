@@ -14,7 +14,7 @@ import (
 func TestPermissions_Project_GetAccess(t *testing.T) {
 	client := Setup(t)
 
-	resp, r, err := client.PermissionV1().ProjectPermission().GetAccess(defaultProjectID, nil)
+	resp, r, err := client.PermissionV1().ProjectPermission().GetAccess(t.Context(), defaultProjectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -47,7 +47,7 @@ func TestPermissions_Project_GetAccess(t *testing.T) {
 func TestPermissions_Project_GetAssignments(t *testing.T) {
 	client := Setup(t)
 
-	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(defaultProjectID, nil)
+	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), defaultProjectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -74,7 +74,7 @@ func TestPermissions_Project_Update(t *testing.T) {
 
 	user := MustProvisionUser(t, client)
 
-	resp, _, err := client.PermissionV1().ProjectPermission().GetAssignments(defaultProjectID, nil)
+	resp, _, err := client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), defaultProjectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -95,7 +95,7 @@ func TestPermissions_Project_Update(t *testing.T) {
 	assert.Equal(t, want, resp)
 
 	// adding permission
-	r, err := client.PermissionV1().ProjectPermission().Update(defaultProjectID, &permissionv1.UpdateProjectPermissionsOptions{
+	r, err := client.PermissionV1().ProjectPermission().Update(t.Context(), defaultProjectID, &permissionv1.UpdateProjectPermissionsOptions{
 		Writes: []*permissionv1.ProjectAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -111,7 +111,7 @@ func TestPermissions_Project_Update(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, _, err = client.PermissionV1().ProjectPermission().GetAssignments(defaultProjectID, nil)
+	resp, _, err = client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), defaultProjectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -139,7 +139,7 @@ func TestPermissions_Project_Update(t *testing.T) {
 	assert.Equal(t, want, resp)
 
 	// removing permission
-	r, err = client.PermissionV1().ProjectPermission().Update(defaultProjectID, &permissionv1.UpdateProjectPermissionsOptions{
+	r, err = client.PermissionV1().ProjectPermission().Update(t.Context(), defaultProjectID, &permissionv1.UpdateProjectPermissionsOptions{
 		Deletes: []*permissionv1.ProjectAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -155,7 +155,7 @@ func TestPermissions_Project_Update(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, _, err = client.PermissionV1().ProjectPermission().GetAssignments(defaultProjectID, nil)
+	resp, _, err = client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), defaultProjectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -194,14 +194,14 @@ func TestPermissions_Project_SameAdd(t *testing.T) {
 	}
 
 	// adding permission
-	r, err := client.PermissionV1().ProjectPermission().Update(defaultProjectID, opt)
+	r, err := client.PermissionV1().ProjectPermission().Update(t.Context(), defaultProjectID, opt)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	// adding same permission
-	r, err = client.PermissionV1().ProjectPermission().Update(defaultProjectID, opt)
+	r, err = client.PermissionV1().ProjectPermission().Update(t.Context(), defaultProjectID, opt)
 
 	assert.ErrorContains(t, err, "TupleAlreadyExistsError")
 }
@@ -213,7 +213,7 @@ func TestPermissions_Project_Add_NewProject(t *testing.T) {
 
 	projectID := MustCreateProject(t, client)
 
-	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(projectID, nil)
+	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), projectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -247,12 +247,12 @@ func TestPermissions_Project_Add_NewProject(t *testing.T) {
 	}
 
 	// adding permission
-	r, err = client.PermissionV1().ProjectPermission().Update(projectID, opt)
+	r, err = client.PermissionV1().ProjectPermission().Update(t.Context(), projectID, opt)
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, r, err = client.PermissionV1().ProjectPermission().GetAssignments(projectID, nil)
+	resp, r, err = client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), projectID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -287,7 +287,7 @@ func TestPermissions_Project_Add_Role(t *testing.T) {
 	project := MustCreateProject(t, client)
 	role := MustCreateRole(t, client, project)
 
-	r, err := client.PermissionV1().ProjectPermission().Update(project, &permissionv1.UpdateProjectPermissionsOptions{
+	r, err := client.PermissionV1().ProjectPermission().Update(t.Context(), project, &permissionv1.UpdateProjectPermissionsOptions{
 		Writes: []*permissionv1.ProjectAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -302,7 +302,7 @@ func TestPermissions_Project_Add_Role(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(project, nil)
+	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), project, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 

@@ -19,7 +19,7 @@ func TestProjectPermissionService_GetAccess(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "../testdata/permissions_project_get_access.json")
 	})
 
-	access, resp, err := client.PermissionV1().ProjectPermission().GetAccess("62709608-250c-41e0-9457-32bb4de3345c", nil)
+	access, resp, err := client.PermissionV1().ProjectPermission().GetAccess(t.Context(), "62709608-250c-41e0-9457-32bb4de3345c", nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -56,7 +56,7 @@ func TestProjectPermissionService_GetAssignments(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "../testdata/permissions_project_get_assignments.json")
 	})
 
-	access, resp, err := client.PermissionV1().ProjectPermission().GetAssignments("ed149356-70a0-4a9b-af80-b54b411dae33", nil)
+	access, resp, err := client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), "ed149356-70a0-4a9b-af80-b54b411dae33", nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -108,7 +108,7 @@ func TestProjectPermissionService_Update(t *testing.T) {
 		}
 	})
 
-	resp, err := client.PermissionV1().ProjectPermission().Update("6068343f-7e97-4438-b5c1-866618e3619d", opt)
+	resp, err := client.PermissionV1().ProjectPermission().Update(t.Context(), "6068343f-7e97-4438-b5c1-866618e3619d", opt)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 

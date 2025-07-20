@@ -20,7 +20,7 @@ func TestProjectService_Get(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_project.json")
 	})
 
-	project, resp, err := client.ProjectV1().Get("01f2fdfc-81fc-444d-8368-5b6701566e35")
+	project, resp, err := client.ProjectV1().Get(t.Context(), "01f2fdfc-81fc-444d-8368-5b6701566e35")
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -42,7 +42,7 @@ func TestProjectService_GetDefault(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_project.json")
 	})
 
-	project, resp, err := client.ProjectV1().GetDefault()
+	project, resp, err := client.ProjectV1().GetDefault(t.Context())
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -63,7 +63,7 @@ func TestProjectService_List(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/list_projects.json")
 	})
 
-	project, resp, err := client.ProjectV1().List()
+	project, resp, err := client.ProjectV1().List(t.Context())
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -98,7 +98,7 @@ func TestProjectService_RenameDefault(t *testing.T) {
 		}
 	})
 
-	resp, err := client.ProjectV1().RenameDefault(opts)
+	resp, err := client.ProjectV1().RenameDefault(t.Context(), opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -121,7 +121,7 @@ func TestProjectService_Rename(t *testing.T) {
 		}
 	})
 
-	resp, err := client.ProjectV1().Rename("01f2fdfc-81fc-444d-8368-5b6701566e35", opts)
+	resp, err := client.ProjectV1().Rename(t.Context(), "01f2fdfc-81fc-444d-8368-5b6701566e35", opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -137,7 +137,7 @@ func TestProjectService_Delete(t *testing.T) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	resp, err := client.ProjectV1().Delete("01f2fdfc-81fc-444d-8368-5b6701566e35")
+	resp, err := client.ProjectV1().Delete(t.Context(), "01f2fdfc-81fc-444d-8368-5b6701566e35")
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 }
@@ -152,7 +152,7 @@ func TestProjectService_DeleteDefault(t *testing.T) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	resp, err := client.ProjectV1().DeleteDefault()
+	resp, err := client.ProjectV1().DeleteDefault(t.Context())
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 }
@@ -173,7 +173,7 @@ func TestProjectService_Create(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 		testutil.MustWriteHTTPResponse(t, w, "testdata/create_project.json")
 	})
-	project, resp, err := client.ProjectV1().Create(&opts)
+	project, resp, err := client.ProjectV1().Create(t.Context(), &opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -206,7 +206,7 @@ func TestProjectService_GetAPIStatistics(t *testing.T) {
 		w.WriteHeader(http.StatusCreated)
 		testutil.MustWriteHTTPResponse(t, w, "testdata/project_get_api_statistics.json")
 	})
-	project, resp, err := client.ProjectV1().GetAPIStatistics("01f2fdfc-81fc-444d-8368-5b6701566e35", &opts)
+	project, resp, err := client.ProjectV1().GetAPIStatistics(t.Context(), "01f2fdfc-81fc-444d-8368-5b6701566e35", &opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 

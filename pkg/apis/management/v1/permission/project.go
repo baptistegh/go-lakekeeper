@@ -1,6 +1,7 @@
 package permission
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -12,13 +13,13 @@ type (
 		// Get the access to a project
 		// opt filters the access by a specific user or role.
 		// If not specified, it returns the access for the current user.
-		GetAccess(id string, opts *GetProjectAccessOptions, options ...core.RequestOptionFunc) (*GetProjectAccessResponse, *http.Response, error)
+		GetAccess(ctx context.Context, id string, opts *GetProjectAccessOptions, options ...core.RequestOptionFunc) (*GetProjectAccessResponse, *http.Response, error)
 		// Get user and role assignments of a project
 		// opt filters the assignments by relations.
 		// If not specified, it returns all assignments.
-		GetAssignments(id string, opts *GetProjectAssignmentsOptions, options ...core.RequestOptionFunc) (*GetProjectAssignmentsResponse, *http.Response, error)
+		GetAssignments(ctx context.Context, id string, opts *GetProjectAssignmentsOptions, options ...core.RequestOptionFunc) (*GetProjectAssignmentsResponse, *http.Response, error)
 		// Update permissions for the Project
-		Update(id string, opts *UpdateProjectPermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		Update(ctx context.Context, id string, opts *UpdateProjectPermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
 	// ProjectPermissionService handles communication with project permissions endpoints of the Lakekeeper API.
@@ -81,10 +82,10 @@ type GetProjectAccessResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_project_access
-func (s *ProjectPermissionService) GetAccess(id string, opt *GetProjectAccessOptions, options ...core.RequestOptionFunc) (*GetProjectAccessResponse, *http.Response, error) {
+func (s *ProjectPermissionService) GetAccess(ctx context.Context, id string, opt *GetProjectAccessOptions, options ...core.RequestOptionFunc) (*GetProjectAccessResponse, *http.Response, error) {
 	path := fmt.Sprintf("/permissions/project/%s/access", id)
 
-	req, err := s.client.NewRequest(http.MethodGet, path, opt, options)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -119,10 +120,10 @@ type GetProjectAssignmentsResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_project_assignments
-func (s *ProjectPermissionService) GetAssignments(id string, opt *GetProjectAssignmentsOptions, options ...core.RequestOptionFunc) (*GetProjectAssignmentsResponse, *http.Response, error) {
+func (s *ProjectPermissionService) GetAssignments(ctx context.Context, id string, opt *GetProjectAssignmentsOptions, options ...core.RequestOptionFunc) (*GetProjectAssignmentsResponse, *http.Response, error) {
 	path := fmt.Sprintf("/permissions/project/%s/assignments", id)
 
-	req, err := s.client.NewRequest(http.MethodGet, path, opt, options)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -151,10 +152,10 @@ type UpdateProjectPermissionsOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_project_assignments
-func (s *ProjectPermissionService) Update(id string, opt *UpdateProjectPermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *ProjectPermissionService) Update(ctx context.Context, id string, opt *UpdateProjectPermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	path := fmt.Sprintf("/permissions/project/%s/assignments", id)
 
-	req, err := s.client.NewRequest(http.MethodPost, path, opt, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, opt, options)
 	if err != nil {
 		return nil, err
 	}

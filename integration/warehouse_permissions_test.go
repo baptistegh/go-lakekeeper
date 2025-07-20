@@ -17,7 +17,7 @@ func TestPermissions_Warehouse_GetAuthzProps(t *testing.T) {
 	project := MustCreateProject(t, client)
 	wh, _ := MustCreateWarehouse(t, client, project)
 
-	resp, r, err := client.PermissionV1().WarehousePermission().GetAuthzProperties(wh, nil)
+	resp, r, err := client.PermissionV1().WarehousePermission().GetAuthzProperties(t.Context(), wh, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -35,7 +35,7 @@ func TestPermissions_Warehouse_SetManagedAccess(t *testing.T) {
 	project := MustCreateProject(t, client)
 	wh, _ := MustCreateWarehouse(t, client, project)
 
-	resp, r, err := client.PermissionV1().WarehousePermission().GetAuthzProperties(wh, nil)
+	resp, r, err := client.PermissionV1().WarehousePermission().GetAuthzProperties(t.Context(), wh, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -45,7 +45,7 @@ func TestPermissions_Warehouse_SetManagedAccess(t *testing.T) {
 	}
 
 	// set the managed access to true
-	r, err = client.PermissionV1().WarehousePermission().SetManagedAccess(wh, &permissionv1.SetWarehouseManagedAccessOptions{
+	r, err = client.PermissionV1().WarehousePermission().SetManagedAccess(t.Context(), wh, &permissionv1.SetWarehouseManagedAccessOptions{
 		ManagedAccess: true,
 	})
 	assert.NoError(t, err)
@@ -56,7 +56,7 @@ func TestPermissions_Warehouse_SetManagedAccess(t *testing.T) {
 		ManagedAccess: true,
 	}
 
-	resp, r, err = client.PermissionV1().WarehousePermission().GetAuthzProperties(wh, nil)
+	resp, r, err = client.PermissionV1().WarehousePermission().GetAuthzProperties(t.Context(), wh, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -70,7 +70,7 @@ func TestPermissions_Warehouse_GetAccess(t *testing.T) {
 	project := MustCreateProject(t, client)
 	wh, _ := MustCreateWarehouse(t, client, project)
 
-	resp, r, err := client.PermissionV1().WarehousePermission().GetAccess(wh, nil)
+	resp, r, err := client.PermissionV1().WarehousePermission().GetAccess(t.Context(), wh, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -110,7 +110,7 @@ func TestPermissions_Warehouse_GetAssignments(t *testing.T) {
 	project := MustCreateProject(t, client)
 	wh, _ := MustCreateWarehouse(t, client, project)
 
-	resp, r, err := client.PermissionV1().WarehousePermission().GetAssignments(wh, nil)
+	resp, r, err := client.PermissionV1().WarehousePermission().GetAssignments(t.Context(), wh, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -139,7 +139,7 @@ func TestPermissions_Warehouse_Update(t *testing.T) {
 
 	user := MustProvisionUser(t, client)
 
-	resp, _, err := client.PermissionV1().WarehousePermission().GetAssignments(wh, nil)
+	resp, _, err := client.PermissionV1().WarehousePermission().GetAssignments(t.Context(), wh, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -159,7 +159,7 @@ func TestPermissions_Warehouse_Update(t *testing.T) {
 	assert.Equal(t, want, resp)
 
 	// adding permission
-	r, err := client.PermissionV1().WarehousePermission().Update(wh, &permissionv1.UpdateWarehousePermissionsOptions{
+	r, err := client.PermissionV1().WarehousePermission().Update(t.Context(), wh, &permissionv1.UpdateWarehousePermissionsOptions{
 		Writes: []*permissionv1.WarehouseAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -175,7 +175,7 @@ func TestPermissions_Warehouse_Update(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, _, err = client.PermissionV1().WarehousePermission().GetAssignments(wh, nil)
+	resp, _, err = client.PermissionV1().WarehousePermission().GetAssignments(t.Context(), wh, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -202,7 +202,7 @@ func TestPermissions_Warehouse_Update(t *testing.T) {
 	assert.Equal(t, want, resp)
 
 	// removing permission
-	r, err = client.PermissionV1().WarehousePermission().Update(wh, &permissionv1.UpdateWarehousePermissionsOptions{
+	r, err = client.PermissionV1().WarehousePermission().Update(t.Context(), wh, &permissionv1.UpdateWarehousePermissionsOptions{
 		Deletes: []*permissionv1.WarehouseAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -218,7 +218,7 @@ func TestPermissions_Warehouse_Update(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, _, err = client.PermissionV1().WarehousePermission().GetAssignments(wh, nil)
+	resp, _, err = client.PermissionV1().WarehousePermission().GetAssignments(t.Context(), wh, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -259,14 +259,14 @@ func TestPermissions_Warehouse_SameAdd(t *testing.T) {
 	}
 
 	// adding permission
-	r, err := client.PermissionV1().WarehousePermission().Update(wh, opt)
+	r, err := client.PermissionV1().WarehousePermission().Update(t.Context(), wh, opt)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	// adding same permission
-	r, err = client.PermissionV1().WarehousePermission().Update(wh, opt)
+	r, err = client.PermissionV1().WarehousePermission().Update(t.Context(), wh, opt)
 
 	assert.ErrorContains(t, err, "TupleAlreadyExistsError")
 }
@@ -278,7 +278,7 @@ func TestPermissions_Warehouse_Add_Role(t *testing.T) {
 	wh, _ := MustCreateWarehouse(t, client, project)
 	role := MustCreateRole(t, client, project)
 
-	r, err := client.PermissionV1().WarehousePermission().Update(wh, &permissionv1.UpdateWarehousePermissionsOptions{
+	r, err := client.PermissionV1().WarehousePermission().Update(t.Context(), wh, &permissionv1.UpdateWarehousePermissionsOptions{
 		Writes: []*permissionv1.WarehouseAssignment{
 			{
 				Assignee: permissionv1.UserOrRole{
@@ -293,7 +293,7 @@ func TestPermissions_Warehouse_Add_Role(t *testing.T) {
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-	resp, r, err := client.PermissionV1().WarehousePermission().GetAssignments(wh, nil)
+	resp, r, err := client.PermissionV1().WarehousePermission().GetAssignments(t.Context(), wh, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 

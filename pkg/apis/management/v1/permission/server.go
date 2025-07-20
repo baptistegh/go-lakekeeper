@@ -1,6 +1,7 @@
 package permission
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
@@ -11,13 +12,13 @@ type (
 		// Get the access to the server
 		// opt filters the access by a specific user or role.
 		// If not specified, it returns the access for the current user.
-		GetAccess(opts *GetServerAccessOptions, options ...core.RequestOptionFunc) (*GetServerAccessResponse, *http.Response, error)
+		GetAccess(ctx context.Context, opts *GetServerAccessOptions, options ...core.RequestOptionFunc) (*GetServerAccessResponse, *http.Response, error)
 		// Get user and role assignments of the server
 		// opt filters the assignments by relations.
 		// If not specified, it returns all assignments.
-		GetAssignments(opts *GetServerAssignmentsOptions, options ...core.RequestOptionFunc) (*GetServerAssignmentsResponse, *http.Response, error)
+		GetAssignments(ctx context.Context, opts *GetServerAssignmentsOptions, options ...core.RequestOptionFunc) (*GetServerAssignmentsResponse, *http.Response, error)
 		// Update permissions for the server
-		Update(opts *UpdateServerPermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		Update(ctx context.Context, opts *UpdateServerPermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
 	// ServerPermissionService handles communication with server permissions endpoints of the Lakekeeper API.
@@ -71,8 +72,8 @@ type GetServerAccessResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_access
-func (s *ServerPermissionService) GetAccess(opt *GetServerAccessOptions, options ...core.RequestOptionFunc) (*GetServerAccessResponse, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "/permissions/server/access", opt, options)
+func (s *ServerPermissionService) GetAccess(ctx context.Context, opt *GetServerAccessOptions, options ...core.RequestOptionFunc) (*GetServerAccessResponse, *http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/permissions/server/access", opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -106,8 +107,8 @@ type GetServerAssignmentsResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_assignments
-func (s *ServerPermissionService) GetAssignments(opt *GetServerAssignmentsOptions, options ...core.RequestOptionFunc) (*GetServerAssignmentsResponse, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "/permissions/server/assignments", opt, options)
+func (s *ServerPermissionService) GetAssignments(ctx context.Context, opt *GetServerAssignmentsOptions, options ...core.RequestOptionFunc) (*GetServerAssignmentsResponse, *http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/permissions/server/assignments", opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -136,8 +137,8 @@ type UpdateServerPermissionsOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_server_assignments
-func (s *ServerPermissionService) Update(opt *UpdateServerPermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, "/permissions/server/assignments", opt, options)
+func (s *ServerPermissionService) Update(ctx context.Context, opt *UpdateServerPermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodPost, "/permissions/server/assignments", opt, options)
 	if err != nil {
 		return nil, err
 	}

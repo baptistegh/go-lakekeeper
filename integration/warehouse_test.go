@@ -4,6 +4,7 @@
 package integration
 
 import (
+	"context"
 	"net/http"
 	"testing"
 
@@ -27,6 +28,7 @@ func TestWarehouse_Create_Default(t *testing.T) {
 	sc := credential.NewS3CredentialAccessKey("minio-root-user", "minio-root-password").AsCredential()
 
 	resp, r, err := client.WarehouseV1(defaultProjectID).Create(
+		t.Context(),
 		&managementv1.CreateWarehouseOptions{
 			Name:              "test",
 			StorageProfile:    sp,
@@ -38,12 +40,12 @@ func TestWarehouse_Create_Default(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, r.StatusCode)
 
 	t.Cleanup(func() {
-		r, err = client.WarehouseV1(defaultProjectID).Delete(resp.ID, nil)
+		r, err = client.WarehouseV1(defaultProjectID).Delete(context.Background(), resp.ID, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 	})
 
-	w, r, err := client.WarehouseV1(defaultProjectID).Get(resp.ID)
+	w, r, err := client.WarehouseV1(defaultProjectID).Get(t.Context(), resp.ID)
 	assert.NoError(t, err)
 	assert.NotNil(t, w)
 
@@ -64,7 +66,7 @@ func TestWarehouse_Create_NewProject(t *testing.T) {
 	t.Parallel()
 	client := Setup(t)
 
-	p, r, err := client.ProjectV1().Create(&managementv1.CreateProjectOptions{
+	p, r, err := client.ProjectV1().Create(t.Context(), &managementv1.CreateProjectOptions{
 		Name: "test-project",
 	})
 	assert.NoError(t, err)
@@ -75,6 +77,7 @@ func TestWarehouse_Create_NewProject(t *testing.T) {
 		profile.WithPathStyleAccess(), profile.WithEndpoint("http://minio:9000/")).AsProfile()
 
 	resp, r, err := client.WarehouseV1(p.ID).Create(
+		t.Context(),
 		&managementv1.CreateWarehouseOptions{
 			Name:              "test",
 			StorageProfile:    sp,
@@ -86,11 +89,11 @@ func TestWarehouse_Create_NewProject(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, r.StatusCode)
 
 	t.Cleanup(func() {
-		r, err = client.WarehouseV1(p.ID).Delete(resp.ID, nil)
+		r, err = client.WarehouseV1(p.ID).Delete(context.Background(), resp.ID, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
-		r, err = client.ProjectV1().Delete(p.ID)
+		r, err = client.ProjectV1().Delete(context.Background(), p.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 	})

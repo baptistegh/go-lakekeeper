@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -9,8 +10,8 @@ import (
 
 type (
 	ServerServiceInterface interface {
-		Info(options ...core.RequestOptionFunc) (*ServerInfo, *http.Response, error)
-		Bootstrap(opts *BootstrapServerOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		Info(ctx context.Context, options ...core.RequestOptionFunc) (*ServerInfo, *http.Response, error)
+		Bootstrap(ctx context.Context, opts *BootstrapServerOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
 	// BootstrapService handles communication with server endpoints of the Lakekeeper API.
@@ -55,8 +56,8 @@ func (s *ServerInfo) String() string {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/server/operation/get_server_info
-func (s *ServerService) Info(options ...core.RequestOptionFunc) (*ServerInfo, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "/info", nil, options)
+func (s *ServerService) Info(ctx context.Context, options ...core.RequestOptionFunc) (*ServerInfo, *http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/info", nil, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -88,8 +89,8 @@ type BootstrapServerOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/server/operation/bootstrap
-func (s *ServerService) Bootstrap(opts *BootstrapServerOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, "/bootstrap", opts, options)
+func (s *ServerService) Bootstrap(ctx context.Context, opts *BootstrapServerOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodPost, "/bootstrap", opts, options)
 	if err != nil {
 		return nil, err
 	}

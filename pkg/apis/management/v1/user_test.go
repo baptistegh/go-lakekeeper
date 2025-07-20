@@ -21,7 +21,7 @@ func TestUserService_Get(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_user.json")
 	})
 
-	user, resp, err := client.UserV1().Get(userID)
+	user, resp, err := client.UserV1().Get(t.Context(), userID)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -48,7 +48,7 @@ func TestUserService_Whoami(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_user.json")
 	})
 
-	user, resp, err := client.UserV1().Whoami()
+	user, resp, err := client.UserV1().Whoami(t.Context())
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -98,7 +98,7 @@ func TestUserService_Provision(t *testing.T) {
 		LastUpdatedWith: "create-endpoint",
 	}
 
-	user, resp, err := client.UserV1().Provision(&opts)
+	user, resp, err := client.UserV1().Provision(t.Context(), &opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -117,7 +117,7 @@ func TestUserService_Delete(t *testing.T) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	resp, err := client.UserV1().Delete(userID)
+	resp, err := client.UserV1().Delete(t.Context(), userID)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
@@ -134,7 +134,7 @@ func TestUserService_List(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/list_users.json")
 	})
 
-	resp, r, err := client.UserV1().List(&managementv1.ListUsersOptions{
+	resp, r, err := client.UserV1().List(t.Context(), &managementv1.ListUsersOptions{
 		ListOptions: managementv1.ListOptions{
 			PageSize:  core.Ptr(int64(2)),
 			PageToken: core.Ptr("cd298407-556e-49b6-a12b-92c212a7df3b"),
@@ -183,7 +183,7 @@ func TestUserService_Search(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/search_user.json")
 	})
 
-	resp, r, err := client.UserV1().Search(&managementv1.SearchUserOptions{
+	resp, r, err := client.UserV1().Search(t.Context(), &managementv1.SearchUserOptions{
 		Search: "test",
 	})
 	assert.NoError(t, err)

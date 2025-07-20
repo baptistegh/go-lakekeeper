@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -29,31 +30,31 @@ type (
 
 		// Returns all warehouses in the project that the current user has access to.
 		// By default, deactivated warehouses are not included in the results.
-		List(opts *ListWarehouseOptions, options ...core.RequestOptionFunc) (*ListWarehouseResponse, *http.Response, error)
+		List(ctx context.Context, opts *ListWarehouseOptions, options ...core.RequestOptionFunc) (*ListWarehouseResponse, *http.Response, error)
 		// Creates a new warehouse in the specified project with the provided configuration.
 		// The project of a warehouse cannot be changed after creation.
 		// This operation validates the storage configuration.
-		Create(opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error)
+		Create(ctx context.Context, opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error)
 		// Retrieves detailed information about a specific warehouse.
-		Get(id string, options ...core.RequestOptionFunc) (*Warehouse, *http.Response, error)
+		Get(ctx context.Context, id string, options ...core.RequestOptionFunc) (*Warehouse, *http.Response, error)
 		// Permanently removes a warehouse and all its associated resources.
 		// Use the force parameter to delete protected warehouses.
-		Delete(id string, opts *DeleteWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		Delete(ctx context.Context, id string, opts *DeleteWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Re-enables access to a previously deactivated warehouse.
-		Activate(id string, options ...core.RequestOptionFunc) (*http.Response, error)
+		Activate(ctx context.Context, id string, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Temporarily disables access to a warehouse without deleting its data.
-		Deactivate(id string, options ...core.RequestOptionFunc) (*http.Response, error)
+		Deactivate(ctx context.Context, id string, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Configures the soft-delete behavior for a warehouse.
-		UpdateDeleteProfile(id string, opts *UpdateDeleteProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		UpdateDeleteProfile(ctx context.Context, id string, opts *UpdateDeleteProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Configures whether a warehouse should be protected from deletion.
-		SetProtection(id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error)
+		SetProtection(ctx context.Context, id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error)
 		// Updates the name of a specific warehouse.
-		Rename(id string, opts *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		Rename(ctx context.Context, id string, opts *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Updates both the storage profile and credentials of a warehouse.
-		UpdateStorageProfile(id string, opts *UpdateStorageProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		UpdateStorageProfile(ctx context.Context, id string, opts *UpdateStorageProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Updates only the storage credential of a warehouse without modifying the storage profile.
 		// Useful for refreshing expiring credentials.
-		UpdateStorageCredential(id string, opts *UpdateStorageCredentialOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		UpdateStorageCredential(ctx context.Context, id string, opts *UpdateStorageCredentialOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
 	// WarehouseService handles communication with warehouse endpoints of the Lakekeeper API.
@@ -101,10 +102,10 @@ func NewWarehouseService(client core.Client, projectID string) WarehouseServiceI
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse
-func (s *WarehouseService) Get(id string, options ...core.RequestOptionFunc) (*Warehouse, *http.Response, error) {
+func (s *WarehouseService) Get(ctx context.Context, id string, options ...core.RequestOptionFunc) (*Warehouse, *http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodGet, "/warehouse/"+id, nil, options)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/warehouse/"+id, nil, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -145,7 +146,7 @@ type ListWarehouseResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_warehouses
-func (s *WarehouseService) List(opts *ListWarehouseOptions, options ...core.RequestOptionFunc) (*ListWarehouseResponse, *http.Response, error) {
+func (s *WarehouseService) List(ctx context.Context, opts *ListWarehouseOptions, options ...core.RequestOptionFunc) (*ListWarehouseResponse, *http.Response, error) {
 	// This workaround will be removed once project-id is no longer required
 	// in the request by the API.
 	// https://github.com/lakekeeper/lakekeeper/issues/1234
@@ -156,7 +157,7 @@ func (s *WarehouseService) List(opts *ListWarehouseOptions, options ...core.Requ
 
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodGet, "/warehouse", opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/warehouse", opts, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -202,7 +203,7 @@ type CreateWarehouseResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/create_warehouse
-func (s *WarehouseService) Create(opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error) {
+func (s *WarehouseService) Create(ctx context.Context, opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error) {
 	// This workaround will be removed once project-id is no longer required
 	// in the request by the API.
 	// https://github.com/lakekeeper/lakekeeper/issues/1234
@@ -213,7 +214,7 @@ func (s *WarehouseService) Create(opts *CreateWarehouseOptions, options ...core.
 
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodPost, "/warehouse", opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, "/warehouse", opts, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -240,10 +241,10 @@ type RenameWarehouseOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/rename_warehouse
-func (s *WarehouseService) Rename(id string, opts *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehouseService) Rename(ctx context.Context, id string, opts *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodPost, fmt.Sprintf("/warehouse/%s/rename", id), opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/rename", id), opts, options)
 	if err != nil {
 		return nil, err
 	}
@@ -271,10 +272,10 @@ type DeleteWarehouseOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/delete_warehouse
-func (s *WarehouseService) Delete(id string, opts *DeleteWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehouseService) Delete(ctx context.Context, id string, opts *DeleteWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodDelete, "/warehouse/"+id, opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodDelete, "/warehouse/"+id, opts, options)
 	if err != nil {
 		return nil, err
 	}
@@ -308,14 +309,14 @@ type setWarehouseProtectionOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_warehouse_protection
-func (s *WarehouseService) SetProtection(id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error) {
+func (s *WarehouseService) SetProtection(ctx context.Context, id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error) {
 	opts := setWarehouseProtectionOptions{
 		Protected: protected,
 	}
 
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodPost, fmt.Sprintf("/warehouse/%s/protection", id), &opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/protection", id), &opts, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -333,10 +334,10 @@ func (s *WarehouseService) SetProtection(id string, protected bool, options ...c
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/activate_warehouse
-func (s *WarehouseService) Activate(id string, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehouseService) Activate(ctx context.Context, id string, options ...core.RequestOptionFunc) (*http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodPost, fmt.Sprintf("/warehouse/%s/activate", id), nil, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/activate", id), nil, options)
 	if err != nil {
 		return nil, err
 	}
@@ -353,10 +354,10 @@ func (s *WarehouseService) Activate(id string, options ...core.RequestOptionFunc
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/deactivate_warehouse
-func (s *WarehouseService) Deactivate(id string, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehouseService) Deactivate(ctx context.Context, id string, options ...core.RequestOptionFunc) (*http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodPost, fmt.Sprintf("/warehouse/%s/deactivate", id), nil, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/deactivate", id), nil, options)
 	if err != nil {
 		return nil, err
 	}
@@ -382,14 +383,14 @@ type UpdateStorageProfileOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_storage_profile
-func (s *WarehouseService) UpdateStorageProfile(id string, opts *UpdateStorageProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehouseService) UpdateStorageProfile(ctx context.Context, id string, opts *UpdateStorageProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	if opts == nil {
 		return nil, errors.New("update storage profile received empty options")
 	}
 
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodPost, fmt.Sprintf("/warehouse/%s/storage", id), opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/storage", id), opts, options)
 	if err != nil {
 		return nil, err
 	}
@@ -414,14 +415,14 @@ type UpdateDeleteProfileOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_warehouse_delete_profile
-func (s *WarehouseService) UpdateDeleteProfile(id string, opts *UpdateDeleteProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehouseService) UpdateDeleteProfile(ctx context.Context, id string, opts *UpdateDeleteProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	if opts == nil {
 		return nil, errors.New("update delete profile received empty options")
 	}
 
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodPost, fmt.Sprintf("/warehouse/%s/delete-profile", id), opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/delete-profile", id), opts, options)
 	if err != nil {
 		return nil, err
 	}
@@ -447,10 +448,10 @@ type UpdateStorageCredentialOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_storage_credential
-func (s *WarehouseService) UpdateStorageCredential(id string, opts *UpdateStorageCredentialOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehouseService) UpdateStorageCredential(ctx context.Context, id string, opts *UpdateStorageCredentialOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(http.MethodPost, fmt.Sprintf("/warehouse/%s/storage-credential", id), opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/storage-credential", id), opts, options)
 	if err != nil {
 		return nil, err
 	}

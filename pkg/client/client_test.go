@@ -18,7 +18,7 @@ func TestNewClient(t *testing.T) {
 
 	t.Run("Default Configuration", func(t *testing.T) {
 		t.Parallel()
-		c, err := NewClient("", "http://localhost:8080")
+		c, err := NewClient(t.Context(), "", "http://localhost:8080")
 		if err != nil {
 			t.Fatalf("Failed to create client: %v", err)
 		}
@@ -35,7 +35,7 @@ func TestNewClient(t *testing.T) {
 
 	t.Run("Custom UserAgent", func(t *testing.T) {
 		t.Parallel()
-		c, err := NewClient("", "http://localhost:8080", WithUserAgent("any-custom-user-agent"))
+		c, err := NewClient(t.Context(), "", "http://localhost:8080", WithUserAgent("any-custom-user-agent"))
 		if err != nil {
 			t.Fatalf("Failed to create client: %v", err)
 		}
@@ -52,7 +52,7 @@ func TestNewClient(t *testing.T) {
 
 	t.Run("Invalid Base URL", func(t *testing.T) {
 		t.Parallel()
-		_, err := NewClient("", ":invalid:")
+		_, err := NewClient(t.Context(), "", ":invalid:")
 		require.Error(t, err)
 	})
 }
@@ -60,10 +60,10 @@ func TestNewClient(t *testing.T) {
 func TestSendingUserAgent_Default(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewClient("", "http://localhost:8080")
+	c, err := NewClient(t.Context(), "", "http://localhost:8080")
 	require.NoError(t, err)
 
-	req, err := c.NewRequest(http.MethodGet, "test", nil, nil)
+	req, err := c.NewRequest(t.Context(), http.MethodGet, "test", nil, nil)
 	require.NoError(t, err)
 
 	assert.Equal(t, userAgent, req.Header.Get("User-Agent"))
@@ -72,10 +72,10 @@ func TestSendingUserAgent_Default(t *testing.T) {
 func TestSendingUserAgent_Custom(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewClient("", "http://localhost:8080", WithUserAgent("any-custom-user-agent"))
+	c, err := NewClient(t.Context(), "", "http://localhost:8080", WithUserAgent("any-custom-user-agent"))
 	require.NoError(t, err)
 
-	req, err := c.NewRequest(http.MethodGet, "test", nil, nil)
+	req, err := c.NewRequest(t.Context(), http.MethodGet, "test", nil, nil)
 	require.NoError(t, err)
 
 	assert.Equal(t, "any-custom-user-agent", req.Header.Get("User-Agent"))
@@ -83,12 +83,12 @@ func TestSendingUserAgent_Custom(t *testing.T) {
 
 func TestCheckResponse(t *testing.T) {
 	t.Parallel()
-	c, err := NewClient("", "http://localhost:8181")
+	c, err := NewClient(t.Context(), "", "http://localhost:8181")
 	if err != nil {
 		t.Fatalf("Failed to create client: %v", err)
 	}
 
-	req, err := c.NewRequest(http.MethodGet, "test", nil, nil)
+	req, err := c.NewRequest(t.Context(), http.MethodGet, "test", nil, nil)
 	if err != nil {
 		t.Fatalf("Failed to create request: %v", err)
 	}
@@ -124,12 +124,12 @@ func TestCheckResponse(t *testing.T) {
 
 func TestCheckResponseOnUnknownErrorFormat(t *testing.T) {
 	t.Parallel()
-	c, err := NewClient("", "http://localhost:8181")
+	c, err := NewClient(t.Context(), "", "http://localhost:8181")
 	if err != nil {
 		t.Fatalf("Failed to create client: %v", err)
 	}
 
-	req, err := c.NewRequest(http.MethodGet, "test", nil, nil)
+	req, err := c.NewRequest(t.Context(), http.MethodGet, "test", nil, nil)
 	if err != nil {
 		t.Fatalf("Failed to create request: %v", err)
 	}
@@ -154,13 +154,13 @@ func TestCheckResponseOnUnknownErrorFormat(t *testing.T) {
 
 func TestRequestWithContext(t *testing.T) {
 	t.Parallel()
-	c, err := NewClient("", "http://localhost:8181")
+	c, err := NewClient(t.Context(), "", "http://localhost:8181")
 	if err != nil {
 		t.Fatalf("Failed to create client: %v", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	req, err := c.NewRequest(http.MethodGet, "test", nil, []core.RequestOptionFunc{core.WithContext(ctx)})
+	req, err := c.NewRequest(t.Context(), http.MethodGet, "test", nil, []core.RequestOptionFunc{core.WithContext(ctx)}) //nolint:staticcheck
 	if err != nil {
 		t.Fatalf("Failed to create request: %v", err)
 	}
