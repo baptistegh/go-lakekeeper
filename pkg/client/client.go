@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/apache/iceberg-go/catalog/rest"
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
@@ -94,6 +95,25 @@ func (c *Client) WarehouseV1(projectID string) managementv1.WarehouseServiceInte
 // PermissionV1 return a new PermissionService for permissions v1 management
 func (c *Client) PermissionV1() permissionv1.PermissionServiceInterface {
 	return permissionv1.NewPermissionService(c)
+}
+
+func (c *Client) CatalogV1(ctx context.Context, projectID, warehouse string) (*rest.Catalog, error) {
+	opts := []rest.Option{
+		rest.WithWarehouseLocation(fmt.Sprintf("%s/%s", projectID, warehouse)),
+	}
+
+	if c.authSource != nil {
+		t, err := c.authSource.GetToken(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get token: %w", err)
+		}
+		opts = append(opts, rest.WithOAuthToken(t))
+	}
+
+	baseURL := c.BaseURL()
+	baseURL.Path = strings.TrimSuffix(baseURL.Path, managementv1.ApiManagementVersionPath) + "/catalog"
+
+	return rest.NewCatalog(ctx, "rest", baseURL.String(), opts...)
 }
 
 // NewClient returns a new Lakekeeper API client.
@@ -272,7 +292,7 @@ func (c *Client) Do(req *retryablehttp.Request, v any) (*http.Response, *core.Ap
 	var err error
 
 	c.authSourceInit.Do(func() {
-		err = c.authSource.Init(req.Context(), c)
+		err = c.authSource.Init(req.Context())
 	})
 	if err != nil {
 		return nil, core.ApiErrorFromMessage("initializing token source failed:").WithCause(err)

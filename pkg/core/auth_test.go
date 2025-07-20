@@ -24,10 +24,10 @@ func TestK8sAuthSource(t *testing.T) {
 		})
 
 		as := K8sServiceAccountAuthSource{
-			ServiceAccountTokenPath: path,
+			ServiceAccountTokenPath: Ptr(path),
 		}
 
-		err := as.Init(context.Background(), nil)
+		err := as.Init(context.Background())
 		assert.NoError(t, err)
 
 		key, value, err := as.Header(context.Background())
@@ -42,9 +42,9 @@ func TestK8sAuthSource(t *testing.T) {
 
 		as := K8sServiceAccountAuthSource{}
 
-		err := as.Init(context.Background(), nil)
+		err := as.Init(context.Background())
 		assert.Error(t, err, "failed to read service account token")
 
-		assert.Equal(t, "/var/run/secrets/kubernetes.io/serviceaccount/token", as.ServiceAccountTokenPath)
+		assert.Equal(t, Ptr("/var/run/secrets/kubernetes.io/serviceaccount/token"), as.ServiceAccountTokenPath)
 	})
 }

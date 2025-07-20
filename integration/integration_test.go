@@ -115,11 +115,12 @@ func MustCreateProject(t *testing.T, c *client.Client) string {
 	return p.ID
 }
 
-func MustCreateWarehouse(t *testing.T, c *client.Client, projectID string) string {
+func MustCreateWarehouse(t *testing.T, c *client.Client, projectID string) (string, string) {
 	rNb := rand.Int()
+	name := fmt.Sprintf("test-role-%d", rNb)
 
 	w, _, err := c.WarehouseV1(projectID).Create(&managementv1.CreateWarehouseOptions{
-		Name:              fmt.Sprintf("test-role-%d", rNb),
+		Name:              name,
 		StorageProfile:    profilev1.NewS3StorageSettings("testacc", "eu-local-1").AsProfile(),
 		StorageCredential: credentialv1.NewS3CredentialAccessKey("access-key", "secret-key").AsCredential(),
 	})
@@ -134,5 +135,5 @@ func MustCreateWarehouse(t *testing.T, c *client.Client, projectID string) strin
 
 	})
 
-	return w.ID
+	return w.ID, name
 }

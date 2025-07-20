@@ -15,7 +15,7 @@ func TestPermissions_Warehouse_GetAuthzProps(t *testing.T) {
 	client := Setup(t)
 
 	project := MustCreateProject(t, client)
-	wh := MustCreateWarehouse(t, client, project)
+	wh, _ := MustCreateWarehouse(t, client, project)
 
 	resp, r, err := client.PermissionV1().WarehousePermission().GetAuthzProperties(wh, nil)
 	assert.NoError(t, err)
@@ -33,7 +33,7 @@ func TestPermissions_Warehouse_SetManagedAccess(t *testing.T) {
 	client := Setup(t)
 
 	project := MustCreateProject(t, client)
-	wh := MustCreateWarehouse(t, client, project)
+	wh, _ := MustCreateWarehouse(t, client, project)
 
 	resp, r, err := client.PermissionV1().WarehousePermission().GetAuthzProperties(wh, nil)
 	assert.NoError(t, err)
@@ -68,7 +68,7 @@ func TestPermissions_Warehouse_GetAccess(t *testing.T) {
 	client := Setup(t)
 
 	project := MustCreateProject(t, client)
-	wh := MustCreateWarehouse(t, client, project)
+	wh, _ := MustCreateWarehouse(t, client, project)
 
 	resp, r, err := client.PermissionV1().WarehousePermission().GetAccess(wh, nil)
 	assert.NoError(t, err)
@@ -108,7 +108,7 @@ func TestPermissions_Warehouse_GetAssignments(t *testing.T) {
 	client := Setup(t)
 
 	project := MustCreateProject(t, client)
-	wh := MustCreateWarehouse(t, client, project)
+	wh, _ := MustCreateWarehouse(t, client, project)
 
 	resp, r, err := client.PermissionV1().WarehousePermission().GetAssignments(wh, nil)
 	assert.NoError(t, err)
@@ -135,7 +135,7 @@ func TestPermissions_Warehouse_Update(t *testing.T) {
 	client := Setup(t)
 
 	project := MustCreateProject(t, client)
-	wh := MustCreateWarehouse(t, client, project)
+	wh, _ := MustCreateWarehouse(t, client, project)
 
 	user := MustProvisionUser(t, client)
 
@@ -244,7 +244,7 @@ func TestPermissions_Warehouse_SameAdd(t *testing.T) {
 	user := MustProvisionUser(t, client)
 
 	project := MustCreateProject(t, client)
-	wh := MustCreateWarehouse(t, client, project)
+	wh, _ := MustCreateWarehouse(t, client, project)
 
 	opt := &permissionv1.UpdateWarehousePermissionsOptions{
 		Writes: []*permissionv1.WarehouseAssignment{
@@ -275,7 +275,7 @@ func TestPermissions_Warehouse_Add_Role(t *testing.T) {
 	client := Setup(t)
 
 	project := MustCreateProject(t, client)
-	wh := MustCreateWarehouse(t, client, project)
+	wh, _ := MustCreateWarehouse(t, client, project)
 	role := MustCreateRole(t, client, project)
 
 	r, err := client.PermissionV1().WarehousePermission().Update(wh, &permissionv1.UpdateWarehousePermissionsOptions{
