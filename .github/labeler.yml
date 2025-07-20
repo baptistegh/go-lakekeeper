@@ -9,3 +9,50 @@ go:
 ci:
   - changed-files:
     - any-glob-to-any-file: .github/**
+    - any-glob-to-any-file: .golangci.yml
+    - any-glob-to-any-file: codecov.yml
+  # - title: ['^ci','^chore\(ci\)']
+
+# title argument added in https://github.com/actions/labeler/pull/866
+# enhancement:
+#  - title: '^feat'
+
+# bug:
+#  - title: '^fix'
+
+# breaking-change:
+#  - title: '^\w+(\(\w+\))?!:'
+
+'area: permission':
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/apis/management/v1/permission/**'
+  # - title: '^\w+\(permissions\)!?:'
+
+'area: storage':
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/apis/management/v1/storage/**'
+
+'area: project':
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/apis/management/v1/**/project*.go'
+  # - title: '^\w+\(project\)!?:'
+
+'area: role':
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/apis/management/v1/**/role*.go'
+  # - title: '^\w+\(role\)!?:'
+
+'area: server':
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/apis/management/v1/**/server*.go'
+  # - title: '^\w+\(server\)!?:'
+
+'area: user':
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/apis/management/v1/**/user*.go'
+  # - title: '^\w+\(user\)!?:'
+
+'area: warehouse':
+  - changed-files:
+    - any-glob-to-any-file: 'pkg/apis/management/v1/**/warehouse*.go'
+  # - title: '^\w+\(warehouse\)!?:'
