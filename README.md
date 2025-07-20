@@ -41,6 +41,7 @@ import (
 
     "github.com/baptistegh/go-lakekeeper/pkg/core"
     lakekeeper "github.com/baptistegh/go-lakekeeper/pkg/client"
+    managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 )
 
 func main() {
@@ -56,6 +57,7 @@ func main() {
     
     // Create the client and enable the initial bootstrap
     client, err := lakekeeper.NewAuthSourceClient(
+        context.Background(),
         &as,
         baseURL,
         lakekeeper.WithInitialBootstrapV1Enabled(true, true, core.Ptr(managementv1.ApplicationUserType))
@@ -74,7 +76,7 @@ func main() {
 ```go
 // This gets the service account token 
 // usually stored in /var/run/secrets/kubernetes.io/serviceaccount/token
-client, err := lakekeeper.NewAuthSourceClient(&core.K8sServiceAccountAuthSource{}, baseURL)
+client, err := lakekeeper.NewAuthSourceClient(ctx, &core.K8sServiceAccountAuthSource{}, baseURL)
 if err != nil {
     log.Fatalf("error creating lakekeeper client, %v", err)
 }
@@ -87,7 +89,7 @@ if err != nil {
 You can get information about the Lakekeeper server instance:
 
 ```go
-serverInfo, _, err := client.ServerV1().Info()
+serverInfo, _, err := client.ServerV1().Info(ctx)
 if err != nil {
     log.Fatalf("Failed to get server info: %v", err)
 }
@@ -99,13 +101,13 @@ log.Printf("Connected to Lakekeeper version, %s\n", serverInfo.Version)
 
 ```go
 // Get default project
-project, _, err := client.ProjectV1().GetDefault()
+project, _, err := client.ProjectV1().GetDefault(ctx)
 if err != nil {
     log.Fatalf("Failed to get project: %v", err)
 }
 
 // Get Project By ID
-project, _, err := client.ProjectV1().Get(projectID)
+project, _, err := client.ProjectV1().Get(ctx, projectID)
 if err != nil {
     log.Fatalf("Failed to get project %s, %v", projectID, err)
 }
@@ -118,13 +120,13 @@ You first create a service for that project ID.
 
 ```go
 // Get a specific role within a project
-role, _, err := client.RoleV1(project.ID).Get("a-role-id")
+role, _, err := client.RoleV1(project.ID).Get(ctx, "a-role-id")
 if err != nil {
     return err
 }
 
 // Get a warehouse within a project
-warehouse, _, err := client.WarehouseV1(project.ID).Get("a-warehouse-id")
+warehouse, _, err := client.WarehouseV1(project.ID).Get(ctx, "a-warehouse-id")
 if err != nil {
     return err
 }
@@ -139,9 +141,9 @@ storage, _ := profilev1.NewS3StorageSettings("bucket-name", "local-01",
     profilev1.WithPathStyleAccess()
 )
 
-creds, _ := credential.NewS3CredentialAccessKey("access-key-id", "secret-access-key")
+creds, _ := credentialv1.NewS3CredentialAccessKey("access-key-id", "secret-access-key")
 
-opts := v1.CreateWarehouseOptions{
+opts := managementv1.CreateWarehouseOptions{
     Name:              "my-warehouse",
     StorageProfile:    storage.AsProfile(),
     StorageCredential: creds.AsCredential(),
@@ -149,7 +151,7 @@ opts := v1.CreateWarehouseOptions{
 }
 
 // Create the warehouse
-warehouse, _, err := client.WarehouseV1(project.ID).Create(&opts)
+warehouse, _, err := client.WarehouseV1(project.ID).Create(ctx, &opts)
 if err != nil {
     return err
 }
