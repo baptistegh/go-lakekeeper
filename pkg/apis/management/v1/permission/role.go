@@ -1,6 +1,7 @@
 package permission
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -12,13 +13,13 @@ type (
 		// Get the access to a role
 		// opt filters the access by a specific user or role.
 		// If not specified, it returns the access for the current user.
-		GetAccess(id string, opts *GetRoleAccessOptions, options ...core.RequestOptionFunc) (*GetRoleAccessResponse, *http.Response, error)
+		GetAccess(ctx context.Context, id string, opts *GetRoleAccessOptions, options ...core.RequestOptionFunc) (*GetRoleAccessResponse, *http.Response, error)
 		// Get a role assignments
 		// opt filters the assignments by relations.
 		// If not specified, it returns all assignments.
-		GetAssignments(id string, opts *GetRoleAssignmentsOptions, options ...core.RequestOptionFunc) (*GetRoleAssignmentsResponse, *http.Response, error)
+		GetAssignments(ctx context.Context, id string, opts *GetRoleAssignmentsOptions, options ...core.RequestOptionFunc) (*GetRoleAssignmentsResponse, *http.Response, error)
 		// Update permissions for a role
-		Update(id string, opts *UpdateRolePermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		Update(ctx context.Context, id string, opts *UpdateRolePermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 	}
 
 	// RolePermissionService handles communication with role permissions endpoints of the Lakekeeper API.
@@ -72,10 +73,10 @@ type GetRoleAccessResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_access
-func (s *RolePermissionService) GetAccess(id string, opt *GetRoleAccessOptions, options ...core.RequestOptionFunc) (*GetRoleAccessResponse, *http.Response, error) {
+func (s *RolePermissionService) GetAccess(ctx context.Context, id string, opt *GetRoleAccessOptions, options ...core.RequestOptionFunc) (*GetRoleAccessResponse, *http.Response, error) {
 	path := fmt.Sprintf("/permissions/role/%s/access", id)
 
-	req, err := s.client.NewRequest(http.MethodGet, path, opt, options)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -109,10 +110,10 @@ type GetRoleAssignmentsResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_assignments
-func (s *RolePermissionService) GetAssignments(id string, opt *GetRoleAssignmentsOptions, options ...core.RequestOptionFunc) (*GetRoleAssignmentsResponse, *http.Response, error) {
+func (s *RolePermissionService) GetAssignments(ctx context.Context, id string, opt *GetRoleAssignmentsOptions, options ...core.RequestOptionFunc) (*GetRoleAssignmentsResponse, *http.Response, error) {
 	path := fmt.Sprintf("/permissions/role/%s/assignments", id)
 
-	req, err := s.client.NewRequest(http.MethodGet, path, opt, options)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -141,10 +142,10 @@ type UpdateRolePermissionsOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_role_assignments
-func (s *RolePermissionService) Update(id string, opt *UpdateRolePermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *RolePermissionService) Update(ctx context.Context, id string, opt *UpdateRolePermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	path := fmt.Sprintf("/permissions/role/%s/assignments", id)
 
-	req, err := s.client.NewRequest(http.MethodPost, path, opt, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, path, opt, options)
 	if err != nil {
 		return nil, err
 	}

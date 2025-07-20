@@ -118,13 +118,13 @@ func (c *Client) CatalogV1(ctx context.Context, projectID, warehouse string) (*r
 
 // NewClient returns a new Lakekeeper API client.
 // You must provide a valid access token.
-func NewClient(token string, baseURL string, options ...ClientOptionFunc) (*Client, error) {
+func NewClient(ctx context.Context, token string, baseURL string, options ...ClientOptionFunc) (*Client, error) {
 	as := core.AccessTokenAuthSource{Token: token}
-	return NewAuthSourceClient(&as, baseURL, options...)
+	return NewAuthSourceClient(ctx, &as, baseURL, options...)
 }
 
 // NewAuthSourceClient returns a new Lakekeeper API client that uses the AuthSource for authentication.
-func NewAuthSourceClient(as core.AuthSource, baseURL string, options ...ClientOptionFunc) (*Client, error) {
+func NewAuthSourceClient(ctx context.Context, as core.AuthSource, baseURL string, options ...ClientOptionFunc) (*Client, error) {
 	var err error
 
 	c := &Client{
@@ -167,7 +167,7 @@ func NewAuthSourceClient(as core.AuthSource, baseURL string, options ...ClientOp
 		}
 
 		var info *managementv1.ServerInfo
-		info, _, err = c.ServerV1().Info()
+		info, _, err = c.ServerV1().Info(ctx)
 		if err != nil {
 			return
 		}
@@ -181,7 +181,7 @@ func NewAuthSourceClient(as core.AuthSource, baseURL string, options ...ClientOp
 			IsOperator:       core.Ptr(c.bootstrapAsOperator),
 			UserType:         core.Ptr(managementv1.ApplicationUserType),
 		}
-		_, err = c.ServerV1().Bootstrap(&bootstrapOpts)
+		_, err = c.ServerV1().Bootstrap(ctx, &bootstrapOpts)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error bootstraping the server, %w", err)
@@ -225,7 +225,7 @@ func (c *Client) setBaseURL(urlStr string) error {
 // Relative URL paths should always be specified with a preceding slash.
 // If specified, the value pointed to by body is JSON encoded and included
 // as the request body.
-func (c *Client) NewRequest(method, path string, opt any, options []core.RequestOptionFunc) (*retryablehttp.Request, error) {
+func (c *Client) NewRequest(ctx context.Context, method, path string, opt any, options []core.RequestOptionFunc) (*retryablehttp.Request, error) {
 	u := *c.baseURL
 	unescaped, err := url.PathUnescape(path)
 	if err != nil {
@@ -267,6 +267,10 @@ func (c *Client) NewRequest(method, path string, opt any, options []core.Request
 	if err != nil {
 		return nil, err
 	}
+
+	// apply context
+	newContext := core.CopyContextValues(req.Context(), ctx)
+	*req = *req.WithContext(newContext)
 
 	for _, fn := range append(c.defaultRequestOptions, options...) {
 		if fn == nil {

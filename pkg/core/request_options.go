@@ -30,9 +30,12 @@ func WithHeaders(headers map[string]string) RequestOptionFunc {
 }
 
 // WithContext runs the request with the provided context
+//
+// Deprecated: Please use the ctx argument in all public API
+// methods instead. This method will be removed in the future.
 func WithContext(ctx context.Context) RequestOptionFunc {
 	return func(req *retryablehttp.Request) error {
-		newCtx := copyContextValues(req.Context(), ctx)
+		newCtx := CopyContextValues(req.Context(), ctx)
 
 		*req = *req.WithContext(newCtx)
 		return nil
@@ -40,7 +43,7 @@ func WithContext(ctx context.Context) RequestOptionFunc {
 }
 
 // copyContextValues copy some context key and values in old context
-func copyContextValues(oldCtx context.Context, newCtx context.Context) context.Context {
+func CopyContextValues(oldCtx context.Context, newCtx context.Context) context.Context {
 	checkRetry := checkRetryFromContext(oldCtx)
 
 	if checkRetry != nil {

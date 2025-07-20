@@ -19,7 +19,7 @@ func TestServerPermissionService_GetAccess(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "../testdata/permissions_server_get_access.json")
 	})
 
-	access, resp, err := client.PermissionV1().ServerPermission().GetAccess(nil)
+	access, resp, err := client.PermissionV1().ServerPermission().GetAccess(t.Context(), nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -47,7 +47,7 @@ func TestServerPermissionService_GetAssignments(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "../testdata/permissions_server_get_assignments.json")
 	})
 
-	access, resp, err := client.PermissionV1().ServerPermission().GetAssignments(nil)
+	access, resp, err := client.PermissionV1().ServerPermission().GetAssignments(t.Context(), nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -99,7 +99,7 @@ func TestServerPermissionService_Update(t *testing.T) {
 		}
 	})
 
-	resp, err := client.PermissionV1().ServerPermission().Update(opt)
+	resp, err := client.PermissionV1().ServerPermission().Update(t.Context(), opt)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 

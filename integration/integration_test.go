@@ -44,7 +44,7 @@ func Setup(t *testing.T) *client.Client {
 		TokenSource: oauth.TokenSource(context.Background()),
 	}
 
-	c, err := client.NewAuthSourceClient(&as, os.Getenv("LAKEKEEPER_BASE_URL"), client.WithInitialBootstrapV1Enabled(true, true, core.Ptr(managementv1.ApplicationUserType)))
+	c, err := client.NewAuthSourceClient(t.Context(), &as, os.Getenv("LAKEKEEPER_BASE_URL"), client.WithInitialBootstrapV1Enabled(true, true, core.Ptr(managementv1.ApplicationUserType)))
 	if err != nil {
 		t.Fatalf("could not create client, %v", err)
 	}
@@ -56,7 +56,7 @@ func MustProvisionUser(t *testing.T, c *client.Client) *managementv1.User {
 	id := uuid.New()
 	rNb := rand.Int()
 
-	u, _, err := c.UserV1().Provision(&managementv1.ProvisionUserOptions{
+	u, _, err := c.UserV1().Provision(t.Context(), &managementv1.ProvisionUserOptions{
 		ID:             core.Ptr(fmt.Sprintf("oidc~%s", id.String())),
 		Name:           core.Ptr(fmt.Sprintf("test-user-%d", rNb)),
 		Email:          core.Ptr(fmt.Sprintf("test-user-%d@exemple.com", rNb)),
@@ -68,7 +68,7 @@ func MustProvisionUser(t *testing.T, c *client.Client) *managementv1.User {
 	}
 
 	t.Cleanup(func() {
-		if _, err := c.UserV1().Delete(u.ID); err != nil {
+		if _, err := c.UserV1().Delete(context.Background(), u.ID); err != nil {
 			t.Fatalf("could not delete user, %v", err)
 		}
 
@@ -80,7 +80,7 @@ func MustProvisionUser(t *testing.T, c *client.Client) *managementv1.User {
 func MustCreateRole(t *testing.T, c *client.Client, projectID string) *managementv1.Role {
 	rNb := rand.Int()
 
-	r, _, err := c.RoleV1(projectID).Create(&managementv1.CreateRoleOptions{
+	r, _, err := c.RoleV1(projectID).Create(t.Context(), &managementv1.CreateRoleOptions{
 		Name: fmt.Sprintf("test-role-%d", rNb),
 	})
 	if err != nil {
@@ -88,7 +88,7 @@ func MustCreateRole(t *testing.T, c *client.Client, projectID string) *managemen
 	}
 
 	t.Cleanup(func() {
-		if _, err := c.RoleV1(projectID).Delete(r.ID); err != nil {
+		if _, err := c.RoleV1(projectID).Delete(context.Background(), r.ID); err != nil {
 			t.Fatalf("could not delete role, %v", err)
 		}
 
@@ -98,7 +98,7 @@ func MustCreateRole(t *testing.T, c *client.Client, projectID string) *managemen
 }
 
 func MustCreateProject(t *testing.T, c *client.Client) string {
-	p, _, err := c.ProjectV1().Create(&managementv1.CreateProjectOptions{
+	p, _, err := c.ProjectV1().Create(t.Context(), &managementv1.CreateProjectOptions{
 		Name: fmt.Sprintf("test-project-%d", rand.Int()),
 	})
 	if err != nil {
@@ -106,7 +106,7 @@ func MustCreateProject(t *testing.T, c *client.Client) string {
 	}
 
 	t.Cleanup(func() {
-		if _, err := c.ProjectV1().Delete(p.ID); err != nil {
+		if _, err := c.ProjectV1().Delete(context.Background(), p.ID); err != nil {
 			t.Fatalf("could not delete user, %v", err)
 		}
 
@@ -119,7 +119,7 @@ func MustCreateWarehouse(t *testing.T, c *client.Client, projectID string) (stri
 	rNb := rand.Int()
 	name := fmt.Sprintf("test-role-%d", rNb)
 
-	w, _, err := c.WarehouseV1(projectID).Create(&managementv1.CreateWarehouseOptions{
+	w, _, err := c.WarehouseV1(projectID).Create(t.Context(), &managementv1.CreateWarehouseOptions{
 		Name:              name,
 		StorageProfile:    profilev1.NewS3StorageSettings("testacc", "eu-local-1").AsProfile(),
 		StorageCredential: credentialv1.NewS3CredentialAccessKey("access-key", "secret-key").AsCredential(),
@@ -129,7 +129,7 @@ func MustCreateWarehouse(t *testing.T, c *client.Client, projectID string) (stri
 	}
 
 	t.Cleanup(func() {
-		if _, err := c.WarehouseV1(projectID).Delete(w.ID, &managementv1.DeleteWarehouseOptions{Force: core.Ptr(true)}); err != nil {
+		if _, err := c.WarehouseV1(projectID).Delete(context.Background(), w.ID, &managementv1.DeleteWarehouseOptions{Force: core.Ptr(true)}); err != nil {
 			t.Fatalf("could not delete warehouse, %v", err)
 		}
 

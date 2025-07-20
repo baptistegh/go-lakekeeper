@@ -23,7 +23,7 @@ func TestRoleService_Get(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_role.json")
 	})
 
-	role, resp, err := client.RoleV1(projectID).Get(roleID)
+	role, resp, err := client.RoleV1(projectID).Get(t.Context(), roleID)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -71,7 +71,7 @@ func TestRoleService_Create(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_role.json")
 	})
 
-	role, resp, err := client.RoleV1(projectID).Create(&opts)
+	role, resp, err := client.RoleV1(projectID).Create(t.Context(), &opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -109,7 +109,7 @@ func TestRoleService_Update(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_role.json")
 	})
 
-	role, resp, err := client.RoleV1(projectID).Update(roleID, &opts)
+	role, resp, err := client.RoleV1(projectID).Update(t.Context(), roleID, &opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -130,7 +130,7 @@ func TestRoleService_Delete(t *testing.T) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	resp, err := client.RoleV1(projectID).Delete(roleID)
+	resp, err := client.RoleV1(projectID).Delete(t.Context(), roleID)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
@@ -166,7 +166,7 @@ func TestRoleService_List(t *testing.T) {
 		Roles: []*managementv1.Role{r, r},
 	}
 
-	roles, resp, err := client.RoleV1(projectID).List(&managementv1.ListRolesOptions{
+	roles, resp, err := client.RoleV1(projectID).List(t.Context(), &managementv1.ListRolesOptions{
 		ListOptions: managementv1.ListOptions{
 			PageSize:  core.Ptr(int64(2)),
 			PageToken: core.Ptr("cd298407-556e-49b6-a12b-92c212a7df3b"),
@@ -213,7 +213,7 @@ func TestRoleService_Search(t *testing.T) {
 		Roles: []*managementv1.Role{r, r},
 	}
 
-	roles, resp, err := client.RoleV1(projectID).Search(opts)
+	roles, resp, err := client.RoleV1(projectID).Search(t.Context(), opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)

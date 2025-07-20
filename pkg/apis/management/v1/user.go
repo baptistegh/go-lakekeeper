@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
@@ -13,18 +14,18 @@ type (
 
 		// Creates a new user or updates an existing user's metadata from the provided token.
 		// The token should include "profile" and "email" scopes for complete user information.
-		Provision(opts *ProvisionUserOptions, options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		Provision(ctx context.Context, opts *ProvisionUserOptions, options ...core.RequestOptionFunc) (*User, *http.Response, error)
 		// Retrieves detailed information about a specific user.
-		Get(id string, options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		Get(ctx context.Context, id string, options ...core.RequestOptionFunc) (*User, *http.Response, error)
 		// Returns information about the user associated with the current authentication token.
-		Whoami(options ...core.RequestOptionFunc) (*User, *http.Response, error)
+		Whoami(ctx context.Context, options ...core.RequestOptionFunc) (*User, *http.Response, error)
 		// Permanently removes a user and all their associated permissions.
 		// If the user is re-registered later, their permissions will need to be re-added.
-		Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error)
+		Delete(ctx context.Context, id string, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Performs a fuzzy search for users based on the provided criteria.
-		Search(opt *SearchUserOptions, options ...core.RequestOptionFunc) (*SearchUserResponse, *http.Response, error)
+		Search(ctx context.Context, opt *SearchUserOptions, options ...core.RequestOptionFunc) (*SearchUserResponse, *http.Response, error)
 		// Returns a paginated list of users based on the provided query parameters.
-		List(opt *ListUsersOptions, options ...core.RequestOptionFunc) (*ListUsersResponse, *http.Response, error)
+		List(ctx context.Context, opt *ListUsersOptions, options ...core.RequestOptionFunc) (*ListUsersResponse, *http.Response, error)
 	}
 
 	// UserService handles communication with user endpoints of the Lakekeeper API.
@@ -66,8 +67,8 @@ const (
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/get_user
-func (s *UserService) Get(id string, options ...core.RequestOptionFunc) (*User, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "/user/"+id, nil, options)
+func (s *UserService) Get(ctx context.Context, id string, options ...core.RequestOptionFunc) (*User, *http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/user/"+id, nil, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -86,8 +87,8 @@ func (s *UserService) Get(id string, options ...core.RequestOptionFunc) (*User, 
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/whoami
-func (s *UserService) Whoami(options ...core.RequestOptionFunc) (*User, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "/whoami", nil, options)
+func (s *UserService) Whoami(ctx context.Context, options ...core.RequestOptionFunc) (*User, *http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/whoami", nil, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -125,8 +126,8 @@ type ProvisionUserOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/create_user
-func (s *UserService) Provision(opts *ProvisionUserOptions, options ...core.RequestOptionFunc) (*User, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, "/user", opts, options)
+func (s *UserService) Provision(ctx context.Context, opts *ProvisionUserOptions, options ...core.RequestOptionFunc) (*User, *http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodPost, "/user", opts, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -146,8 +147,8 @@ func (s *UserService) Provision(opts *ProvisionUserOptions, options ...core.Requ
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/delete_user
-func (s *UserService) Delete(id string, options ...core.RequestOptionFunc) (*http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, "/user/"+id, nil, options)
+func (s *UserService) Delete(ctx context.Context, id string, options ...core.RequestOptionFunc) (*http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodDelete, "/user/"+id, nil, options)
 	if err != nil {
 		return nil, err
 	}
@@ -184,8 +185,8 @@ type ListUsersResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/list_user
-func (s *UserService) List(opt *ListUsersOptions, options ...core.RequestOptionFunc) (*ListUsersResponse, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "/user", opt, options)
+func (s *UserService) List(ctx context.Context, opt *ListUsersOptions, options ...core.RequestOptionFunc) (*ListUsersResponse, *http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/user", opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -219,8 +220,8 @@ type SearchUserResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
-func (s *UserService) Search(opt *SearchUserOptions, options ...core.RequestOptionFunc) (*SearchUserResponse, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "/search/user", opt, options)
+func (s *UserService) Search(ctx context.Context, opt *SearchUserOptions, options ...core.RequestOptionFunc) (*SearchUserResponse, *http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/search/user", opt, options)
 	if err != nil {
 		return nil, nil, err
 	}

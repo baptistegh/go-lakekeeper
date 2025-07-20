@@ -18,7 +18,7 @@ func TestServerService_Info(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/server_info.json")
 	})
 
-	info, resp, err := client.ServerV1().Info()
+	info, resp, err := client.ServerV1().Info(t.Context())
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -51,7 +51,7 @@ func TestServerService_Bootstrap(t *testing.T) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	r, err := client.ServerV1().Bootstrap(opts)
+	r, err := client.ServerV1().Bootstrap(t.Context(), opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)

@@ -25,7 +25,7 @@ func TestWarehouseService_Get(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/get_warehouse.json")
 	})
 
-	wh, resp, err := client.WarehouseV1(projectID).Get(warehouseID)
+	wh, resp, err := client.WarehouseV1(projectID).Get(t.Context(), warehouseID)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -55,7 +55,7 @@ func TestWarehouseService_List(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/list_warehouses.json")
 	})
 
-	warehouses, resp, err := client.WarehouseV1(projectID).List(nil)
+	warehouses, resp, err := client.WarehouseV1(projectID).List(t.Context(), nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -115,7 +115,7 @@ func TestWarehouseService_Create(t *testing.T) {
 		ID: warehouseID,
 	}
 
-	w, resp, err := client.WarehouseV1(projectID).Create(opts)
+	w, resp, err := client.WarehouseV1(projectID).Create(t.Context(), opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -136,7 +136,7 @@ func TestWarehouseService_Delete(t *testing.T) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	resp, err := client.WarehouseV1(projectID).Delete(warehouseID, nil)
+	resp, err := client.WarehouseV1(projectID).Delete(t.Context(), warehouseID, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -159,7 +159,7 @@ func TestWarehouseService_SetProtection(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/set_protected.json")
 	})
 
-	resp, r, err := client.WarehouseV1(projectID).SetProtection(warehouseID, true)
+	resp, r, err := client.WarehouseV1(projectID).SetProtection(t.Context(), warehouseID, true)
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
@@ -179,7 +179,7 @@ func TestWarehouseService_Activate(t *testing.T) {
 		testutil.TestHeader(t, r, "x-project-id", projectID)
 	})
 
-	resp, err := client.WarehouseV1(projectID).Activate(warehouseID)
+	resp, err := client.WarehouseV1(projectID).Activate(t.Context(), warehouseID)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -198,7 +198,7 @@ func TestWarehouseService_Deactivate(t *testing.T) {
 		testutil.TestHeader(t, r, "x-project-id", projectID)
 	})
 
-	resp, err := client.WarehouseV1(projectID).Deactivate(warehouseID)
+	resp, err := client.WarehouseV1(projectID).Deactivate(t.Context(), warehouseID)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -224,7 +224,7 @@ func TestWarehouseService_Rename(t *testing.T) {
 		}
 	})
 
-	resp, err := client.WarehouseV1(projectID).Rename(warehouseID, opts)
+	resp, err := client.WarehouseV1(projectID).Rename(t.Context(), warehouseID, opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -251,7 +251,7 @@ func TestWarehouseService_UpdateStorageProfile(t *testing.T) {
 		}
 	})
 
-	resp, err := client.WarehouseV1(projectID).UpdateStorageProfile(warehouseID, opts)
+	resp, err := client.WarehouseV1(projectID).UpdateStorageProfile(t.Context(), warehouseID, opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -277,7 +277,7 @@ func TestWarehouseService_UpdateDeleteProfile(t *testing.T) {
 		}
 	})
 
-	resp, err := client.WarehouseV1(projectID).UpdateDeleteProfile(warehouseID, &opts)
+	resp, err := client.WarehouseV1(projectID).UpdateDeleteProfile(t.Context(), warehouseID, &opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -303,7 +303,7 @@ func TestWarehouseService_UpdateStorageCredential(t *testing.T) {
 		}
 	})
 
-	resp, err := client.WarehouseV1(projectID).UpdateStorageCredential(warehouseID, &opts)
+	resp, err := client.WarehouseV1(projectID).UpdateStorageCredential(t.Context(), warehouseID, &opts)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 

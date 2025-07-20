@@ -27,7 +27,7 @@ func ServerMux(t *testing.T) (*http.ServeMux, *client.Client) {
 	server := httptest.NewServer(mux)
 	t.Cleanup(server.Close)
 
-	client, err := client.NewClient("", server.URL)
+	client, err := client.NewClient(t.Context(), "", server.URL)
 	if err != nil {
 		t.Fatal(err)
 	}

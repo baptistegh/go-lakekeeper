@@ -13,7 +13,7 @@ import (
 func TestServerService_Info(t *testing.T) {
 	client := Setup(t)
 
-	info, _, err := client.ServerV1().Info()
+	info, _, err := client.ServerV1().Info(t.Context())
 
 	assert.NoError(t, err)
 	assert.Equal(t, true, info.Bootstrapped)
@@ -25,14 +25,14 @@ func TestServerService_Info(t *testing.T) {
 func TestServerService_Bootstrap(t *testing.T) {
 	client := Setup(t)
 
-	resp, err := client.ServerV1().Bootstrap(&managementv1.BootstrapServerOptions{
+	resp, err := client.ServerV1().Bootstrap(t.Context(), &managementv1.BootstrapServerOptions{
 		AcceptTermsOfUse: true,
 	})
 
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
-	info, _, err := client.ServerV1().Info()
+	info, _, err := client.ServerV1().Info(t.Context())
 
 	assert.NoError(t, err)
 	assert.Equal(t, true, info.Bootstrapped)
