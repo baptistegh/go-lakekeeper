@@ -1,0 +1,17 @@
+{
+    "next-page-token": "string",
+    "tabulars": [
+        {
+            "created-at": "2019-08-24T14:15:22Z",
+            "deleted-at": "2019-08-24T14:15:22Z",
+            "expiration-date": "2019-08-24T14:15:22Z",
+            "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+            "name": "string",
+            "namespace": [
+                "string"
+            ],
+            "typ": "table",
+            "warehouse-id": "019eee1f-0cac-41a0-9932-f7e58ee24619"
+        }
+    ]
+}

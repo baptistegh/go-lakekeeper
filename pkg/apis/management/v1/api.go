@@ -15,10 +15,14 @@ func WithProject(id string) core.RequestOptionFunc {
 }
 
 type ListOptions struct {
+	// Next page token
 	PageToken *string `url:"pageToken,omitempty"`
-	PageSize  *int64  `url:"pageSize,omitempty"`
+	// Signals an upper bound of the number of results that a client will receive.
+	// Default: 100
+	PageSize *int64 `url:"pageSize,omitempty"`
 }
 
 type ListResponse struct {
+	// Token to fetch the next page
 	NextPageToken *string `json:"next-page-token,omitempty"`
 }

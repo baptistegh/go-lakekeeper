@@ -97,10 +97,8 @@ func (c *Client) PermissionV1() permissionv1.PermissionServiceInterface {
 	return permissionv1.NewPermissionService(c)
 }
 
-func (c *Client) CatalogV1(ctx context.Context, projectID, warehouse string) (*rest.Catalog, error) {
-	opts := []rest.Option{
-		rest.WithWarehouseLocation(fmt.Sprintf("%s/%s", projectID, warehouse)),
-	}
+func (c *Client) CatalogV1(ctx context.Context, projectID, warehouse string, opts ...rest.Option) (*rest.Catalog, error) {
+	opts = append(opts, rest.WithWarehouseLocation(fmt.Sprintf("%s/%s", projectID, warehouse)))
 
 	if c.authSource != nil {
 		t, err := c.authSource.GetToken(ctx)

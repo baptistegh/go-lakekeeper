@@ -98,3 +98,31 @@ func TestWarehouse_Create_NewProject(t *testing.T) {
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 	})
 }
+
+func TestWarehouse_ListSoftDeletedTabulars(t *testing.T) {
+	t.Parallel()
+	client := Setup(t)
+
+	project := MustCreateProject(t, client)
+	warehouseID, _ := MustCreateWarehouse(t, client, project)
+
+	resp, r, err := client.WarehouseV1(project).ListSoftDeletedTabulars(t.Context(), warehouseID, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.NotNil(t, resp)
+
+	// TODO: add better test
+	// 1. Create Table (or view)
+	// 2. Enable Soft delete
+	// 3. Delete the table
+	// 4. List the soft deleted tabulars, we should see an non empty answer
+	want := &managementv1.ListSoftDeletedTabularsResponse{
+		Tabulars: []*managementv1.Tabular{},
+	}
+
+	assert.Equal(t, want, resp)
+}
+
+// TODO: add missing tests
+// GetNamespaceProtection
+// SetNamespaceProtection

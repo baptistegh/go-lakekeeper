@@ -95,7 +95,7 @@ func TestWarehouseService_Create(t *testing.T) {
 
 	sc := credential.NewS3CredentialAccessKey("test-access-key", "test-secret-key").AsCredential()
 
-	opts := &managementv1.CreateWarehouseOptions{
+	opt := &managementv1.CreateWarehouseOptions{
 		Name:              "test-warehouse",
 		StorageProfile:    sp,
 		StorageCredential: sc,
@@ -104,7 +104,7 @@ func TestWarehouseService_Create(t *testing.T) {
 	mux.HandleFunc("/management/v1/warehouse", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
-		if !testutil.TestBodyJSON(t, r, opts) {
+		if !testutil.TestBodyJSON(t, r, opt) {
 			t.Fatalf("error wrong body")
 		}
 		w.WriteHeader(http.StatusCreated)
@@ -115,7 +115,7 @@ func TestWarehouseService_Create(t *testing.T) {
 		ID: warehouseID,
 	}
 
-	w, resp, err := client.WarehouseV1(projectID).Create(t.Context(), opts)
+	w, resp, err := client.WarehouseV1(projectID).Create(t.Context(), opt)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -212,19 +212,19 @@ func TestWarehouseService_Rename(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	opts := &managementv1.RenameWarehouseOptions{
+	opt := &managementv1.RenameWarehouseOptions{
 		NewName: "new-name",
 	}
 
 	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/rename", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
-		if !testutil.TestBodyJSON(t, r, opts) {
+		if !testutil.TestBodyJSON(t, r, opt) {
 			t.Fatalf("error wrong body")
 		}
 	})
 
-	resp, err := client.WarehouseV1(projectID).Rename(t.Context(), warehouseID, opts)
+	resp, err := client.WarehouseV1(projectID).Rename(t.Context(), warehouseID, opt)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -238,7 +238,7 @@ func TestWarehouseService_UpdateStorageProfile(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	opts := &managementv1.UpdateStorageProfileOptions{
+	opt := &managementv1.UpdateStorageProfileOptions{
 		StorageCredential: nil,
 		StorageProfile:    profile.NewGCSStorageSettings("test-bucket").AsProfile(),
 	}
@@ -246,12 +246,12 @@ func TestWarehouseService_UpdateStorageProfile(t *testing.T) {
 	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/storage", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
-		if !testutil.TestBodyJSON(t, r, opts) {
+		if !testutil.TestBodyJSON(t, r, opt) {
 			t.Fatalf("error wrong body")
 		}
 	})
 
-	resp, err := client.WarehouseV1(projectID).UpdateStorageProfile(t.Context(), warehouseID, opts)
+	resp, err := client.WarehouseV1(projectID).UpdateStorageProfile(t.Context(), warehouseID, opt)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -265,19 +265,19 @@ func TestWarehouseService_UpdateDeleteProfile(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	opts := managementv1.UpdateDeleteProfileOptions{
+	opt := managementv1.UpdateDeleteProfileOptions{
 		DeleteProfile: *profile.NewTabularDeleteProfileSoft(3600).AsProfile(),
 	}
 
 	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/delete-profile", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
-		if !testutil.TestBodyJSON(t, r, &opts) {
+		if !testutil.TestBodyJSON(t, r, &opt) {
 			t.Fatalf("error wrong body")
 		}
 	})
 
-	resp, err := client.WarehouseV1(projectID).UpdateDeleteProfile(t.Context(), warehouseID, &opts)
+	resp, err := client.WarehouseV1(projectID).UpdateDeleteProfile(t.Context(), warehouseID, &opt)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -291,21 +291,168 @@ func TestWarehouseService_UpdateStorageCredential(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	opts := managementv1.UpdateStorageCredentialOptions{
+	opt := managementv1.UpdateStorageCredentialOptions{
 		StorageCredential: core.Ptr(credential.NewGCSCredentialSystemIdentity().AsCredential()),
 	}
 
 	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/storage-credential", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
-		if !testutil.TestBodyJSON(t, r, &opts) {
+		if !testutil.TestBodyJSON(t, r, &opt) {
 			t.Fatalf("error wrong body")
 		}
 	})
 
-	resp, err := client.WarehouseV1(projectID).UpdateStorageCredential(t.Context(), warehouseID, &opts)
+	resp, err := client.WarehouseV1(projectID).UpdateStorageCredential(t.Context(), warehouseID, &opt)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestWarehouseService_ListSoftDeletedTabulars(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	opt := managementv1.ListSoftDeletedTabularsOptions{
+		NamespaceID: core.Ptr("namespace_id"),
+		ListOptions: managementv1.ListOptions{
+			PageToken: core.Ptr("page_token"),
+			PageSize:  core.Ptr(int64(250)),
+		},
+	}
+
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/deleted-tabulars", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.TestParam(t, r, "namespaceId", "namespace_id")
+		testutil.TestParam(t, r, "pageToken", "page_token")
+		testutil.TestParam(t, r, "pageSize", "250")
+		testutil.MustWriteHTTPResponse(t, w, "testdata/list_soft_deleted_tabulars.json")
+	})
+
+	want := &managementv1.ListSoftDeletedTabularsResponse{
+		ListResponse: managementv1.ListResponse{
+			NextPageToken: core.Ptr("string"),
+		},
+		Tabulars: []*managementv1.Tabular{
+			{
+				ID:             "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+				Name:           "string",
+				Namespace:      []string{"string"},
+				Type:           managementv1.TableTabularType,
+				WarehouseID:    "019eee1f-0cac-41a0-9932-f7e58ee24619",
+				CreatedAt:      "2019-08-24T14:15:22Z",
+				DeletedAt:      "2019-08-24T14:15:22Z",
+				ExpirationDate: "2019-08-24T14:15:22Z",
+			},
+		},
+	}
+
+	resp, r, err := client.WarehouseV1(projectID).ListSoftDeletedTabulars(t.Context(), warehouseID, &opt)
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+
+	assert.Equal(t, want, resp)
+}
+
+func TestWarehouseService_UndropTabular(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	opt := managementv1.UndropTabularOptions{
+		Targets: []struct {
+			ID   string                   `json:"id"`
+			Type managementv1.TabularType `json:"type"`
+		}{
+			{
+				ID:   "test-id",
+				Type: managementv1.ViewTabularType,
+			},
+			{
+				ID:   "test-id-2",
+				Type: managementv1.TableTabularType,
+			},
+		},
+	}
+
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/deleted-tabulars/undrop", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.TestBodyJSON(t, r, &opt)
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	r, err := client.WarehouseV1(projectID).UndropTabular(t.Context(), warehouseID, &opt)
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, http.StatusNoContent, r.StatusCode)
+}
+
+func TestWarehouseService_GetTableProtection(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+	namespaceID := "74f558f9-1443-45f8-9856-fdfb10743d36"
+
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/namespace/"+namespaceID+"/protection", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_namespace_protection.json")
+	})
+
+	want := &managementv1.GetNamespaceProtectionResponse{
+		Protected: true,
+		UpdatedAt: core.Ptr("2019-08-24T14:15:22Z"),
+	}
+
+	resp, r, err := client.WarehouseV1(projectID).GetNamespaceProtection(t.Context(), warehouseID, namespaceID)
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+
+	assert.Equal(t, want, resp)
+}
+
+func TestWarehouseService_SetTableProtection(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+	namespaceID := "74f558f9-1443-45f8-9856-fdfb10743d36"
+
+	opt := &managementv1.SetNamespaceProtectionOptions{
+		Protected: false,
+	}
+
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/namespace/"+namespaceID+"/protection", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		if !testutil.TestBodyJSON(t, r, opt) {
+			t.Fatal("wrong JSON body")
+		}
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_namespace_protection.json")
+	})
+
+	want := &managementv1.GetNamespaceProtectionResponse{
+		Protected: true,
+		UpdatedAt: core.Ptr("2019-08-24T14:15:22Z"),
+	}
+
+	resp, r, err := client.WarehouseV1(projectID).SetNamespaceProtection(t.Context(), warehouseID, namespaceID, opt)
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+
+	assert.Equal(t, want, resp)
 }
