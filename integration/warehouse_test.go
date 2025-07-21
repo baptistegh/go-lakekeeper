@@ -143,6 +143,20 @@ func TestWarehouse_Statistics(t *testing.T) {
 	assert.Equal(t, resp.WarehouseID, warehouseID)
 }
 
+func TestWarehouse_SetProtection(t *testing.T) {
+	t.Parallel()
+	client := Setup(t)
+
+	project := MustCreateProject(t, client)
+	warehouseID, _ := MustCreateWarehouse(t, client, project)
+
+	resp, r, err := client.WarehouseV1(project).SetWarehouseProtection(t.Context(), warehouseID, &managementv1.SetProtectionOptions{
+		Protected: true,
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+	assert.Equal(t, true, resp.Protected)
+	assert.NotNil(t, resp.UpdatedAt)
+}
+
 // TODO: add missing tests
-// GetNamespaceProtection
-// SetNamespaceProtection

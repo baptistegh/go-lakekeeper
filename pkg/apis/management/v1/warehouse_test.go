@@ -143,30 +143,6 @@ func TestWarehouseService_Delete(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
 }
 
-func TestWarehouseService_SetProtection(t *testing.T) {
-	t.Parallel()
-	mux, client := testutil.ServerMux(t)
-
-	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
-	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
-
-	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/protection", func(w http.ResponseWriter, r *http.Request) {
-		testutil.TestMethod(t, r, http.MethodPost)
-		testutil.TestBodyJSON(t, r, &struct {
-			Protected bool `json:"protected"`
-		}{Protected: true})
-		testutil.TestHeader(t, r, "x-project-id", projectID)
-		testutil.MustWriteHTTPResponse(t, w, "testdata/set_protected.json")
-	})
-
-	resp, r, err := client.WarehouseV1(projectID).SetProtection(t.Context(), warehouseID, true)
-	assert.NoError(t, err)
-	assert.NotNil(t, r)
-	assert.Equal(t, http.StatusOK, r.StatusCode)
-
-	assert.Equal(t, true, resp.Protected)
-}
-
 func TestWarehouseService_Activate(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
@@ -396,65 +372,148 @@ func TestWarehouseService_UndropTabular(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 }
 
-func TestWarehouseService_GetNamespaceProtection(t *testing.T) {
+func TestWarehouseService_GetEntityProtection(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
-	namespaceID := "74f558f9-1443-45f8-9856-fdfb10743d36"
+	entityID := "74f558f9-1443-45f8-9856-fdfb10743d36"
 
-	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/namespace/"+namespaceID+"/protection", func(w http.ResponseWriter, r *http.Request) {
-		testutil.TestMethod(t, r, http.MethodGet)
-		testutil.TestHeader(t, r, "x-project-id", projectID)
-		testutil.MustWriteHTTPResponse(t, w, "testdata/get_namespace_protection.json")
-	})
-
-	want := &managementv1.GetNamespaceProtectionResponse{
+	want := &managementv1.GetProtectionResponse{
 		Protected: true,
 		UpdatedAt: core.Ptr("2019-08-24T14:15:22Z"),
 	}
 
-	resp, r, err := client.WarehouseV1(projectID).GetNamespaceProtection(t.Context(), warehouseID, namespaceID)
-	assert.NoError(t, err)
-	assert.NotNil(t, r)
-	assert.Equal(t, http.StatusOK, r.StatusCode)
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/namespace/"+entityID+"/protection", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_protection.json")
+	})
 
-	assert.Equal(t, want, resp)
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/table/"+entityID+"/protection", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_protection.json")
+	})
+
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/view/"+entityID+"/protection", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_protection.json")
+	})
+
+	t.Run("Namespace protection", func(t *testing.T) {
+		resp, r, err := client.WarehouseV1(projectID).GetNamespaceProtection(t.Context(), warehouseID, entityID)
+		assert.NoError(t, err)
+		assert.NotNil(t, r)
+		assert.Equal(t, http.StatusOK, r.StatusCode)
+
+		assert.Equal(t, want, resp)
+	})
+	t.Run("Table protection", func(t *testing.T) {
+		resp, r, err := client.WarehouseV1(projectID).GetTableProtection(t.Context(), warehouseID, entityID)
+		assert.NoError(t, err)
+		assert.NotNil(t, r)
+		assert.Equal(t, http.StatusOK, r.StatusCode)
+
+		assert.Equal(t, want, resp)
+	})
+	t.Run("View protection", func(t *testing.T) {
+		resp, r, err := client.WarehouseV1(projectID).GetViewProtection(t.Context(), warehouseID, entityID)
+		assert.NoError(t, err)
+		assert.NotNil(t, r)
+		assert.Equal(t, http.StatusOK, r.StatusCode)
+
+		assert.Equal(t, want, resp)
+	})
 }
 
-func TestWarehouseService_SetNamespaceProtection(t *testing.T) {
+func TestWarehouseService_SetEntityProtection(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
-	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
-	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
-	namespaceID := "74f558f9-1443-45f8-9856-fdfb10743d36"
-
-	opt := &managementv1.SetNamespaceProtectionOptions{
-		Protected: false,
+	opt := &managementv1.SetProtectionOptions{
+		Protected: true,
 	}
 
-	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/namespace/"+namespaceID+"/protection", func(w http.ResponseWriter, r *http.Request) {
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+	entityID := "74f558f9-1443-45f8-9856-fdfb10743d36"
+
+	want := &managementv1.GetProtectionResponse{
+		Protected: true,
+		UpdatedAt: core.Ptr("2019-08-24T14:15:22Z"),
+	}
+
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/protection", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
 		if !testutil.TestBodyJSON(t, r, opt) {
 			t.Fatal("wrong JSON body")
 		}
-		testutil.MustWriteHTTPResponse(t, w, "testdata/get_namespace_protection.json")
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_protection.json")
 	})
 
-	want := &managementv1.GetNamespaceProtectionResponse{
-		Protected: true,
-		UpdatedAt: core.Ptr("2019-08-24T14:15:22Z"),
-	}
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/namespace/"+entityID+"/protection", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		if !testutil.TestBodyJSON(t, r, opt) {
+			t.Fatal("wrong JSON body")
+		}
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_protection.json")
+	})
 
-	resp, r, err := client.WarehouseV1(projectID).SetNamespaceProtection(t.Context(), warehouseID, namespaceID, opt)
-	assert.NoError(t, err)
-	assert.NotNil(t, r)
-	assert.Equal(t, http.StatusOK, r.StatusCode)
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/table/"+entityID+"/protection", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		if !testutil.TestBodyJSON(t, r, opt) {
+			t.Fatal("wrong JSON body")
+		}
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_protection.json")
+	})
 
-	assert.Equal(t, want, resp)
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/view/"+entityID+"/protection", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodPost)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		if !testutil.TestBodyJSON(t, r, opt) {
+			t.Fatal("wrong JSON body")
+		}
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_protection.json")
+	})
+
+	t.Run("Warehouse protection", func(t *testing.T) {
+		resp, r, err := client.WarehouseV1(projectID).SetWarehouseProtection(t.Context(), warehouseID, opt)
+		assert.NoError(t, err)
+		assert.NotNil(t, r)
+		assert.Equal(t, http.StatusOK, r.StatusCode)
+
+		assert.Equal(t, want, resp)
+	})
+	t.Run("Namespace protection", func(t *testing.T) {
+		resp, r, err := client.WarehouseV1(projectID).SetNamespaceProtection(t.Context(), warehouseID, entityID, opt)
+		assert.NoError(t, err)
+		assert.NotNil(t, r)
+		assert.Equal(t, http.StatusOK, r.StatusCode)
+
+		assert.Equal(t, want, resp)
+	})
+	t.Run("Table protection", func(t *testing.T) {
+		resp, r, err := client.WarehouseV1(projectID).SetTableProtection(t.Context(), warehouseID, entityID, opt)
+		assert.NoError(t, err)
+		assert.NotNil(t, r)
+		assert.Equal(t, http.StatusOK, r.StatusCode)
+
+		assert.Equal(t, want, resp)
+	})
+	t.Run("View protection", func(t *testing.T) {
+		resp, r, err := client.WarehouseV1(projectID).SetViewProtection(t.Context(), warehouseID, entityID, opt)
+		assert.NoError(t, err)
+		assert.NotNil(t, r)
+		assert.Equal(t, http.StatusOK, r.StatusCode)
+
+		assert.Equal(t, want, resp)
+	})
 }
 
 func TestWarehouseService_GetStatistics(t *testing.T) {

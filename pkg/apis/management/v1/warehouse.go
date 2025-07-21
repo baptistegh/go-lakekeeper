@@ -14,11 +14,6 @@ import (
 type (
 	WarehouseServiceInterface interface {
 		// TODO: implement missing API endpoints
-		// GetStatistics
-		// GetTableProtection
-		// SetTableProtection
-		// GetViewProtection
-		// SetViewProtection
 		// GetTaskQueueConfig (expiration)
 		// SetTaskQueueConfig (expiration)
 		// GetTaskQueueConfig (purge)
@@ -43,7 +38,10 @@ type (
 		// Configures the soft-delete behavior for a warehouse.
 		UpdateDeleteProfile(ctx context.Context, id string, opt *UpdateDeleteProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Configures whether a warehouse should be protected from deletion.
+		// Deprecated: user SetWarehouseProtection instead. This will be remove in the future.
 		SetProtection(ctx context.Context, id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error)
+		// Configures whether a warehouse should be protected from deletion.
+		SetWarehouseProtection(ctx context.Context, id string, opt *SetProtectionOptions, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error)
 		// Updates the name of a specific warehouse.
 		Rename(ctx context.Context, id string, opt *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Updates both the storage profile and credentials of a warehouse.
@@ -56,13 +54,21 @@ type (
 		// Restores previously deleted tables or views to make them accessible again.
 		UndropTabular(ctx context.Context, id string, opt *UndropTabularOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Retrieves whether a namespace is protected from deletion.
-		GetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, options ...core.RequestOptionFunc) (*GetNamespaceProtectionResponse, *http.Response, error)
+		GetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error)
 		// Configures whether a namespace should be protected from deletion.
-		SetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, opt *SetNamespaceProtectionOptions, options ...core.RequestOptionFunc) (*GetNamespaceProtectionResponse, *http.Response, error)
+		SetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, opt *SetProtectionOptions, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error)
 		// Retrieves statistical data about a warehouse's usage and resources over time. Statistics are aggregated hourly when changes occur.
 		// We lazily create a new statistics entry every hour, in between hours, the existing entry is being updated.
 		// If there's a change at created_at + 1 hour, a new entry is created. If there's been no change, no new entry is created, meaning there may be gaps.
 		GetStatistics(ctx context.Context, id string, opt *GetStatisticsOptions, options ...core.RequestOptionFunc) (*GetStatisticsResponse, *http.Response, error)
+		// Retrieves whether a table is protected from deletion.
+		GetTableProtection(ctx context.Context, warehouseID, tableID string, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error)
+		// Retrieves whether a view is protected from deletion.
+		GetViewProtection(ctx context.Context, warehouseID, viewID string, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error)
+		// Configures whether a table should be protected from deletion.
+		SetTableProtection(ctx context.Context, warehouseID, tableID string, opt *SetProtectionOptions, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error)
+		// Configures whether a view should be protected from deletion.
+		SetViewProtection(ctx context.Context, warehouseID, viewID string, opt *SetProtectionOptions, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error)
 	}
 
 	// WarehouseService handles communication with warehouse endpoints of the Lakekeeper API.
@@ -326,28 +332,35 @@ func (s *WarehouseService) Delete(ctx context.Context, id string, opt *DeleteWar
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_warehouse_protection
+// Deprecated: use SetWarehouseProtection instead. This will be remove in the future
 type SetProtectionResponse struct {
-	Protected bool   `json:"protected"`
-	UpdatedAt string `json:"updated_at"`
-}
-
-// setWarehouseProtectionOptions represent the request sent to SetProtection()
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_warehouse_protection
-type setWarehouseProtectionOptions struct {
-	Protected bool `json:"protected"`
+	Protected bool    `json:"protected"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
 }
 
 // SetProtection configures whether a warehouse should be protected from deletion.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_warehouse_protection
+// Deprecated: use SetWarehouseProtection instead. This will be remove in the future.
 func (s *WarehouseService) SetProtection(ctx context.Context, id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error) {
-	opt := setWarehouseProtectionOptions{
+	opt := SetProtectionOptions{
 		Protected: protected,
 	}
 
+	resp, r, err := s.SetWarehouseProtection(ctx, id, &opt, options...)
+	if err != nil {
+		return nil, r, err
+	}
+
+	return &SetProtectionResponse{resp.Protected, resp.UpdatedAt}, r, nil
+}
+
+// SetWarehouseProtection configures whether a warehouse should be protected from deletion.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_warehouse_protection
+func (s *WarehouseService) SetWarehouseProtection(ctx context.Context, id string, opt *SetProtectionOptions, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
 	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/protection", id), &opt, options)
@@ -355,13 +368,13 @@ func (s *WarehouseService) SetProtection(ctx context.Context, id string, protect
 		return nil, nil, err
 	}
 
-	var wProtec SetProtectionResponse
-	resp, apiErr := s.client.Do(req, &wProtec)
+	var resp GetProtectionResponse
+	r, apiErr := s.client.Do(req, &resp)
 	if apiErr != nil {
-		return nil, resp, apiErr
+		return nil, r, apiErr
 	}
 
-	return &wProtec, resp, nil
+	return &resp, r, nil
 }
 
 // Activate re-enables access to a previously deactivated warehouse.
@@ -573,11 +586,14 @@ func (s *WarehouseService) UndropTabular(ctx context.Context, id string, opt *Un
 	return r, nil
 }
 
-// GetNamespaceProtectionResponse represents GetNamespaceProtection() response.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_namespace_protection
-type GetNamespaceProtectionResponse struct {
+// SetProtectionOptions represents protection-related methods options
+type SetProtectionOptions struct {
+	// Setting this to true will prevent the entity from being deleted unless force is used.
+	Protected bool `json:"protected"`
+}
+
+// GetProtectionResponse represents protection-related methods response.
+type GetProtectionResponse struct {
 	// Indicates wether the entity is protected
 	Protected bool `json:"protected"`
 	// Updated At
@@ -588,7 +604,7 @@ type GetNamespaceProtectionResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_namespace_protection
-func (s *WarehouseService) GetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, options ...core.RequestOptionFunc) (*GetNamespaceProtectionResponse, *http.Response, error) {
+func (s *WarehouseService) GetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
 	req, err := s.client.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/warehouse/%s/namespace/%s/protection", warehouseID, namespaceID), nil, options)
@@ -596,7 +612,7 @@ func (s *WarehouseService) GetNamespaceProtection(ctx context.Context, warehouse
 		return nil, nil, err
 	}
 
-	var resp GetNamespaceProtectionResponse
+	var resp GetProtectionResponse
 
 	r, apiErr := s.client.Do(req, &resp)
 	if apiErr != nil {
@@ -606,20 +622,11 @@ func (s *WarehouseService) GetNamespaceProtection(ctx context.Context, warehouse
 	return &resp, r, nil
 }
 
-// SetNamespaceProtectionOptions represents SetNamespaceProtection() options.
+// SetNamespaceProtection configures whether a namespace should be protected from deletion.
 //
 // Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_namespace_protection
-type SetNamespaceProtectionOptions struct {
-	// Setting this to true will prevent the entity from being deleted unless force is used.
-	Protected bool `json:"protected"`
-}
-
-// SetNamespaceProtection retrieves whether a namespace is protected from deletion.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_namespace_protection
-func (s *WarehouseService) SetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, opt *SetNamespaceProtectionOptions, options ...core.RequestOptionFunc) (*GetNamespaceProtectionResponse, *http.Response, error) {
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_namespace_protection
+func (s *WarehouseService) SetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, opt *SetProtectionOptions, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
 	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/namespace/%s/protection", warehouseID, namespaceID), opt, options)
@@ -627,7 +634,95 @@ func (s *WarehouseService) SetNamespaceProtection(ctx context.Context, warehouse
 		return nil, nil, err
 	}
 
-	var resp GetNamespaceProtectionResponse
+	var resp GetProtectionResponse
+
+	r, apiErr := s.client.Do(req, &resp)
+	if apiErr != nil {
+		return nil, r, apiErr
+	}
+
+	return &resp, r, nil
+}
+
+// GetTableProtection retrieves whether a table is protected from deletion.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_table_protection
+func (s *WarehouseService) GetTableProtection(ctx context.Context, warehouseID, tableID string, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error) {
+	options = append(options, WithProject(s.projectID))
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/warehouse/%s/table/%s/protection", warehouseID, tableID), nil, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resp GetProtectionResponse
+
+	r, apiErr := s.client.Do(req, &resp)
+	if apiErr != nil {
+		return nil, r, apiErr
+	}
+
+	return &resp, r, nil
+}
+
+// SetTableProtection configures whether a table should be protected from deletion.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_table_protection
+func (s *WarehouseService) SetTableProtection(ctx context.Context, warehouseID, tableID string, opt *SetProtectionOptions, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error) {
+	options = append(options, WithProject(s.projectID))
+
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/table/%s/protection", warehouseID, tableID), opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resp GetProtectionResponse
+
+	r, apiErr := s.client.Do(req, &resp)
+	if apiErr != nil {
+		return nil, r, apiErr
+	}
+
+	return &resp, r, nil
+}
+
+// GetViewProtection retrieves whether a view is protected from deletion.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_view_protection
+func (s *WarehouseService) GetViewProtection(ctx context.Context, warehouseID, viewID string, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error) {
+	options = append(options, WithProject(s.projectID))
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/warehouse/%s/view/%s/protection", warehouseID, viewID), nil, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resp GetProtectionResponse
+
+	r, apiErr := s.client.Do(req, &resp)
+	if apiErr != nil {
+		return nil, r, apiErr
+	}
+
+	return &resp, r, nil
+}
+
+// SetViewProtection configures whether a view should be protected from deletion.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_view_protection
+func (s *WarehouseService) SetViewProtection(ctx context.Context, warehouseID, viewID string, opt *SetProtectionOptions, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error) {
+	options = append(options, WithProject(s.projectID))
+
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/view/%s/protection", warehouseID, viewID), opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resp GetProtectionResponse
 
 	r, apiErr := s.client.Do(req, &resp)
 	if apiErr != nil {
