@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.0.11](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.10...v0.0.11) (2025-07-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* add explicit context argument to all API methods ([#92](https://github.com/baptistegh/go-lakekeeper/issues/92))
+
+### Features
+
+* add explicit context argument to all API methods ([#92](https://github.com/baptistegh/go-lakekeeper/issues/92)) ([7eb0818](https://github.com/baptistegh/go-lakekeeper/commit/7eb0818a1b6cfe90a766be3ad842ff8b1d5827a1))
+* add integration with go-iceberg for catalog endpoints ([#89](https://github.com/baptistegh/go-lakekeeper/issues/89)) ([553afcb](https://github.com/baptistegh/go-lakekeeper/commit/553afcbfc4b30966ee0f4a5b1dd3be53e96d0ef2))
+* **warehouse:** add deprecation notice for GetProtection ([#96](https://github.com/baptistegh/go-lakekeeper/issues/96)) ([df774ba](https://github.com/baptistegh/go-lakekeeper/commit/df774baaac5af01e8514d529523daddb00cd4835))
+* **warehouse:** add few missing methods ([#94](https://github.com/baptistegh/go-lakekeeper/issues/94)) ([20e080b](https://github.com/baptistegh/go-lakekeeper/commit/20e080b70cd32600c4744711ce472f89447888c8))
+* **warehouse:** add get statistics ([#95](https://github.com/baptistegh/go-lakekeeper/issues/95)) ([cc8ecff](https://github.com/baptistegh/go-lakekeeper/commit/cc8ecffc5a3ba428e8c81a91b1a1678c1aa80be2))
+* **warehouse:** add GetNamespaceProtection ([#94](https://github.com/baptistegh/go-lakekeeper/issues/94)) ([20e080b](https://github.com/baptistegh/go-lakekeeper/commit/20e080b70cd32600c4744711ce472f89447888c8))
+* **warehouse:** add GetTableProtection method ([#96](https://github.com/baptistegh/go-lakekeeper/issues/96)) ([df774ba](https://github.com/baptistegh/go-lakekeeper/commit/df774baaac5af01e8514d529523daddb00cd4835))
+* **warehouse:** add GetViewProtection method ([#96](https://github.com/baptistegh/go-lakekeeper/issues/96)) ([df774ba](https://github.com/baptistegh/go-lakekeeper/commit/df774baaac5af01e8514d529523daddb00cd4835))
+* **warehouse:** add ListSoftDeletedTabular ([#94](https://github.com/baptistegh/go-lakekeeper/issues/94)) ([20e080b](https://github.com/baptistegh/go-lakekeeper/commit/20e080b70cd32600c4744711ce472f89447888c8))
+* **warehouse:** add SetNamespaceProtection ([#94](https://github.com/baptistegh/go-lakekeeper/issues/94)) ([20e080b](https://github.com/baptistegh/go-lakekeeper/commit/20e080b70cd32600c4744711ce472f89447888c8))
+* **warehouse:** add SetTableProtection method ([#96](https://github.com/baptistegh/go-lakekeeper/issues/96)) ([df774ba](https://github.com/baptistegh/go-lakekeeper/commit/df774baaac5af01e8514d529523daddb00cd4835))
+* **warehouse:** add SetViewProtection method ([#96](https://github.com/baptistegh/go-lakekeeper/issues/96)) ([df774ba](https://github.com/baptistegh/go-lakekeeper/commit/df774baaac5af01e8514d529523daddb00cd4835))
+* **warehouse:** add table and view protection methods ([#96](https://github.com/baptistegh/go-lakekeeper/issues/96)) ([df774ba](https://github.com/baptistegh/go-lakekeeper/commit/df774baaac5af01e8514d529523daddb00cd4835))
+* **warehouse:** add UndropTabular ([#94](https://github.com/baptistegh/go-lakekeeper/issues/94)) ([20e080b](https://github.com/baptistegh/go-lakekeeper/commit/20e080b70cd32600c4744711ce472f89447888c8))
+
+
+### Miscellaneous Chores
+
+* prepare release 0.0.11 ([afa161a](https://github.com/baptistegh/go-lakekeeper/commit/afa161a43e419f61143ef8c5e92c46035ae5d437))
+
 ## 0.0.10 (2025-07-19)
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
