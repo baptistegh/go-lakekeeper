@@ -2,13 +2,27 @@ package credential
 
 import "encoding/json"
 
-type AZCredentialSettings interface {
-	GetAZCredentialType() AZSCredentialType
+type (
+	AZSCredentialType string
 
-	CredentialSettings
-}
+	AZCredentialSettings interface {
+		GetAZCredentialType() AZSCredentialType
 
-type AZSCredentialType string
+		CredentialSettings
+	}
+
+	AZCredentialClientCredentials struct {
+		ClientID     string `json:"client-id"`
+		ClientSecret string `json:"client-secret"`
+		TenantID     string `json:"tenant-id"`
+	}
+
+	AZCredentialSharedAccessKey struct {
+		Key string `json:"key"`
+	}
+
+	AZCredentialManagedIdentity struct{}
+)
 
 const (
 	ClientCredentials   AZSCredentialType = "client-credentials"
@@ -27,12 +41,6 @@ var (
 	_ CredentialSettings = (*AZCredentialManagedIdentity)(nil)
 )
 
-type AZCredentialClientCredentials struct {
-	ClientID     string `json:"client-id"`
-	ClientSecret string `json:"client-secret"`
-	TenantID     string `json:"tenant-id"`
-}
-
 func NewAZCredentialClientCredentials(clientID, clientSecret, tenantID string) *AZCredentialClientCredentials {
 	return &AZCredentialClientCredentials{
 		ClientID:     clientID,
@@ -41,17 +49,11 @@ func NewAZCredentialClientCredentials(clientID, clientSecret, tenantID string) *
 	}
 }
 
-type AZCredentialSharedAccessKey struct {
-	Key string `json:"key"`
-}
-
 func NewAZCredentialSharedAccessKey(key string) *AZCredentialSharedAccessKey {
 	return &AZCredentialSharedAccessKey{
 		Key: key,
 	}
 }
-
-type AZCredentialManagedIdentity struct{}
 
 func NewAZCredentialManagedIdentity() *AZCredentialManagedIdentity {
 	return &AZCredentialManagedIdentity{}

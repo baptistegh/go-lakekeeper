@@ -8,20 +8,22 @@ import (
 	"net/http"
 )
 
-type ApiError struct {
-	Status     string         `json:"-"`
-	StatusCode int            `json:"-"`
-	Message    string         `json:"-"`
-	Response   *ErrorResponse `json:"error"`
-	Cause      error          `json:"-"`
-}
+type (
+	ApiError struct {
+		Status     string         `json:"-"`
+		StatusCode int            `json:"-"`
+		Message    string         `json:"-"`
+		Response   *ErrorResponse `json:"error"`
+		Cause      error          `json:"-"`
+	}
 
-type ErrorResponse struct {
-	Code    int      `json:"code"`
-	Message string   `json:"message"`
-	Stack   []string `json:"stack"`
-	Type    string   `json:"type"`
-}
+	ErrorResponse struct {
+		Code    int      `json:"code"`
+		Message string   `json:"message"`
+		Stack   []string `json:"stack"`
+		Type    string   `json:"type"`
+	}
+)
 
 func (e *ApiError) Error() string {
 	if e.Response == nil {

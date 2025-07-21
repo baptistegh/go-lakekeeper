@@ -79,53 +79,230 @@ type (
 		projectID string
 		client    core.Client
 	}
+
+	WarehouseStatus string
+
+	// Warehouse represents a lakekeeper warehouse
+	Warehouse struct {
+		ID             string                 `json:"id"`
+		ProjectID      string                 `json:"project-id"`
+		Name           string                 `json:"name"`
+		Protected      bool                   `json:"protected"`
+		Status         WarehouseStatus        `json:"status"`
+		StorageProfile profile.StorageProfile `json:"storage-profile"`
+		DeleteProfile  *profile.DeleteProfile `json:"delete-profile,omitempty"`
+	}
+
+	TabularType string
+
+	Tabular struct {
+		// Unique identifier of the tabular
+		ID string `json:"id"`
+		// Name of the tabular
+		Name string `json:"name"`
+		// Warehouse ID where the tabular is stored
+		WarehouseID string `json:"warehouse-id"`
+		// List of namespace parts the tabular belongs to
+		Namespace []string `json:"namespace"`
+		// Type of the tabular
+		Type TabularType `json:"typ"`
+		// Date when the tabular will not be recoverable anymore
+		ExpirationDate string `json:"expiration-date"`
+		// Date when the tabular was deleted
+		DeletedAt string `json:"deleted-at"`
+		// Date when the tabular was created
+		CreatedAt string `json:"created-at"`
+	}
+
+	// ListWarehouseOptions represents List() options
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_warehouses
+	ListWarehouseOptions struct {
+		WarehouseStatus *WarehouseStatus `url:"warehouseStatus,omitempty"`
+
+		// Deprecated: This field will be removed in a future version.
+		// ProjectID should be obtained from the Service itself and is not intended to be used here.
+		// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
+		ProjectID *string `url:"projectId,omitempty"`
+	}
+
+	// listWarehouseResponse represents the response on list warehouses API action
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_warehouses
+	ListWarehouseResponse struct {
+		Warehouses []*Warehouse `json:"warehouses"`
+	}
+
+	// CreateOptions represents Create() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/create_warehouse
+	CreateWarehouseOptions struct {
+		Name string `json:"warehouse-name"`
+		// Deprecated: This field will be removed in a future version.
+		// ProjectID should be obtained from the Service itself and is not intended to be used here.
+		// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
+		ProjectID         *string                      `json:"project-id,omitempty"`
+		StorageProfile    profile.StorageProfile       `json:"storage-profile"`
+		StorageCredential credential.StorageCredential `json:"storage-credential"`
+		DeleteProfile     *profile.DeleteProfile       `json:"delete-profile,omitempty"`
+	}
+
+	// CreateOptions represents the response from the API
+	// on a create_warehouse action.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/create_warehouse
+	CreateWarehouseResponse struct {
+		ID string `json:"warehouse-id"`
+	}
+
+	// RenameWarehouseOptions represents WarehouseService.Rename() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/rename_warehouse
+	RenameWarehouseOptions struct {
+		NewName string `json:"new-name"`
+	}
+
+	// DeleteWarehouseOptions represents Delete() options.
+	//
+	// force parameters needs to be true to delete protected warehouses.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/delete_warehouse
+	DeleteWarehouseOptions struct {
+		Force *bool `url:"force,omitempty"`
+	}
+
+	// SetProtectionResponse represent the reponse sent by SetProtection()
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_warehouse_protection
+	//
+	// Deprecated: use SetWarehouseProtection instead. This will be remove in the future
+	SetProtectionResponse struct {
+		Protected bool    `json:"protected"`
+		UpdatedAt *string `json:"updated_at,omitempty"`
+	}
+
+	// UpdateStorageProfileOptions represent UpdateStorageProfile() options
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_storage_profile
+	UpdateStorageProfileOptions struct {
+		StorageCredential *credential.StorageCredential `json:"storage-credential,omitempty"`
+		StorageProfile    profile.StorageProfile        `json:"storage-profile"`
+	}
+
+	// UpdateDeleteProfileOptions represent UpdateDeleteProfile() options
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_warehouse_delete_profile
+	UpdateDeleteProfileOptions struct {
+		DeleteProfile profile.DeleteProfile `json:"delete-profile"`
+	}
+
+	// UpdateStorageCredentialOptions represent UpdateStorageCredential() options
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_storage_credential
+	UpdateStorageCredentialOptions struct {
+		StorageCredential *credential.StorageCredential `json:"new-storage-credential,omitempty"`
+	}
+	// ListSoftDeletedTabularsOptions represents ListSoftDeletedTabulars() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
+	ListSoftDeletedTabularsOptions struct {
+		// Filter by Namespace ID
+		NamespaceID *string `url:"namespaceId"`
+
+		ListOptions `url:",inline"`
+	}
+
+	// ListSoftDeletedTabularsResponse represents ListSoftDeletedTabulars() response.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
+	ListSoftDeletedTabularsResponse struct {
+		// List of the tabulars
+		Tabulars []*Tabular `json:"tabulars"`
+
+		ListResponse `json:",inline"`
+	}
+
+	// UndropTabular restores previously deleted tables or views to make them accessible again.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
+	UndropTabularOptions struct {
+		Targets []struct {
+			ID   string      `json:"id"`
+			Type TabularType `json:"type"`
+		} `json:"targets"`
+	}
+
+	// SetProtectionOptions represents protection-related methods options
+	SetProtectionOptions struct {
+		// Setting this to true will prevent the entity from being deleted unless force is used.
+		Protected bool `json:"protected"`
+	}
+
+	// GetProtectionResponse represents protection-related methods response.
+	GetProtectionResponse struct {
+		// Indicates wether the entity is protected
+		Protected bool `json:"protected"`
+		// Updated At
+		UpdatedAt *string `json:"updated_at,omitempty"`
+	}
+
+	// GetStatisticsResponse represents GetStatistics() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_statistics
+	GetStatisticsOptions struct {
+		// Next page token
+		PageToken *string `url:"page_token,omitempty"`
+		// Signals an upper bound of the number of results that a client will receive
+		PageSize *int64 `url:"page_size,omitempty"`
+	}
+
+	// GetStatisticsResponse represents GetStatistics() response.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_statistics
+	GetStatisticsResponse struct {
+		// ID of the warehouse for which the stats were collected.
+		WarehouseID string `json:"warehouse-ident"`
+		// Ordered list of warehouse statistics.
+		Stats []struct {
+			// Number of tables in the warehouse.
+			NumberOfTables int64 `json:"number-of-tables"`
+			// Number of views in the warehouse.
+			NumberOfView int64 `json:"number-of-views"`
+			// Timestamp of when these statistics are valid until.
+			// We lazily create a new statistics entry every hour, in between hours, the existing entry is being updated.
+			// If there's a change at created_at + 1 hour, a new entry is created.
+			// If there's no change, no new entry is created.
+			Timestamp string `json:"timestamp"`
+			// Timestamp of when these statistics were last updated.
+			UpdatedAt string `json:"updated-at"`
+		} `json:"stats"`
+
+		ListResponse `json:",inline"`
+	}
 )
-
-var _ WarehouseServiceInterface = (*WarehouseService)(nil)
-
-// Warehouse represents a lakekeeper warehouse
-type Warehouse struct {
-	ID             string                 `json:"id"`
-	ProjectID      string                 `json:"project-id"`
-	Name           string                 `json:"name"`
-	Protected      bool                   `json:"protected"`
-	Status         WarehouseStatus        `json:"status"`
-	StorageProfile profile.StorageProfile `json:"storage-profile"`
-	DeleteProfile  *profile.DeleteProfile `json:"delete-profile,omitempty"`
-}
-
-type WarehouseStatus string
 
 const (
 	WarehouseStatusActive   WarehouseStatus = "active"
 	WarehouseStatusInactive WarehouseStatus = "inactive"
-)
 
-type TabularType string
-
-const (
 	TableTabularType TabularType = "table"
 	ViewTabularType  TabularType = "view"
 )
-
-type Tabular struct {
-	// Unique identifier of the tabular
-	ID string `json:"id"`
-	// Name of the tabular
-	Name string `json:"name"`
-	// Warehouse ID where the tabular is stored
-	WarehouseID string `json:"warehouse-id"`
-	// List of namespace parts the tabular belongs to
-	Namespace []string `json:"namespace"`
-	// Type of the tabular
-	Type TabularType `json:"typ"`
-	// Date when the tabular will not be recoverable anymore
-	ExpirationDate string `json:"expiration-date"`
-	// Date when the tabular was deleted
-	DeletedAt string `json:"deleted-at"`
-	// Date when the tabular was created
-	CreatedAt string `json:"created-at"`
-}
 
 func (w *Warehouse) IsActive() bool {
 	return w.Status == WarehouseStatusActive
@@ -160,27 +337,6 @@ func (s *WarehouseService) Get(ctx context.Context, id string, options ...core.R
 	return &wh, resp, nil
 }
 
-// ListWarehouseOptions represents List() options
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_warehouses
-type ListWarehouseOptions struct {
-	WarehouseStatus *WarehouseStatus `url:"warehouseStatus,omitempty"`
-
-	// Deprecated: This field will be removed in a future version.
-	// ProjectID should be obtained from the Service itself and is not intended to be used here.
-	// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
-	ProjectID *string `url:"projectId,omitempty"`
-}
-
-// listWarehouseResponse represents the response on list warehouses API action
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_warehouses
-type ListWarehouseResponse struct {
-	Warehouses []*Warehouse `json:"warehouses"`
-}
-
 // Returns all warehouses in the project that the current user has access to.
 // By default, deactivated warehouses are not included in the results.
 //
@@ -210,30 +366,6 @@ func (s *WarehouseService) List(ctx context.Context, opt *ListWarehouseOptions, 
 	}
 
 	return &whs, resp, nil
-}
-
-// CreateOptions represents Create() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/create_warehouse
-type CreateWarehouseOptions struct {
-	Name string `json:"warehouse-name"`
-	// Deprecated: This field will be removed in a future version.
-	// ProjectID should be obtained from the Service itself and is not intended to be used here.
-	// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
-	ProjectID         *string                      `json:"project-id,omitempty"`
-	StorageProfile    profile.StorageProfile       `json:"storage-profile"`
-	StorageCredential credential.StorageCredential `json:"storage-credential"`
-	DeleteProfile     *profile.DeleteProfile       `json:"delete-profile,omitempty"`
-}
-
-// CreateOptions represents the response from the API
-// on a create_warehouse action.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/create_warehouse
-type CreateWarehouseResponse struct {
-	ID string `json:"warehouse-id"`
 }
 
 // Create creates a new warehouse in the specified project with
@@ -269,14 +401,6 @@ func (s *WarehouseService) Create(ctx context.Context, opt *CreateWarehouseOptio
 	return &whResp, resp, nil
 }
 
-// RenameWarehouseOptions represents WarehouseService.Rename() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/rename_warehouse
-type RenameWarehouseOptions struct {
-	NewName string `json:"new-name"`
-}
-
 // Rename updates the name of a specific warehouse.
 //
 // Lakekeeper API docs:
@@ -295,16 +419,6 @@ func (s *WarehouseService) Rename(ctx context.Context, id string, opt *RenameWar
 	}
 
 	return resp, nil
-}
-
-// DeleteWarehouseOptions represents Delete() options.
-//
-// force parameters needs to be true to delete protected warehouses.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/delete_warehouse
-type DeleteWarehouseOptions struct {
-	Force *bool `url:"force,omitempty"`
 }
 
 // Delete permanently removes a warehouse and all its associated resources.
@@ -328,20 +442,11 @@ func (s *WarehouseService) Delete(ctx context.Context, id string, opt *DeleteWar
 	return resp, nil
 }
 
-// SetProtectionResponse represent the reponse sent by SetProtection()
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_warehouse_protection
-// Deprecated: use SetWarehouseProtection instead. This will be remove in the future
-type SetProtectionResponse struct {
-	Protected bool    `json:"protected"`
-	UpdatedAt *string `json:"updated_at,omitempty"`
-}
-
 // SetProtection configures whether a warehouse should be protected from deletion.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_warehouse_protection
+//
 // Deprecated: use SetWarehouseProtection instead. This will be remove in the future.
 func (s *WarehouseService) SetProtection(ctx context.Context, id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error) {
 	opt := SetProtectionOptions{
@@ -417,15 +522,6 @@ func (s *WarehouseService) Deactivate(ctx context.Context, id string, options ..
 	return resp, nil
 }
 
-// UpdateStorageProfileOptions represent UpdateStorageProfile() options
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_storage_profile
-type UpdateStorageProfileOptions struct {
-	StorageCredential *credential.StorageCredential `json:"storage-credential,omitempty"`
-	StorageProfile    profile.StorageProfile        `json:"storage-profile"`
-}
-
 // Deactivate updates both the storage profile and credentials of a warehouse.
 //
 // Lakekeeper API docs:
@@ -448,14 +544,6 @@ func (s *WarehouseService) UpdateStorageProfile(ctx context.Context, id string, 
 	}
 
 	return resp, nil
-}
-
-// UpdateDeleteProfileOptions represent UpdateDeleteProfile() options
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_warehouse_delete_profile
-type UpdateDeleteProfileOptions struct {
-	DeleteProfile profile.DeleteProfile `json:"delete-profile"`
 }
 
 // UpdateDeleteProfile configures the soft-delete behavior for a warehouse.
@@ -482,14 +570,6 @@ func (s *WarehouseService) UpdateDeleteProfile(ctx context.Context, id string, o
 	return resp, nil
 }
 
-// UpdateStorageCredentialOptions represent UpdateStorageCredential() options
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_storage_credential
-type UpdateStorageCredentialOptions struct {
-	StorageCredential *credential.StorageCredential `json:"new-storage-credential,omitempty"`
-}
-
 // Deactivate updates only the storage credential of a warehouse without modifying the storage profile.
 // Useful for refreshing expiring credentials.
 //
@@ -509,28 +589,6 @@ func (s *WarehouseService) UpdateStorageCredential(ctx context.Context, id strin
 	}
 
 	return resp, nil
-}
-
-// ListSoftDeletedTabularsOptions represents ListSoftDeletedTabulars() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
-type ListSoftDeletedTabularsOptions struct {
-	// Filter by Namespace ID
-	NamespaceID *string `url:"namespaceId"`
-
-	ListOptions `url:",inline"`
-}
-
-// ListSoftDeletedTabularsResponse represents ListSoftDeletedTabulars() response.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
-type ListSoftDeletedTabularsResponse struct {
-	// List of the tabulars
-	Tabulars []*Tabular `json:"tabulars"`
-
-	ListResponse `json:",inline"`
 }
 
 // ListSoftDeletedTabulars returns all soft-deleted tables and views in the warehouse that are visible to the current user.
@@ -559,17 +617,6 @@ func (s *WarehouseService) ListSoftDeletedTabulars(ctx context.Context, id strin
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
-type UndropTabularOptions struct {
-	Targets []struct {
-		ID   string      `json:"id"`
-		Type TabularType `json:"type"`
-	} `json:"targets"`
-}
-
-// UndropTabular restores previously deleted tables or views to make them accessible again.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
 func (s *WarehouseService) UndropTabular(ctx context.Context, id string, opt *UndropTabularOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
@@ -584,20 +631,6 @@ func (s *WarehouseService) UndropTabular(ctx context.Context, id string, opt *Un
 	}
 
 	return r, nil
-}
-
-// SetProtectionOptions represents protection-related methods options
-type SetProtectionOptions struct {
-	// Setting this to true will prevent the entity from being deleted unless force is used.
-	Protected bool `json:"protected"`
-}
-
-// GetProtectionResponse represents protection-related methods response.
-type GetProtectionResponse struct {
-	// Indicates wether the entity is protected
-	Protected bool `json:"protected"`
-	// Updated At
-	UpdatedAt *string `json:"updated_at,omitempty"`
 }
 
 // GetNamespaceProtection retrieves whether a namespace is protected from deletion.
@@ -730,42 +763,6 @@ func (s *WarehouseService) SetViewProtection(ctx context.Context, warehouseID, v
 	}
 
 	return &resp, r, nil
-}
-
-// GetStatisticsResponse represents GetStatistics() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_statistics
-type GetStatisticsOptions struct {
-	// Next page token
-	PageToken *string `url:"page_token,omitempty"`
-	// Signals an upper bound of the number of results that a client will receive
-	PageSize *int64 `url:"page_size,omitempty"`
-}
-
-// GetStatisticsResponse represents GetStatistics() response.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_statistics
-type GetStatisticsResponse struct {
-	// ID of the warehouse for which the stats were collected.
-	WarehouseID string `json:"warehouse-ident"`
-	// Ordered list of warehouse statistics.
-	Stats []struct {
-		// Number of tables in the warehouse.
-		NumberOfTables int64 `json:"number-of-tables"`
-		// Number of views in the warehouse.
-		NumberOfView int64 `json:"number-of-views"`
-		// Timestamp of when these statistics are valid until.
-		// We lazily create a new statistics entry every hour, in between hours, the existing entry is being updated.
-		// If there's a change at created_at + 1 hour, a new entry is created.
-		// If there's no change, no new entry is created.
-		Timestamp string `json:"timestamp"`
-		// Timestamp of when these statistics were last updated.
-		UpdatedAt string `json:"updated-at"`
-	} `json:"stats"`
-
-	ListResponse `json:",inline"`
 }
 
 // GetStatistics Retrieves statistical data about a warehouse's usage and resources over time. Statistics are aggregated hourly when changes occur.

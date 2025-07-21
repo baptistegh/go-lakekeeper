@@ -9,31 +9,52 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// AuthSource is used to obtain access tokens.
-type AuthSource interface {
-	// Init is called once before making any requests.
-	// If the token source needs access to client to initialize itself, it should do so here.
-	Init(context.Context) error
+type (
+	// AuthSource is used to obtain access tokens.
+	AuthSource interface {
+		// Init is called once before making any requests.
+		// If the token source needs access to client to initialize itself, it should do so here.
+		Init(context.Context) error
 
-	// Header returns an authentication header. When no error is returned, the
-	// key and value should never be empty.
-	Header(context.Context) (key, value string, err error)
+		// Header returns an authentication header. When no error is returned, the
+		// key and value should never be empty.
+		Header(context.Context) (key, value string, err error)
 
-	// GetToken creates a token
-	// mainly use to create the Catalog REST API
-	GetToken(context.Context) (string, error)
-}
+		// GetToken creates a token
+		// mainly use to create the Catalog REST API
+		GetToken(context.Context) (string, error)
+	}
 
+	// OAuthTokenSource wraps an oauth2.TokenSource to implement the AuthSource interface.
+	OAuthTokenSource struct {
+		TokenSource oauth2.TokenSource
+	}
+
+	// AccessTokenAuthSource is an AuthSource that uses a static access token.
+	// The token is added to the Authorization header using the Bearer scheme.
+	AccessTokenAuthSource struct {
+		Token string
+	}
+
+	// K8sServiceAccountAuthSource is an AuthSource that retrieves the service account token
+	// from the Kubernetes environment. This is typically used in Kubernetes pods where
+	// the service account token is mounted at a specific path.
+	K8sServiceAccountAuthSource struct {
+		// ServiceAccountTokenPath is the path to the service account token file.
+		// Default is "/var/run/secrets/kubernetes.io/serviceaccount/token".
+		ServiceAccountTokenPath *string
+
+		token  string
+		doOnce sync.Once
+	}
+)
+
+// check the implementations
 var (
 	_ AuthSource = (*OAuthTokenSource)(nil)
 	_ AuthSource = (*AccessTokenAuthSource)(nil)
 	_ AuthSource = (*K8sServiceAccountAuthSource)(nil)
 )
-
-// OAuthTokenSource wraps an oauth2.TokenSource to implement the AuthSource interface.
-type OAuthTokenSource struct {
-	TokenSource oauth2.TokenSource
-}
 
 func (*OAuthTokenSource) Init(context.Context) error {
 	return nil
@@ -56,12 +77,6 @@ func (as *OAuthTokenSource) GetToken(ctx context.Context) (string, error) {
 	return t.AccessToken, nil
 }
 
-// AccessTokenAuthSource is an AuthSource that uses a static access token.
-// The token is added to the Authorization header using the Bearer scheme.
-type AccessTokenAuthSource struct {
-	Token string
-}
-
 func (*AccessTokenAuthSource) Init(context.Context) error {
 	return nil
 }
@@ -72,18 +87,6 @@ func (s *AccessTokenAuthSource) Header(context.Context) (string, string, error) 
 
 func (as *AccessTokenAuthSource) GetToken(context.Context) (string, error) {
 	return as.Token, nil
-}
-
-// K8sServiceAccountAuthSource is an AuthSource that retrieves the service account token
-// from the Kubernetes environment. This is typically used in Kubernetes pods where
-// the service account token is mounted at a specific path.
-type K8sServiceAccountAuthSource struct {
-	// ServiceAccountTokenPath is the path to the service account token file.
-	// Default is "/var/run/secrets/kubernetes.io/serviceaccount/token".
-	ServiceAccountTokenPath *string
-
-	token  string
-	doOnce sync.Once
 }
 
 func (s *K8sServiceAccountAuthSource) Init(context.Context) error {

@@ -2,13 +2,42 @@ package credential
 
 import "encoding/json"
 
-type S3SCredentialSettings interface {
-	GetS3CredentialType() S3CredentialType
+type (
+	S3CredentialType      string
+	S3SCredentialSettings interface {
+		GetS3CredentialType() S3CredentialType
 
-	CredentialSettings
-}
+		CredentialSettings
+	}
 
-type S3CredentialType string
+	S3CredentialAccessKey struct {
+		// Access key ID used for IO operations of Lakekeeper
+		AWSAccessKeyID string `json:"aws-access-key-id"`
+		// Secret key associated with the access key ID.
+		AWSSecretAccessKey string  `json:"aws-secret-access-key"`
+		ExternalID         *string `json:"external-id,omitempty"`
+	}
+
+	S3CredentialAccessKeyOptions func(*S3CredentialAccessKey)
+
+	S3CredentialSystemIdentity struct {
+		ExternalID string `json:"external-id"`
+	}
+
+	CloudflareR2Credential struct {
+		// Access key ID used for IO operations of Lakekeeper
+		AccessKeyID string `json:"access-key-id"`
+		// Secret key associated with the access key ID.
+		SecretAccessKey string `json:"secret-access-key"`
+		// Cloudflare account ID, used to determine the temporary credentials
+		// endpoint.
+		AccountID string `json:"account=id"`
+		// Token associated with the access key ID.
+		// This is used to fetch downscoped temporary credentials
+		// for vended credentials.
+		Token string `json:"token"`
+	}
+)
 
 const (
 	AccessKey         S3CredentialType = "access-key"
@@ -27,16 +56,6 @@ var (
 	_ CredentialSettings = (*CloudflareR2Credential)(nil)
 )
 
-type S3CredentialAccessKey struct {
-	// Access key ID used for IO operations of Lakekeeper
-	AWSAccessKeyID string `json:"aws-access-key-id"`
-	// Secret key associated with the access key ID.
-	AWSSecretAccessKey string  `json:"aws-secret-access-key"`
-	ExternalID         *string `json:"external-id,omitempty"`
-}
-
-type S3CredentialAccessKeyOptions func(*S3CredentialAccessKey)
-
 func NewS3CredentialAccessKey(accessKey, secretKey string, options ...S3CredentialAccessKeyOptions) *S3CredentialAccessKey {
 	s := S3CredentialAccessKey{
 		AWSAccessKeyID:     accessKey,
@@ -50,28 +69,10 @@ func NewS3CredentialAccessKey(accessKey, secretKey string, options ...S3Credenti
 	return &s
 }
 
-type S3CredentialSystemIdentity struct {
-	ExternalID string `json:"external-id"`
-}
-
 func NewS3CredentialSystemIdentity(externalID string) *S3CredentialSystemIdentity {
 	return &S3CredentialSystemIdentity{
 		ExternalID: externalID,
 	}
-}
-
-type CloudflareR2Credential struct {
-	// Access key ID used for IO operations of Lakekeeper
-	AccessKeyID string `json:"access-key-id"`
-	// Secret key associated with the access key ID.
-	SecretAccessKey string `json:"secret-access-key"`
-	// Cloudflare account ID, used to determine the temporary credentials
-	// endpoint.
-	AccountID string `json:"account=id"`
-	// Token associated with the access key ID.
-	// This is used to fetch downscoped temporary credentials
-	// for vended credentials.
-	Token string `json:"token"`
 }
 
 func NewCloudflareR2Credential(accessKey, secretKey, accountID, token string) *CloudflareR2Credential {

@@ -5,22 +5,24 @@ import (
 	"fmt"
 )
 
-// RoleAssignment represents the role assignments
-//
-// Assignee can be a role or a user
-// Assignement can be ownership or assignee
-type RoleAssignment struct {
-	Assignee   UserOrRole
-	Assignment RoleAssignmentType
-}
+type (
+	RoleAssignmentType string
+
+	// RoleAssignment represents the role assignments
+	//
+	// Assignee can be a role or a user
+	// Assignement can be ownership or assignee
+	RoleAssignment struct {
+		Assignee   UserOrRole
+		Assignment RoleAssignmentType
+	}
+)
 
 // to be sure RoleAssignment can be JSON encoded/decoded
 var (
 	_ json.Unmarshaler = (*RoleAssignment)(nil)
 	_ json.Marshaler   = (*RoleAssignment)(nil)
 )
-
-type RoleAssignmentType string
 
 const (
 	OwnershipRoleAssignment RoleAssignmentType = "ownership"

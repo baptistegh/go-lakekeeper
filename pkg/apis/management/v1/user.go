@@ -35,33 +35,84 @@ type (
 	UserService struct {
 		client core.Client
 	}
+
+	UserType string
+
+	// User represents a lakekeeper user
+	User struct {
+		ID              string   `json:"id"`
+		Name            string   `json:"name"`
+		Email           *string  `json:"email,omitempty"`
+		UserType        UserType `json:"user-type"`
+		CreatedAt       string   `json:"created-at"`
+		UpdatedAt       *string  `json:"updated-at,omitempty"`
+		LastUpdatedWith string   `json:"last-updated-with"`
+	}
+
+	// ProvisionUserOptions represents Provision() options.
+	//
+	// The id must be identical to the subject in JWT tokens, prefixed with <idp-identifier>~.
+	// For example: oidc~1234567890 for OIDC users or kubernetes~1234567890 for Kubernetes users.
+	// To create users in self-service manner, do not set the id.
+	// The id is then extracted from the passed JWT token.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/create_user
+	ProvisionUserOptions struct {
+		ID             *string   `json:"id,omitempty"`
+		Email          *string   `json:"email,omitempty"`
+		Name           *string   `json:"name,omitempty"`
+		UpdateIfExists *bool     `json:"update-if-exists,omitempty"`
+		UserType       *UserType `json:"user-type,omitempty"`
+	}
+
+	// ListUsersOptions represents options for the List() method.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/list_user
+	ListUsersOptions struct {
+		Name *string `url:"name,omitempty"`
+
+		ListOptions `url:",inline"` // Embed ListOptions for pagination support
+	}
+
+	// ListUsersResponse represents the response from the List() method.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/list_user
+	ListUsersResponse struct {
+		Users []*User `json:"users"`
+
+		ListResponse `json:",inline"` // Embed ListResponse for pagination support
+	}
+
+	// SearchUserOptions represents options for the Search() method.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
+	SearchUserOptions struct {
+		Search string `url:"search"`
+	}
+
+	// SearchUserResponse represents the response from the Search() method.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
+	SearchUserResponse struct {
+		Users []*User `json:"users"`
+	}
 )
 
-var _ UserServiceInterface = (*UserService)(nil)
+const (
+	HumanUserType       UserType = "human"
+	ApplicationUserType UserType = "application"
+)
 
 func NewUserService(client core.Client) UserServiceInterface {
 	return &UserService{
 		client: client,
 	}
 }
-
-// User represents a lakekeeper user
-type User struct {
-	ID              string   `json:"id"`
-	Name            string   `json:"name"`
-	Email           *string  `json:"email,omitempty"`
-	UserType        UserType `json:"user-type"`
-	CreatedAt       string   `json:"created-at"`
-	UpdatedAt       *string  `json:"updated-at,omitempty"`
-	LastUpdatedWith string   `json:"last-updated-with"`
-}
-
-type UserType string
-
-const (
-	HumanUserType       UserType = "human"
-	ApplicationUserType UserType = "application"
-)
 
 // Get retrieves detailed information about a specific user.
 //
@@ -101,23 +152,6 @@ func (s *UserService) Whoami(ctx context.Context, options ...core.RequestOptionF
 	}
 
 	return &user, resp, nil
-}
-
-// ProvisionUserOptions represents Provision() options.
-//
-// The id must be identical to the subject in JWT tokens, prefixed with <idp-identifier>~.
-// For example: oidc~1234567890 for OIDC users or kubernetes~1234567890 for Kubernetes users.
-// To create users in self-service manner, do not set the id.
-// The id is then extracted from the passed JWT token.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/create_user
-type ProvisionUserOptions struct {
-	ID             *string   `json:"id,omitempty"`
-	Email          *string   `json:"email,omitempty"`
-	Name           *string   `json:"name,omitempty"`
-	UpdateIfExists *bool     `json:"update-if-exists,omitempty"`
-	UserType       *UserType `json:"user-type,omitempty"`
 }
 
 // Provision creates a new user or updates an existing user's metadata from the provided token.
@@ -161,26 +195,6 @@ func (s *UserService) Delete(ctx context.Context, id string, options ...core.Req
 	return resp, nil
 }
 
-// ListUsersOptions represents options for the List() method.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/list_user
-type ListUsersOptions struct {
-	Name *string `url:"name,omitempty"`
-
-	ListOptions `url:",inline"` // Embed ListOptions for pagination support
-}
-
-// ListUsersResponse represents the response from the List() method.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/list_user
-type ListUsersResponse struct {
-	Users []*User `json:"users"`
-
-	ListResponse `json:",inline"` // Embed ListResponse for pagination support
-}
-
 // List returns a paginated list of users based on the provided query parameters.
 //
 // Lakekeeper API docs:
@@ -198,22 +212,6 @@ func (s *UserService) List(ctx context.Context, opt *ListUsersOptions, options .
 	}
 
 	return &resp, httpResp, nil
-}
-
-// SearchUserOptions represents options for the Search() method.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
-type SearchUserOptions struct {
-	Search string `url:"search"`
-}
-
-// SearchUserResponse represents the response from the Search() method.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/user/operation/search_user
-type SearchUserResponse struct {
-	Users []*User `json:"users"`
 }
 
 // Search performs a fuzzy search for users based on the provided criteria.

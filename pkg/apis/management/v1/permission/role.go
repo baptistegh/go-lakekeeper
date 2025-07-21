@@ -29,15 +29,57 @@ type (
 	RolePermissionService struct {
 		client core.Client
 	}
-)
 
-func NewRolePermissionService(client core.Client) RolePermissionServiceInterface {
-	return &RolePermissionService{
-		client: client,
+	// Available actions on a role
+	RoleAction string
+
+	// GetRoleAccessOptions represents the GetAccess() options.
+	//
+	// Only one of PrincipalUser or PrincipalRole should be set at a time.
+	// Setting both fields simultaneously is not allowed.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_access
+	GetRoleAccessOptions struct {
+		PrincipalUser *string `url:"principalUser,omitempty"`
+		PrincipalRole *string `url:"principalRole,omitempty"`
 	}
-}
 
-type RoleAction string
+	// GetRoleAccessResponse represents the response from the GetAccess() endpoint.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_access
+	GetRoleAccessResponse struct {
+		AllowedActions []RoleAction `json:"allowed-actions"`
+	}
+
+	// GetRoleAssignmentsOptions represents the GetAssignments() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_assignments
+	GetRoleAssignmentsOptions struct {
+		Relations []RoleAssignmentType `url:"relations[],omitempty"`
+	}
+
+	// GetRoleAssignmentsResponse represents the response from the GetAssignments() endpoint.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_assignments
+	GetRoleAssignmentsResponse struct {
+		Assignments []*RoleAssignment `json:"assignments"`
+	}
+
+	// UpdateRolePermissionsOptions represents the Update() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_role_assignments
+	UpdateRolePermissionsOptions struct {
+		// The list of assignments to delete.
+		Deletes []*RoleAssignment `json:"deletes,omitempty"`
+		// The list of assignments to create.
+		Writes []*RoleAssignment `json:"writes,omitempty"`
+	}
+)
 
 const (
 	Assume              RoleAction = "assume"
@@ -49,24 +91,10 @@ const (
 	ReadRoleAssignments RoleAction = "read_assignments"
 )
 
-// GetRoleAccessOptions represents the GetAccess() options.
-//
-// Only one of PrincipalUser or PrincipalRole should be set at a time.
-// Setting both fields simultaneously is not allowed.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_access
-type GetRoleAccessOptions struct {
-	PrincipalUser *string `url:"principalUser,omitempty"`
-	PrincipalRole *string `url:"principalRole,omitempty"`
-}
-
-// GetRoleAccessResponse represents the response from the GetAccess() endpoint.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_access
-type GetRoleAccessResponse struct {
-	AllowedActions []RoleAction `json:"allowed-actions"`
+func NewRolePermissionService(client core.Client) RolePermissionServiceInterface {
+	return &RolePermissionService{
+		client: client,
+	}
 }
 
 // GetAccess retrieves user or role access to a role.
@@ -90,22 +118,6 @@ func (s *RolePermissionService) GetAccess(ctx context.Context, id string, opt *G
 	return &response, resp, nil
 }
 
-// GetRoleAssignmentsOptions represents the GetAssignments() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_assignments
-type GetRoleAssignmentsOptions struct {
-	Relations []RoleAssignmentType `url:"relations[],omitempty"`
-}
-
-// GetRoleAssignmentsResponse represents the response from the GetAssignments() endpoint.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_assignments
-type GetRoleAssignmentsResponse struct {
-	Assignments []*RoleAssignment `json:"assignments"`
-}
-
 // GetAccess gets user and role assignments of the role.
 //
 // Lakekeeper API docs:
@@ -125,17 +137,6 @@ func (s *RolePermissionService) GetAssignments(ctx context.Context, id string, o
 	}
 
 	return &response, resp, nil
-}
-
-// UpdateRolePermissionsOptions represents the Update() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_role_assignments
-type UpdateRolePermissionsOptions struct {
-	// The list of assignments to delete.
-	Deletes []*RoleAssignment `json:"deletes,omitempty"`
-	// The list of assignments to create.
-	Writes []*RoleAssignment `json:"writes,omitempty"`
 }
 
 // Update updates the role assignments.
