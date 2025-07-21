@@ -14,10 +14,6 @@ import (
 type (
 	WarehouseServiceInterface interface {
 		// TODO: implement missing API endpoints
-		// ListSoftDeletedTabulard()
-		// UndropTabular
-		// GetNamespaceProtection
-		// SetNamespaceProtection
 		// GetStatistics
 		// GetTableProtection
 		// SetTableProtection
@@ -30,31 +26,39 @@ type (
 
 		// Returns all warehouses in the project that the current user has access to.
 		// By default, deactivated warehouses are not included in the results.
-		List(ctx context.Context, opts *ListWarehouseOptions, options ...core.RequestOptionFunc) (*ListWarehouseResponse, *http.Response, error)
+		List(ctx context.Context, opt *ListWarehouseOptions, options ...core.RequestOptionFunc) (*ListWarehouseResponse, *http.Response, error)
 		// Creates a new warehouse in the specified project with the provided configuration.
 		// The project of a warehouse cannot be changed after creation.
 		// This operation validates the storage configuration.
-		Create(ctx context.Context, opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error)
+		Create(ctx context.Context, opt *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error)
 		// Retrieves detailed information about a specific warehouse.
 		Get(ctx context.Context, id string, options ...core.RequestOptionFunc) (*Warehouse, *http.Response, error)
 		// Permanently removes a warehouse and all its associated resources.
 		// Use the force parameter to delete protected warehouses.
-		Delete(ctx context.Context, id string, opts *DeleteWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		Delete(ctx context.Context, id string, opt *DeleteWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Re-enables access to a previously deactivated warehouse.
 		Activate(ctx context.Context, id string, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Temporarily disables access to a warehouse without deleting its data.
 		Deactivate(ctx context.Context, id string, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Configures the soft-delete behavior for a warehouse.
-		UpdateDeleteProfile(ctx context.Context, id string, opts *UpdateDeleteProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		UpdateDeleteProfile(ctx context.Context, id string, opt *UpdateDeleteProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Configures whether a warehouse should be protected from deletion.
 		SetProtection(ctx context.Context, id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error)
 		// Updates the name of a specific warehouse.
-		Rename(ctx context.Context, id string, opts *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		Rename(ctx context.Context, id string, opt *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Updates both the storage profile and credentials of a warehouse.
-		UpdateStorageProfile(ctx context.Context, id string, opts *UpdateStorageProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		UpdateStorageProfile(ctx context.Context, id string, opt *UpdateStorageProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Updates only the storage credential of a warehouse without modifying the storage profile.
 		// Useful for refreshing expiring credentials.
-		UpdateStorageCredential(ctx context.Context, id string, opts *UpdateStorageCredentialOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		UpdateStorageCredential(ctx context.Context, id string, opt *UpdateStorageCredentialOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Returns soft-deleted tables and views in the warehouse that are visible to the current user.
+		ListSoftDeletedTabulars(ctx context.Context, id string, opt *ListSoftDeletedTabularsOptions, options ...core.RequestOptionFunc) (*ListSoftDeletedTabularsResponse, *http.Response, error)
+		// Restores previously deleted tables or views to make them accessible again.
+		UndropTabular(ctx context.Context, id string, opt *UndropTabularOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Retrieves whether a namespace is protected from deletion.
+		GetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, options ...core.RequestOptionFunc) (*GetNamespaceProtectionResponse, *http.Response, error)
+		// Configures whether a namespace should be protected from deletion.
+		SetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, opt *SetNamespaceProtectionOptions, options ...core.RequestOptionFunc) (*GetNamespaceProtectionResponse, *http.Response, error)
 	}
 
 	// WarehouseService handles communication with warehouse endpoints of the Lakekeeper API.
@@ -86,6 +90,32 @@ const (
 	WarehouseStatusActive   WarehouseStatus = "active"
 	WarehouseStatusInactive WarehouseStatus = "inactive"
 )
+
+type TabularType string
+
+const (
+	TableTabularType TabularType = "table"
+	ViewTabularType  TabularType = "view"
+)
+
+type Tabular struct {
+	// Unique identifier of the tabular
+	ID string `json:"id"`
+	// Name of the tabular
+	Name string `json:"name"`
+	// Warehouse ID where the tabular is stored
+	WarehouseID string `json:"warehouse-id"`
+	// List of namespace parts the tabular belongs to
+	Namespace []string `json:"namespace"`
+	// Type of the tabular
+	Type TabularType `json:"typ"`
+	// Date when the tabular will not be recoverable anymore
+	ExpirationDate string `json:"expiration-date"`
+	// Date when the tabular was deleted
+	DeletedAt string `json:"deleted-at"`
+	// Date when the tabular was created
+	CreatedAt string `json:"created-at"`
+}
 
 func (w *Warehouse) IsActive() bool {
 	return w.Status == WarehouseStatusActive
@@ -146,18 +176,18 @@ type ListWarehouseResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_warehouses
-func (s *WarehouseService) List(ctx context.Context, opts *ListWarehouseOptions, options ...core.RequestOptionFunc) (*ListWarehouseResponse, *http.Response, error) {
+func (s *WarehouseService) List(ctx context.Context, opt *ListWarehouseOptions, options ...core.RequestOptionFunc) (*ListWarehouseResponse, *http.Response, error) {
 	// This workaround will be removed once project-id is no longer required
 	// in the request by the API.
 	// https://github.com/lakekeeper/lakekeeper/issues/1234
-	if opts == nil {
-		opts = &ListWarehouseOptions{}
+	if opt == nil {
+		opt = &ListWarehouseOptions{}
 	}
-	opts.ProjectID = &s.projectID
+	opt.ProjectID = &s.projectID
 
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, "/warehouse", opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/warehouse", opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -203,18 +233,18 @@ type CreateWarehouseResponse struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/create_warehouse
-func (s *WarehouseService) Create(ctx context.Context, opts *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error) {
+func (s *WarehouseService) Create(ctx context.Context, opt *CreateWarehouseOptions, options ...core.RequestOptionFunc) (*CreateWarehouseResponse, *http.Response, error) {
 	// This workaround will be removed once project-id is no longer required
 	// in the request by the API.
 	// https://github.com/lakekeeper/lakekeeper/issues/1234
-	if opts == nil {
-		opts = &CreateWarehouseOptions{}
+	if opt == nil {
+		opt = &CreateWarehouseOptions{}
 	}
-	opts.ProjectID = &s.projectID
+	opt.ProjectID = &s.projectID
 
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, "/warehouse", opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, "/warehouse", opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -241,10 +271,10 @@ type RenameWarehouseOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/rename_warehouse
-func (s *WarehouseService) Rename(ctx context.Context, id string, opts *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehouseService) Rename(ctx context.Context, id string, opt *RenameWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/rename", id), opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/rename", id), opt, options)
 	if err != nil {
 		return nil, err
 	}
@@ -272,10 +302,10 @@ type DeleteWarehouseOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/delete_warehouse
-func (s *WarehouseService) Delete(ctx context.Context, id string, opts *DeleteWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehouseService) Delete(ctx context.Context, id string, opt *DeleteWarehouseOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(ctx, http.MethodDelete, "/warehouse/"+id, opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodDelete, "/warehouse/"+id, opt, options)
 	if err != nil {
 		return nil, err
 	}
@@ -310,13 +340,13 @@ type setWarehouseProtectionOptions struct {
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_warehouse_protection
 func (s *WarehouseService) SetProtection(ctx context.Context, id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error) {
-	opts := setWarehouseProtectionOptions{
+	opt := setWarehouseProtectionOptions{
 		Protected: protected,
 	}
 
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/protection", id), &opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/protection", id), &opt, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -383,14 +413,14 @@ type UpdateStorageProfileOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_storage_profile
-func (s *WarehouseService) UpdateStorageProfile(ctx context.Context, id string, opts *UpdateStorageProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
-	if opts == nil {
+func (s *WarehouseService) UpdateStorageProfile(ctx context.Context, id string, opt *UpdateStorageProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+	if opt == nil {
 		return nil, errors.New("update storage profile received empty options")
 	}
 
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/storage", id), opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/storage", id), opt, options)
 	if err != nil {
 		return nil, err
 	}
@@ -415,14 +445,14 @@ type UpdateDeleteProfileOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_warehouse_delete_profile
-func (s *WarehouseService) UpdateDeleteProfile(ctx context.Context, id string, opts *UpdateDeleteProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
-	if opts == nil {
+func (s *WarehouseService) UpdateDeleteProfile(ctx context.Context, id string, opt *UpdateDeleteProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+	if opt == nil {
 		return nil, errors.New("update delete profile received empty options")
 	}
 
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/delete-profile", id), opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/delete-profile", id), opt, options)
 	if err != nil {
 		return nil, err
 	}
@@ -448,10 +478,10 @@ type UpdateStorageCredentialOptions struct {
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/update_storage_credential
-func (s *WarehouseService) UpdateStorageCredential(ctx context.Context, id string, opts *UpdateStorageCredentialOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+func (s *WarehouseService) UpdateStorageCredential(ctx context.Context, id string, opt *UpdateStorageCredentialOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/storage-credential", id), opts, options)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/storage-credential", id), opt, options)
 	if err != nil {
 		return nil, err
 	}
@@ -462,4 +492,143 @@ func (s *WarehouseService) UpdateStorageCredential(ctx context.Context, id strin
 	}
 
 	return resp, nil
+}
+
+// ListSoftDeletedTabularsOptions represents ListSoftDeletedTabulars() options.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
+type ListSoftDeletedTabularsOptions struct {
+	// Filter by Namespace ID
+	NamespaceID *string `url:"namespaceId"`
+
+	ListOptions `url:",inline"`
+}
+
+// ListSoftDeletedTabularsResponse represents ListSoftDeletedTabulars() response.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
+type ListSoftDeletedTabularsResponse struct {
+	// List of the tabulars
+	Tabulars []*Tabular `json:"tabulars"`
+
+	ListResponse `json:",inline"`
+}
+
+// ListSoftDeletedTabulars returns all soft-deleted tables and views in the warehouse that are visible to the current user.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
+func (s *WarehouseService) ListSoftDeletedTabulars(ctx context.Context, id string, opt *ListSoftDeletedTabularsOptions, options ...core.RequestOptionFunc) (*ListSoftDeletedTabularsResponse, *http.Response, error) {
+	options = append(options, WithProject(s.projectID))
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/warehouse/%s/deleted-tabulars", id), opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resp ListSoftDeletedTabularsResponse
+
+	r, apiErr := s.client.Do(req, &resp)
+	if apiErr != nil {
+		return nil, r, apiErr
+	}
+
+	return &resp, r, nil
+}
+
+// UndropTabular restores previously deleted tables or views to make them accessible again.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
+type UndropTabularOptions struct {
+	Targets []struct {
+		ID   string      `json:"id"`
+		Type TabularType `json:"type"`
+	} `json:"targets"`
+}
+
+// UndropTabular restores previously deleted tables or views to make them accessible again.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_deleted_tabulars
+func (s *WarehouseService) UndropTabular(ctx context.Context, id string, opt *UndropTabularOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
+	options = append(options, WithProject(s.projectID))
+
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/deleted-tabulars/undrop", id), opt, options)
+	if err != nil {
+		return nil, err
+	}
+
+	r, apiErr := s.client.Do(req, nil)
+	if apiErr != nil {
+		return r, apiErr
+	}
+
+	return r, nil
+}
+
+// GetNamespaceProtectionResponse represents GetNamespaceProtection() response.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_namespace_protection
+type GetNamespaceProtectionResponse struct {
+	// Indicates wether the entity is protected
+	Protected bool `json:"protected"`
+	// Updated At
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+// GetNamespaceProtection retrieves whether a namespace is protected from deletion.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_namespace_protection
+func (s *WarehouseService) GetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, options ...core.RequestOptionFunc) (*GetNamespaceProtectionResponse, *http.Response, error) {
+	options = append(options, WithProject(s.projectID))
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/warehouse/%s/namespace/%s/protection", warehouseID, namespaceID), nil, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resp GetNamespaceProtectionResponse
+
+	r, apiErr := s.client.Do(req, &resp)
+	if apiErr != nil {
+		return nil, r, apiErr
+	}
+
+	return &resp, r, nil
+}
+
+// SetNamespaceProtectionOptions represents SetNamespaceProtection() options.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_namespace_protection
+type SetNamespaceProtectionOptions struct {
+	// Setting this to true will prevent the entity from being deleted unless force is used.
+	Protected bool `json:"protected"`
+}
+
+// SetNamespaceProtection retrieves whether a namespace is protected from deletion.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_namespace_protection
+func (s *WarehouseService) SetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, opt *SetNamespaceProtectionOptions, options ...core.RequestOptionFunc) (*GetNamespaceProtectionResponse, *http.Response, error) {
+	options = append(options, WithProject(s.projectID))
+
+	req, err := s.client.NewRequest(ctx, http.MethodPost, fmt.Sprintf("/warehouse/%s/namespace/%s/protection", warehouseID, namespaceID), opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resp GetNamespaceProtectionResponse
+
+	r, apiErr := s.client.Do(req, &resp)
+	if apiErr != nil {
+		return nil, r, apiErr
+	}
+
+	return &resp, r, nil
 }
