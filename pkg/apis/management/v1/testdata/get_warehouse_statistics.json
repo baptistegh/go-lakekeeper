@@ -1,0 +1,12 @@
+{
+    "next-page-token": "string",
+    "stats": [
+        {
+            "number-of-tables": 12,
+            "number-of-views": 8,
+            "timestamp": "2019-08-24T14:15:22Z",
+            "updated-at": "2019-08-24T14:15:22Z"
+        }
+    ],
+    "warehouse-ident": "ffa0e747-387e-4f5a-a257-5f6bcf38297d"
+}

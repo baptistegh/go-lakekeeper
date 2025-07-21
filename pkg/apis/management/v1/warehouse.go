@@ -59,6 +59,10 @@ type (
 		GetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, options ...core.RequestOptionFunc) (*GetNamespaceProtectionResponse, *http.Response, error)
 		// Configures whether a namespace should be protected from deletion.
 		SetNamespaceProtection(ctx context.Context, warehouseID, namespaceID string, opt *SetNamespaceProtectionOptions, options ...core.RequestOptionFunc) (*GetNamespaceProtectionResponse, *http.Response, error)
+		// Retrieves statistical data about a warehouse's usage and resources over time. Statistics are aggregated hourly when changes occur.
+		// We lazily create a new statistics entry every hour, in between hours, the existing entry is being updated.
+		// If there's a change at created_at + 1 hour, a new entry is created. If there's been no change, no new entry is created, meaning there may be gaps.
+		GetStatistics(ctx context.Context, id string, opt *GetStatisticsOptions, options ...core.RequestOptionFunc) (*GetStatisticsResponse, *http.Response, error)
 	}
 
 	// WarehouseService handles communication with warehouse endpoints of the Lakekeeper API.
@@ -624,6 +628,87 @@ func (s *WarehouseService) SetNamespaceProtection(ctx context.Context, warehouse
 	}
 
 	var resp GetNamespaceProtectionResponse
+
+	r, apiErr := s.client.Do(req, &resp)
+	if apiErr != nil {
+		return nil, r, apiErr
+	}
+
+	return &resp, r, nil
+}
+
+// GetStatisticsResponse represents GetStatistics() options.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_statistics
+type GetStatisticsOptions struct {
+	// Next page token
+	PageToken *string `url:"page_token,omitempty"`
+	// Signals an upper bound of the number of results that a client will receive
+	PageSize *int64 `url:"page_size,omitempty"`
+}
+
+// GetStatisticsResponse represents GetStatistics() response.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_statistics
+type GetStatisticsResponse struct {
+	// ID of the warehouse for which the stats were collected.
+	WarehouseID string `json:"warehouse-ident"`
+	// Ordered list of warehouse statistics.
+	Stats []struct {
+		// Number of tables in the warehouse.
+		NumberOfTables int64 `json:"number-of-tables"`
+		// Number of views in the warehouse.
+		NumberOfView int64 `json:"number-of-views"`
+		// Timestamp of when these statistics are valid until.
+		// We lazily create a new statistics entry every hour, in between hours, the existing entry is being updated.
+		// If there's a change at created_at + 1 hour, a new entry is created.
+		// If there's no change, no new entry is created.
+		Timestamp string `json:"timestamp"`
+		// Timestamp of when these statistics were last updated.
+		UpdatedAt string `json:"updated-at"`
+	} `json:"stats"`
+
+	ListResponse `json:",inline"`
+}
+
+// GetStatistics Retrieves statistical data about a warehouse's usage and resources over time. Statistics are aggregated hourly when changes occur.
+//
+// We lazily create a new statistics entry every hour, in between hours, the existing entry is being updated.
+// If there's a change at created_at + 1 hour, a new entry is created.
+// If there's been no change, no new entry is created, meaning there may be gaps.
+//
+// Example:
+//
+// 00:16:32: warehouse created:
+//
+//	timestamp: 01:00:00, created_at: 00:16:32, updated_at: null, 0 tables, 0 views
+//
+// 00:30:00: table created:
+//
+//	timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:30:00, 1 table, 0 views
+//
+// 00:45:00: view created:
+//
+//	timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:45:00, 1 table, 1 view
+//
+// 01:00:36: table deleted:
+//
+//	timestamp: 02:00:00, created_at: 01:00:36, updated_at: null, 0 tables, 1 view
+//	timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:45:00, 1 table, 1 view
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_statistics
+func (s *WarehouseService) GetStatistics(ctx context.Context, id string, opt *GetStatisticsOptions, options ...core.RequestOptionFunc) (*GetStatisticsResponse, *http.Response, error) {
+	options = append(options, WithProject(s.projectID))
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/warehouse/%s/statistics", id), opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var resp GetStatisticsResponse
 
 	r, apiErr := s.client.Do(req, &resp)
 	if apiErr != nil {

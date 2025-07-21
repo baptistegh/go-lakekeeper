@@ -123,6 +123,26 @@ func TestWarehouse_ListSoftDeletedTabulars(t *testing.T) {
 	assert.Equal(t, want, resp)
 }
 
+func TestWarehouse_Statistics(t *testing.T) {
+	t.Parallel()
+	client := Setup(t)
+
+	project := MustCreateProject(t, client)
+	warehouseID, _ := MustCreateWarehouse(t, client, project)
+
+	resp, r, err := client.WarehouseV1(project).GetStatistics(t.Context(), warehouseID, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+
+	// It's hard to test against computed values.
+	// we can't determine correctly the timestamps.
+	// But maybe we can create tables/views and test the correct numbers.
+	// TODO: see above
+	assert.NotEmpty(t, resp.Stats, resp)
+	assert.Equal(t, resp.WarehouseID, warehouseID)
+}
+
 // TODO: add missing tests
 // GetNamespaceProtection
 // SetNamespaceProtection
