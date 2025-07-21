@@ -10,7 +10,7 @@
       "extra-files": [
         {
           "type": "generic",
-          "path": "pkg/version/versiong.go"
+          "path": "pkg/version/version.go"
         }
       ]
     }
