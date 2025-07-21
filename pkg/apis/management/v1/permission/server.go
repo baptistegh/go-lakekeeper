@@ -28,9 +28,57 @@ type (
 	ServerPermissionService struct {
 		client core.Client
 	}
-)
 
-type ServerAction string
+	// Available actions on a server
+	ServerAction string
+
+	// GetServerAccessOptions represents the GetAccess() options.
+	//
+	// Only one of PrincipalUser or PrincipalRole should be set at a time.
+	// Setting both fields simultaneously is not allowed.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_access
+	GetServerAccessOptions struct {
+		PrincipalUser *string `url:"principalUser,omitempty"`
+		PrincipalRole *string `url:"principalRole,omitempty"`
+	}
+
+	// GetServerAccessResponse represents the response from the GetAccess() endpoint.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_access
+	GetServerAccessResponse struct {
+		AllowedActions []ServerAction `json:"allowed-actions"`
+	}
+
+	// GetServerAssignmentsOptions represents the GetAssignments() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_assignments
+	GetServerAssignmentsOptions struct {
+		Relations []ServerAssignmentType `url:"relations[],omitempty"`
+	}
+
+	// GetServerAssignmentsResponse represents the response from the GetAssignments() endpoint.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_assignments
+	GetServerAssignmentsResponse struct {
+		Assignments []*ServerAssignment `json:"assignments"`
+	}
+
+	// UpdateServerPermissionsOptions represents the Update() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_server_assignments
+	UpdateServerPermissionsOptions struct {
+		// The list of assignments to delete.
+		Deletes []*ServerAssignment `json:"deletes,omitempty"`
+		// The list of assignments to create.
+		Writes []*ServerAssignment `json:"writes,omitempty"`
+	}
+)
 
 const (
 	CreateProject    ServerAction = "create_project"
@@ -46,26 +94,6 @@ func NewServerPermissionService(client core.Client) ServerPermissionServiceInter
 	return &ServerPermissionService{
 		client: client,
 	}
-}
-
-// GetServerAccessOptions represents the GetAccess() options.
-//
-// Only one of PrincipalUser or PrincipalRole should be set at a time.
-// Setting both fields simultaneously is not allowed.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_access
-type GetServerAccessOptions struct {
-	PrincipalUser *string `url:"principalUser,omitempty"`
-	PrincipalRole *string `url:"principalRole,omitempty"`
-}
-
-// GetServerAccessResponse represents the response from the GetAccess() endpoint.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_access
-type GetServerAccessResponse struct {
-	AllowedActions []ServerAction `json:"allowed-actions"`
 }
 
 // GetAccess retrieves user or role access to the server.
@@ -87,22 +115,6 @@ func (s *ServerPermissionService) GetAccess(ctx context.Context, opt *GetServerA
 	return &response, resp, nil
 }
 
-// GetServerAssignmentsOptions represents the GetAssignments() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_assignments
-type GetServerAssignmentsOptions struct {
-	Relations []ServerAssignmentType `url:"relations[],omitempty"`
-}
-
-// GetServerAssignmentsResponse represents the response from the GetAssignments() endpoint.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_assignments
-type GetServerAssignmentsResponse struct {
-	Assignments []*ServerAssignment `json:"assignments"`
-}
-
 // GetAccess gets user and role assignments of the server.
 //
 // Lakekeeper API docs:
@@ -120,17 +132,6 @@ func (s *ServerPermissionService) GetAssignments(ctx context.Context, opt *GetSe
 	}
 
 	return &response, resp, nil
-}
-
-// UpdateServerPermissionsOptions represents the Update() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_server_assignments
-type UpdateServerPermissionsOptions struct {
-	// The list of assignments to delete.
-	Deletes []*ServerAssignment `json:"deletes,omitempty"`
-	// The list of assignments to create.
-	Writes []*ServerAssignment `json:"writes,omitempty"`
 }
 
 // Update updates the server assignments.

@@ -5,23 +5,19 @@ import (
 	"fmt"
 )
 
-// ProjectAssignment represents an assignment a role or a user can
-// have to a project
-//
-// Assignee can be a role or a user
-// Assignement can be Operator or Admin
-type ProjectAssignment struct {
-	Assignee   UserOrRole
-	Assignment ProjectAssignmentType
-}
+type (
+	ProjectAssignmentType string
 
-// to be sure ProjectAssignment can be JSON encoded/decoded
-var (
-	_ json.Unmarshaler = (*ProjectAssignment)(nil)
-	_ json.Marshaler   = (*ProjectAssignment)(nil)
+	// ProjectAssignment represents an assignment a role or a user can
+	// have to a project
+	//
+	// Assignee can be a role or a user
+	// Assignement can be Operator or Admin
+	ProjectAssignment struct {
+		Assignee   UserOrRole
+		Assignment ProjectAssignmentType
+	}
 )
-
-type ProjectAssignmentType string
 
 const (
 	AdminProjectAssignment         ProjectAssignmentType = "project_admin"
@@ -32,6 +28,12 @@ const (
 	SelectProjectAssignment        ProjectAssignmentType = "select"
 	CreateProjectAssignment        ProjectAssignmentType = "create"
 	ModifyProjectAssignment        ProjectAssignmentType = "modify"
+)
+
+// ProjectAssignment can be JSON encoded/decoded
+var (
+	_ json.Unmarshaler = (*ProjectAssignment)(nil)
+	_ json.Marshaler   = (*ProjectAssignment)(nil)
 )
 
 func (sa *ProjectAssignment) UnmarshalJSON(data []byte) error {

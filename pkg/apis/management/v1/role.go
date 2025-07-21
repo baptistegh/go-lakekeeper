@@ -32,26 +32,91 @@ type (
 		projectID string
 		client    core.Client
 	}
-)
 
-var _ RoleServiceInterface = (*RoleService)(nil)
+	// Project represents a lakekeeper role
+	Role struct {
+		ID          string  `json:"id"`
+		ProjectID   string  `json:"project-id"`
+		Name        string  `json:"name"`
+		Description *string `json:"description,omitempty"`
+
+		CreatedAt string  `json:"created-at"`
+		UpdatedAt *string `json:"updated-at,omitempty"`
+	}
+
+	// ListRolesOptions represents List() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/create_project
+	ListRolesOptions struct {
+		Name *string `url:"name,omitempty"`
+		// Deprecated: This field will be removed in a future version.
+		// ProjectID should be obtained from the Service itself and is not intended to be used here.
+		// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
+		ProjectID *string `url:"projectId,omitempty"`
+
+		ListOptions `url:",inline"` // Embed ListOptions for pagination support
+	}
+
+	// ListRolesResponse represents a response from list_roles API endpoint.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/list_roles
+	ListRolesResponse struct {
+		Roles []*Role `json:"roles"`
+
+		ListResponse `json:",inline"` // Embed ListResponse for pagination support
+	}
+
+	// CreateRoleOptions represents Create() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/create_role
+	CreateRoleOptions struct {
+		Name        string  `json:"name"`
+		Description *string `json:"description"`
+		// Deprecated: This field will be removed in a future version.
+		// ProjectID should be obtained from the Service itself and is not intended to be used here.
+		// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
+		ProjectID *string `json:"project-id,omitempty"`
+	}
+
+	// UpdateRoleOptions represents Update() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/update_role
+	UpdateRoleOptions struct {
+		Name        string  `json:"name"`
+		Description *string `json:"description,omitempty"`
+	}
+
+	// SearchRoleOptions reprensents Search() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/search_role
+	SearchRoleOptions struct {
+		// Deprecated: This field will be removed in a future version.
+		// ProjectID should be obtained from the Service itself and is not intended to be used here.
+		// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
+		ProjectID *string `json:"project-id,omitempty"`
+		// Search string for fuzzy search. Length is truncated to 64 characters.
+		Search string `json:"search"`
+	}
+
+	// SearchRoleResponse reprensents a Search() response.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/search_role
+	SearchRoleResponse struct {
+		Roles []*Role `json:"roles"`
+	}
+)
 
 func NewRoleService(client core.Client, projectID string) RoleServiceInterface {
 	return &RoleService{
 		projectID: projectID,
 		client:    client,
 	}
-}
-
-// Project represents a lakekeeper role
-type Role struct {
-	ID          string  `json:"id"`
-	ProjectID   string  `json:"project-id"`
-	Name        string  `json:"name"`
-	Description *string `json:"description,omitempty"`
-
-	CreatedAt string  `json:"created-at"`
-	UpdatedAt *string `json:"updated-at,omitempty"`
 }
 
 // Get retrieves information about a role.
@@ -74,27 +139,6 @@ func (s *RoleService) Get(ctx context.Context, id string, options ...core.Reques
 	}
 
 	return &role, resp, nil
-}
-
-// SearchRoleOptions reprensents Search() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/search_role
-type SearchRoleOptions struct {
-	// Deprecated: This field will be removed in a future version.
-	// ProjectID should be obtained from the Service itself and is not intended to be used here.
-	// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
-	ProjectID *string `json:"project-id,omitempty"`
-	// Search string for fuzzy search. Length is truncated to 64 characters.
-	Search string `json:"search"`
-}
-
-// SearchRoleResponse reprensents a Search() response.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/search_role
-type SearchRoleResponse struct {
-	Roles []*Role `json:"roles"`
 }
 
 // Search performs a fuzzy search for roles based on the provided criteria.
@@ -126,30 +170,6 @@ func (s *RoleService) Search(ctx context.Context, opts *SearchRoleOptions, optio
 	return &roles, resp, nil
 }
 
-// ListRolesOptions represents List() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/create_project
-type ListRolesOptions struct {
-	Name *string `url:"name,omitempty"`
-	// Deprecated: This field will be removed in a future version.
-	// ProjectID should be obtained from the Service itself and is not intended to be used here.
-	// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
-	ProjectID *string `url:"projectId,omitempty"`
-
-	ListOptions `url:",inline"` // Embed ListOptions for pagination support
-}
-
-// ListRolesResponse represents a response from list_roles API endpoint.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/list_roles
-type ListRolesResponse struct {
-	Roles []*Role `json:"roles"`
-
-	ListResponse `json:",inline"` // Embed ListResponse for pagination support
-}
-
 // List returns all roles in the project that the current user has access to view.
 //
 // Lakekeeper API docs:
@@ -177,19 +197,6 @@ func (s *RoleService) List(ctx context.Context, opts *ListRolesOptions, options 
 	}
 
 	return &r, resp, nil
-}
-
-// CreateRoleOptions represents Create() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/create_role
-type CreateRoleOptions struct {
-	Name        string  `json:"name"`
-	Description *string `json:"description"`
-	// Deprecated: This field will be removed in a future version.
-	// ProjectID should be obtained from the Service itself and is not intended to be used here.
-	// It is temporarily kept for compatibility with the Lakekeeper API until it gets removed upstream.
-	ProjectID *string `json:"project-id,omitempty"`
 }
 
 // Create creates a role with the specified name and description.
@@ -220,15 +227,6 @@ func (s *RoleService) Create(ctx context.Context, opts *CreateRoleOptions, optio
 	}
 
 	return &role, resp, nil
-}
-
-// UpdateRoleOptions represents Update() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/role/operation/update_role
-type UpdateRoleOptions struct {
-	Name        string  `json:"name"`
-	Description *string `json:"description,omitempty"`
 }
 
 // Update update a role with the specified name and description.

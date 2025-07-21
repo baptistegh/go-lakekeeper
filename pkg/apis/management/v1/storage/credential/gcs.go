@@ -2,13 +2,33 @@ package credential
 
 import "encoding/json"
 
-type GCSSCredentialSettings interface {
-	GetGCSCredentialType() GCSCredentialType
+type (
+	GCSCredentialType string
 
-	CredentialSettings
-}
+	GCSSCredentialSettings interface {
+		GetGCSCredentialType() GCSCredentialType
 
-type GCSCredentialType string
+		CredentialSettings
+	}
+
+	GCSCredentialServiceAccountKey struct {
+		Key GCSServiceKey `json:"key"`
+	}
+
+	GCSServiceKey struct {
+		AuthProviderX509CertURL string `json:"auth_provider_x509_cert_url"`
+		AuthURI                 string `json:"auth_uri"`
+		ClientEmail             string `json:"client_email"`
+		ClientID                string `json:"client_id"`
+		ClientX509CertURL       string `json:"client_x509_cert_url"`
+		PrivateKey              string `json:"private_key"`
+		PrivateKeyID            string `json:"private_key_id"`
+		ProjectID               string `json:"project_id"`
+		TokenURI                string `json:"token_uri"`
+		Type                    string `json:"type"`
+		UniverseDomain          string `json:"universe_domain"`
+	}
+)
 
 const (
 	ServiceAccountKey GCSCredentialType = "service-account-key"
@@ -23,24 +43,6 @@ var (
 	_ CredentialSettings = (*GCSCredentialServiceAccountKey)(nil)
 	_ CredentialSettings = (*GCSCredentialSystemIdentity)(nil)
 )
-
-type GCSCredentialServiceAccountKey struct {
-	Key GCSServiceKey `json:"key"`
-}
-
-type GCSServiceKey struct {
-	AuthProviderX509CertURL string `json:"auth_provider_x509_cert_url"`
-	AuthURI                 string `json:"auth_uri"`
-	ClientEmail             string `json:"client_email"`
-	ClientID                string `json:"client_id"`
-	ClientX509CertURL       string `json:"client_x509_cert_url"`
-	PrivateKey              string `json:"private_key"`
-	PrivateKeyID            string `json:"private_key_id"`
-	ProjectID               string `json:"project_id"`
-	TokenURI                string `json:"token_uri"`
-	Type                    string `json:"type"`
-	UniverseDomain          string `json:"universe_domain"`
-}
 
 func NewGCSCredentialServiceAccountKey(key GCSServiceKey) *GCSCredentialServiceAccountKey {
 	return &GCSCredentialServiceAccountKey{Key: key}

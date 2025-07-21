@@ -21,27 +21,37 @@ type (
 	ServerService struct {
 		client core.Client
 	}
-)
 
-var _ ServerServiceInterface = (*ServerService)(nil)
+	// ServerInfo represents the servier informations.
+	ServerInfo struct {
+		AuthzBackend                 string   `json:"authz-backend"`
+		Bootstrapped                 bool     `json:"bootstrapped"`
+		DefaultProjectID             string   `json:"default-project-id"`
+		AWSSystemIdentitiesEnabled   bool     `json:"aws-system-identities-enabled"`
+		AzureSystemIdentitiesEnabled bool     `json:"azure-system-identities-enabled"`
+		GCPSystemIdentitiesEnabled   bool     `json:"gcp-system-identities-enabled"`
+		ServerID                     string   `json:"server-id"`
+		Version                      string   `json:"version"`
+		Queues                       []string `json:"queues"`
+	}
+
+	// BootstrapServerOptions represents the available Bootstrap() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/server/operation/bootstrap
+	BootstrapServerOptions struct {
+		AcceptTermsOfUse bool      `json:"accept-terms-of-use"`
+		IsOperator       *bool     `json:"is-operator,omitempty"`
+		UserEmail        *string   `json:"user-email,omitempty"`
+		UserName         *string   `json:"user-name,omitempty"`
+		UserType         *UserType `json:"user-type,omitempty"`
+	}
+)
 
 func NewServerService(client core.Client) ServerServiceInterface {
 	return &ServerService{
 		client: client,
 	}
-}
-
-// ServerInfo represents the servier informations.
-type ServerInfo struct {
-	AuthzBackend                 string   `json:"authz-backend"`
-	Bootstrapped                 bool     `json:"bootstrapped"`
-	DefaultProjectID             string   `json:"default-project-id"`
-	AWSSystemIdentitiesEnabled   bool     `json:"aws-system-identities-enabled"`
-	AzureSystemIdentitiesEnabled bool     `json:"azure-system-identities-enabled"`
-	GCPSystemIdentitiesEnabled   bool     `json:"gcp-system-identities-enabled"`
-	ServerID                     string   `json:"server-id"`
-	Version                      string   `json:"version"`
-	Queues                       []string `json:"queues"`
 }
 
 func (s *ServerInfo) String() string {
@@ -70,18 +80,6 @@ func (s *ServerService) Info(ctx context.Context, options ...core.RequestOptionF
 	}
 
 	return &info, resp, nil
-}
-
-// BootstrapServerOptions represents the available Bootstrap() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/server/operation/bootstrap
-type BootstrapServerOptions struct {
-	AcceptTermsOfUse bool      `json:"accept-terms-of-use"`
-	IsOperator       *bool     `json:"is-operator,omitempty"`
-	UserEmail        *string   `json:"user-email,omitempty"`
-	UserName         *string   `json:"user-name,omitempty"`
-	UserType         *UserType `json:"user-type,omitempty"`
 }
 
 // Bootstrap initializes the Lakekeeper server and sets the initial administrator account.

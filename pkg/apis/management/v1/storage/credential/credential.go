@@ -5,18 +5,20 @@ import (
 	"fmt"
 )
 
-type CredentialSettings interface {
-	GetCredentialFamily() CredentialFamily
-	AsCredential() StorageCredential
+type (
+	StorageCredential struct {
+		Settings CredentialSettings
+	}
 
-	json.Marshaler
-}
+	CredentialFamily string
 
-type StorageCredential struct {
-	Settings CredentialSettings
-}
+	CredentialSettings interface {
+		GetCredentialFamily() CredentialFamily
+		AsCredential() StorageCredential
 
-type CredentialFamily string
+		json.Marshaler
+	}
+)
 
 const (
 	S3CredentialFamily  CredentialFamily = "s3"
@@ -93,6 +95,7 @@ func (sc StorageCredential) MarshalJSON() ([]byte, error) {
 }
 
 // Type-safe helpers
+
 func (sc StorageCredential) AsS3() (S3SCredentialSettings, bool) {
 	cfg, ok := sc.Settings.(S3SCredentialSettings)
 	return cfg, ok

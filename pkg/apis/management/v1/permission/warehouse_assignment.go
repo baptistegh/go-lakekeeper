@@ -5,23 +5,19 @@ import (
 	"fmt"
 )
 
-// WarehouseAssignment represents an assignment a role or a user can
-// have to a warehouse
-//
-// Assignee can be a role or a user
-// Assignement can be Operator or Admin
-type WarehouseAssignment struct {
-	Assignee   UserOrRole
-	Assignment WarehouseAssignmentType
-}
+type (
+	WarehouseAssignmentType string
 
-// to be sure WarehouseAssignment can be JSON encoded/decoded
-var (
-	_ json.Unmarshaler = (*WarehouseAssignment)(nil)
-	_ json.Marshaler   = (*WarehouseAssignment)(nil)
+	// WarehouseAssignment represents an assignment a role or a user can
+	// have to a warehouse
+	//
+	// Assignee can be a role or a user
+	// Assignement can be Operator or Admin
+	WarehouseAssignment struct {
+		Assignee   UserOrRole
+		Assignment WarehouseAssignmentType
+	}
 )
-
-type WarehouseAssignmentType string
 
 const (
 	OwnershipWarehouseAssignment         WarehouseAssignmentType = "ownership"
@@ -31,6 +27,12 @@ const (
 	SelectWarehouseAssignment            WarehouseAssignmentType = "select"
 	CreateWarehouseAssignment            WarehouseAssignmentType = "create"
 	ModifyWarehouseAssignment            WarehouseAssignmentType = "modify"
+)
+
+// WarehouseAssignment can be JSON encoded/decoded
+var (
+	_ json.Unmarshaler = (*WarehouseAssignment)(nil)
+	_ json.Marshaler   = (*WarehouseAssignment)(nil)
 )
 
 func (sa *WarehouseAssignment) UnmarshalJSON(data []byte) error {

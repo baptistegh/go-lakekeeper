@@ -5,18 +5,20 @@ import (
 	"fmt"
 )
 
-type StorageSettings interface {
-	GetStorageFamily() StorageFamily
-	AsProfile() StorageProfile
+type (
+	StorageProfile struct {
+		StorageSettings StorageSettings
+	}
 
-	json.Marshaler
-}
+	StorageFamily string
 
-type StorageProfile struct {
-	StorageSettings StorageSettings
-}
+	StorageSettings interface {
+		GetStorageFamily() StorageFamily
+		AsProfile() StorageProfile
 
-type StorageFamily string
+		json.Marshaler
+	}
+)
 
 const (
 	StorageFamilyADLS StorageFamily = "adls"

@@ -4,16 +4,18 @@ import (
 	"encoding/json"
 )
 
-// GCSStorageSettings represents the storage settings for a warehouse
-// where data are stored on Google Cloud Storage.
-type GCSStorageSettings struct {
-	// Name of the GCS bucket
-	Bucket string `json:"bucket"`
-	// Subpath in the bucket to use.
-	KeyPrefix *string `json:"key-prefix,omitempty"`
-}
+type (
+	// GCSStorageSettings represents the storage settings for a warehouse
+	// where data are stored on Google Cloud Storage.
+	GCSStorageSettings struct {
+		// Name of the GCS bucket
+		Bucket string `json:"bucket"`
+		// Subpath in the bucket to use.
+		KeyPrefix *string `json:"key-prefix,omitempty"`
+	}
 
-type GCSStorageSettingsOptions func(*GCSStorageSettings)
+	GCSStorageSettingsOptions func(*GCSStorageSettings)
+)
 
 func (sp *GCSStorageSettings) GetStorageFamily() StorageFamily {
 	return StorageFamilyGCS

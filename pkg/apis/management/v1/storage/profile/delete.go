@@ -5,18 +5,26 @@ import (
 	"fmt"
 )
 
-type DeleteProfileSettings interface {
-	GetDeteProfileType() DeleteProfileType
-	AsProfile() *DeleteProfile
+type (
+	DeleteProfile struct {
+		DeleteProfileSettings DeleteProfileSettings
+	}
 
-	json.Marshaler
-}
+	DeleteProfileType string
 
-type DeleteProfile struct {
-	DeleteProfileSettings DeleteProfileSettings
-}
+	DeleteProfileSettings interface {
+		GetDeteProfileType() DeleteProfileType
+		AsProfile() *DeleteProfile
 
-type DeleteProfileType string
+		json.Marshaler
+	}
+
+	TabularDeleteProfileHard struct{}
+
+	TabularDeleteProfileSoft struct {
+		ExpirationSeconds int32 `json:"expiration-seconds"`
+	}
+)
 
 const (
 	HardDeleteProfileType DeleteProfileType = "hard"
@@ -27,8 +35,6 @@ var (
 	_ DeleteProfileSettings = (*TabularDeleteProfileHard)(nil)
 	_ DeleteProfileSettings = (*TabularDeleteProfileSoft)(nil)
 )
-
-type TabularDeleteProfileHard struct{}
 
 func NewTabularDeleteProfileHard() *TabularDeleteProfileHard {
 	return &TabularDeleteProfileHard{}
@@ -49,10 +55,6 @@ func (d TabularDeleteProfileHard) MarshalJSON() ([]byte, error) {
 		Type: string(d.GetDeteProfileType()),
 	}
 	return json.Marshal(aux)
-}
-
-type TabularDeleteProfileSoft struct {
-	ExpirationSeconds int32 `json:"expiration-seconds"`
 }
 
 func NewTabularDeleteProfileSoft(expirationSeconds int32) *TabularDeleteProfileSoft {

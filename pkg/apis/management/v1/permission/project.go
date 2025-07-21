@@ -29,9 +29,10 @@ type (
 	ProjectPermissionService struct {
 		client core.Client
 	}
-)
 
-type ProjectAction string
+	// Available actions on a project
+	ProjectAction string
+)
 
 const (
 	CreateWarehouse         ProjectAction = "create_warehouse"

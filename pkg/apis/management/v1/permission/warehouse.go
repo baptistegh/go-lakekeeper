@@ -32,6 +32,72 @@ type (
 	WarehousePermissionService struct {
 		client core.Client
 	}
+
+	// Available actions on a warehouse
+	WarehouseAction string
+
+	// GetWarehouseAuthzPropertiesResponse represents the response from the GetAuthzProperties() endpoint.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
+	GetWarehouseAuthzPropertiesResponse struct {
+		ManagedAccess bool `json:"managed-access"`
+	}
+
+	// GetWarehouseAccessOptions represents the GetAccess() options.
+	//
+	// Only one of PrincipalUser or PrincipalRole should be set at a time.
+	// Setting both fields simultaneously is not allowed.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
+	GetWarehouseAccessOptions struct {
+		PrincipalUser *string `url:"principalUser,omitempty"`
+		PrincipalRole *string `url:"principalRole,omitempty"`
+	}
+
+	// GetWarehouseAccessResponse represents the response from the GetAccess() endpoint.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
+	GetWarehouseAccessResponse struct {
+		AllowedActions []WarehouseAction `json:"allowed-actions"`
+	}
+
+	// GetWarehouseAssignmentsOptions represents the GetAssignments() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_assignments
+	GetWarehouseAssignmentsOptions struct {
+		Relations []WarehouseAssignmentType `url:"relations[],omitempty"`
+	}
+
+	// GetWarehouseAssignmentsResponse represents the response from the GetAssignments() endpoint.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_assignments
+	GetWarehouseAssignmentsResponse struct {
+		Assignments []*WarehouseAssignment `json:"assignments"`
+	}
+
+	// UpdateWarehousePermissionsOptions represents the Update() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_warehouse_assignments
+	UpdateWarehousePermissionsOptions struct {
+		// The list of assignments to delete.
+		Deletes []*WarehouseAssignment `json:"deletes,omitempty"`
+		// The list of assignments to create.
+		Writes []*WarehouseAssignment `json:"writes,omitempty"`
+	}
+
+	// SetWarehouseManagedAccessOptions represents SetManagedAccess() options.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/set_warehouse_managed_access
+	SetWarehouseManagedAccessOptions struct {
+		ManagedAccess bool `json:"managed-access"`
+	}
 )
 
 func NewWarehousePermissionService(client core.Client) WarehousePermissionServiceInterface {
@@ -39,8 +105,6 @@ func NewWarehousePermissionService(client core.Client) WarehousePermissionServic
 		client: client,
 	}
 }
-
-type WarehouseAction string
 
 const (
 	CreateNamespace          WarehouseAction = "create_namespace"
@@ -65,14 +129,6 @@ const (
 	ChangeOwnership          WarehouseAction = "change_ownership"
 )
 
-// GetWarehouseAuthzPropertiesResponse represents the response from the GetAuthzProperties() endpoint.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
-type GetWarehouseAuthzPropertiesResponse struct {
-	ManagedAccess bool `json:"managed-access"`
-}
-
 // GetAuthzProperties retrieves authorization properties of a warehouse.
 //
 // Lakekeeper API docs:
@@ -92,26 +148,6 @@ func (s *WarehousePermissionService) GetAuthzProperties(ctx context.Context, id 
 	}
 
 	return &response, resp, nil
-}
-
-// GetWarehouseAccessOptions represents the GetAccess() options.
-//
-// Only one of PrincipalUser or PrincipalRole should be set at a time.
-// Setting both fields simultaneously is not allowed.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
-type GetWarehouseAccessOptions struct {
-	PrincipalUser *string `url:"principalUser,omitempty"`
-	PrincipalRole *string `url:"principalRole,omitempty"`
-}
-
-// GetWarehouseAccessResponse represents the response from the GetAccess() endpoint.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
-type GetWarehouseAccessResponse struct {
-	AllowedActions []WarehouseAction `json:"allowed-actions"`
 }
 
 // GetAccess retrieves user or role access to a warehouse.
@@ -135,22 +171,6 @@ func (s *WarehousePermissionService) GetAccess(ctx context.Context, id string, o
 	return &response, resp, nil
 }
 
-// GetWarehouseAssignmentsOptions represents the GetAssignments() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_assignments
-type GetWarehouseAssignmentsOptions struct {
-	Relations []WarehouseAssignmentType `url:"relations[],omitempty"`
-}
-
-// GetWarehouseAssignmentsResponse represents the response from the GetAssignments() endpoint.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_assignments
-type GetWarehouseAssignmentsResponse struct {
-	Assignments []*WarehouseAssignment `json:"assignments"`
-}
-
 // GetAssignments gets user and role assignments of the warehouse.
 //
 // Lakekeeper API docs:
@@ -172,17 +192,6 @@ func (s *WarehousePermissionService) GetAssignments(ctx context.Context, id stri
 	return &response, resp, nil
 }
 
-// UpdateWarehousePermissionsOptions represents the Update() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/update_warehouse_assignments
-type UpdateWarehousePermissionsOptions struct {
-	// The list of assignments to delete.
-	Deletes []*WarehouseAssignment `json:"deletes,omitempty"`
-	// The list of assignments to create.
-	Writes []*WarehouseAssignment `json:"writes,omitempty"`
-}
-
 // Update updates the warehouse assignments.
 //
 // Lakekeeper API docs:
@@ -201,14 +210,6 @@ func (s *WarehousePermissionService) Update(ctx context.Context, id string, opt 
 	}
 
 	return resp, nil
-}
-
-// SetWarehouseManagedAccessOptions represents SetManagedAccess() options.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/set_warehouse_managed_access
-type SetWarehouseManagedAccessOptions struct {
-	ManagedAccess bool `json:"managed-access"`
 }
 
 // SetManagedAccess sets managed access property of a warehouse.

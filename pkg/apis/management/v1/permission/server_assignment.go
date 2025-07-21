@@ -5,27 +5,29 @@ import (
 	"fmt"
 )
 
-// ServerAssignment represents an assignment a role or a user can
-// have to the server
-//
-// Assignee can be a role or a user
-// Assignement can be Operator or Admin
-type ServerAssignment struct {
-	Assignee   UserOrRole
-	Assignment ServerAssignmentType
-}
+type (
+	ServerAssignmentType string
+
+	// ServerAssignment represents an assignment a role or a user can
+	// have to the server
+	//
+	// Assignee can be a role or a user
+	// Assignement can be Operator or Admin
+	ServerAssignment struct {
+		Assignee   UserOrRole
+		Assignment ServerAssignmentType
+	}
+)
+
+const (
+	OperatorServerAssignment ServerAssignmentType = "operator"
+	AdminServerAssignment    ServerAssignmentType = "admin"
+)
 
 // to be sure ServerAssignment can be JSON encoded/decoded
 var (
 	_ json.Unmarshaler = (*ServerAssignment)(nil)
 	_ json.Marshaler   = (*ServerAssignment)(nil)
-)
-
-type ServerAssignmentType string
-
-const (
-	OperatorServerAssignment ServerAssignmentType = "operator"
-	AdminServerAssignment    ServerAssignmentType = "admin"
 )
 
 func (sa *ServerAssignment) UnmarshalJSON(data []byte) error {
