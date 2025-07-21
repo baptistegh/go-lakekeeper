@@ -396,7 +396,7 @@ func TestWarehouseService_UndropTabular(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 }
 
-func TestWarehouseService_GetTableProtection(t *testing.T) {
+func TestWarehouseService_GetNamespaceProtection(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
@@ -423,7 +423,7 @@ func TestWarehouseService_GetTableProtection(t *testing.T) {
 	assert.Equal(t, want, resp)
 }
 
-func TestWarehouseService_SetTableProtection(t *testing.T) {
+func TestWarehouseService_SetNamespaceProtection(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
@@ -450,6 +450,52 @@ func TestWarehouseService_SetTableProtection(t *testing.T) {
 	}
 
 	resp, r, err := client.WarehouseV1(projectID).SetNamespaceProtection(t.Context(), warehouseID, namespaceID, opt)
+	assert.NoError(t, err)
+	assert.NotNil(t, r)
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+
+	assert.Equal(t, want, resp)
+}
+
+func TestWarehouseService_GetStatistics(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	opt := &managementv1.GetStatisticsOptions{
+		PageToken: core.Ptr("page_token"),
+		PageSize:  core.Ptr(int64(32)),
+	}
+
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/statistics", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.TestParam(t, r, "page_token", "page_token")
+		testutil.TestParam(t, r, "page_size", "32")
+		testutil.MustWriteHTTPResponse(t, w, "testdata/get_warehouse_statistics.json")
+	})
+
+	want := &managementv1.GetStatisticsResponse{
+		ListResponse: managementv1.ListResponse{
+			NextPageToken: core.Ptr("string"),
+		},
+		WarehouseID: "ffa0e747-387e-4f5a-a257-5f6bcf38297d",
+		Stats: []struct {
+			NumberOfTables int64  `json:"number-of-tables"`
+			NumberOfView   int64  `json:"number-of-views"`
+			Timestamp      string `json:"timestamp"`
+			UpdatedAt      string `json:"updated-at"`
+		}{{
+			NumberOfTables: int64(12),
+			NumberOfView:   int64(8),
+			Timestamp:      "2019-08-24T14:15:22Z",
+			UpdatedAt:      "2019-08-24T14:15:22Z",
+		}},
+	}
+
+	resp, r, err := client.WarehouseV1(projectID).GetStatistics(t.Context(), warehouseID, opt)
 	assert.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
