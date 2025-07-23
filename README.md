@@ -18,6 +18,8 @@ To install the client library, use `go get`:
 go get github.com/baptistegh/go-lakekeeper
 ```
 
+This library requires Go 1.24 or later.
+
 ## Usage
 
 The client is organized into services that correspond to different parts of the Lakekeeper API.
