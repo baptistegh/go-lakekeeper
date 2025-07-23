@@ -119,7 +119,7 @@ type (
 	// Lakekeeper API docs:
 	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/list_warehouses
 	ListWarehouseOptions struct {
-		WarehouseStatus *WarehouseStatus `url:"warehouseStatus,omitempty"`
+		WarehouseStatus []WarehouseStatus `url:"warehouseStatus[],omitempty"`
 
 		// Deprecated: This field will be removed in a future version.
 		// ProjectID should be obtained from the Service itself and is not intended to be used here.
