@@ -145,7 +145,7 @@ func TestCheckResponseOnUnknownErrorFormat(t *testing.T) {
 		t.Fatal("Expected error response.")
 	}
 
-	want := "unexpected error response, some error message but not JSON, <nil>"
+	want := "unexpected error response, some error message but not JSON"
 
 	if errResp.Error() != want {
 		t.Errorf("Expected error: %s, got %s", want, errResp.Error())

@@ -27,7 +27,14 @@ type (
 
 func (e *ApiError) Error() string {
 	if e.Response == nil {
-		return fmt.Sprintf("unexpected error response, %s, %v", e.Message, e.Cause)
+		errMsg := "unexpected error response"
+		if len(e.Message) > 0 {
+			errMsg = fmt.Sprintf("%s, %s", errMsg, e.Message)
+		}
+		if e.Cause != nil {
+			errMsg = fmt.Sprintf("%s, %v", errMsg, e.Cause)
+		}
+		return errMsg
 	}
 	return fmt.Sprintf("api error, code=%d message=%s type=%s", e.Response.Code, e.Response.Message, e.Response.Type)
 }
@@ -95,7 +102,6 @@ func ApiErrorFromError(err error) *ApiError {
 		return nil
 	}
 	return &ApiError{
-		Message: err.Error(),
-		Cause:   err,
+		Cause: err,
 	}
 }

@@ -56,3 +56,8 @@ ci:
   - changed-files:
     - any-glob-to-any-file: 'pkg/apis/management/v1/**/warehouse*.go'
   # - title: '^\w+\(warehouse\)!?:'
+
+'area: cli':
+  - changed-files:
+    - any-glob-to-any-file: 'cmd/**'
+  # - title: '^\w+\(warehouse\)!?:'
