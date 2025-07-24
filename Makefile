@@ -106,7 +106,9 @@ $(GOLANGCI_LINT):
 	@rm -fr $(BIN_DIR)/tmp
 
 .PHONY: build
-build: build.common ## Only build for linux platform
+build: build.common
+	@echo === go build
+	CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GO) build -a $(GO_COMMON_FLAGS) -o $(BIN_DIR)/lkctl main.go
 
 .PHONY: build.common
 build.common: $(YQ) $(BIN_DIR)
