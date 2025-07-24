@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.12](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.11...v0.0.12) (2025-07-24)
+
+
+### Features
+
+* **test:** add client options tests ([#99](https://github.com/baptistegh/go-lakekeeper/issues/99)) ([08d7779](https://github.com/baptistegh/go-lakekeeper/commit/08d777929a585641aeb978eddd2b763896af290e))
+
+
+### Bug Fixes
+
+* **warehouse:** filter by status ([#102](https://github.com/baptistegh/go-lakekeeper/issues/102)) ([a97ff1e](https://github.com/baptistegh/go-lakekeeper/commit/a97ff1e904951b3476d67b78e4724a6dc0cc73bb))
+
 ## [0.0.11](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.10...v0.0.11) (2025-07-21)
 
 
