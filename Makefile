@@ -76,6 +76,7 @@ GO_COMMON_FLAGS = $(GO_BUILDFLAGS) -tags '$(GO_TAGS)' -ldflags '$(GO_LDFLAGS)'
 GO_PACKAGES := ./pkg/...
 
 BIN_DIR := $(SELF_DIR)/bin
+DIST_DIR := $(SELF_DIR)/dist
 
 CONTAINER_COMPOSE_ENGINE ?= $(shell docker compose version >/dev/null 2>&1 && echo 'docker compose' || echo 'docker-compose')
 
@@ -109,12 +110,13 @@ $(ADD_LICENSE): $(BIN_DIR)
 
 .PHONY: build
 build: build.common
-	@echo === go build
-	CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GO) build -a $(GO_COMMON_FLAGS) -o $(BIN_DIR)/lkctl main.go
+	@echo === go build $(DIST_DIR)/lkctl
+	@CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GO) build -a $(GO_COMMON_FLAGS) -o $(DIST_DIR)/lkctl main.go
 
 .PHONY: build.common
 build.common: $(YQ)
 	@$(GOHOST) mod tidy
+	@$(MAKE) fmt
 	@$(MAKE) validate
 	@$(MAKE) test
 
@@ -140,7 +142,7 @@ $(ENV_FILE):
 .PHONY: vet
 vet:
 	@echo === go vet
-	CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GOHOST) vet $(GO_COMMON_FLAGS) ./...
+	@CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GOHOST) vet $(GO_COMMON_FLAGS) ./...
 
 .PHONY: fmt
 fmt: license $(GOLANGCI_LINT)

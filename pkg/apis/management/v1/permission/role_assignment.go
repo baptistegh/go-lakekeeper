@@ -32,15 +32,20 @@ type (
 	}
 )
 
+const (
+	OwnershipRoleAssignment RoleAssignmentType = "ownership"
+	AssigneeRoleAssignment  RoleAssignmentType = "assignee"
+)
+
 // to be sure RoleAssignment can be JSON encoded/decoded
 var (
 	_ json.Unmarshaler = (*RoleAssignment)(nil)
 	_ json.Marshaler   = (*RoleAssignment)(nil)
-)
 
-const (
-	OwnershipRoleAssignment RoleAssignmentType = "ownership"
-	AssigneeRoleAssignment  RoleAssignmentType = "assignee"
+	ValidRoleAssignmentTypes = []RoleAssignmentType{
+		OwnershipRoleAssignment,
+		AssigneeRoleAssignment,
+	}
 )
 
 func (sa *RoleAssignment) UnmarshalJSON(data []byte) error {

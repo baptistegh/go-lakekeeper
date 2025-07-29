@@ -15,13 +15,13 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/client"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
+	"github.com/joho/godotenv"
 	"golang.org/x/oauth2/clientcredentials"
 
 	"github.com/google/uuid"
@@ -58,11 +58,6 @@ var rootCmd = &cobra.Command{
 		}
 
 		if _, err := oauthConfig.Token(cmd.Context()); err != nil {
-			fmt.Println(viper.GetString("client_id"))
-			fmt.Println(viper.GetString("client_secret"))
-			fmt.Println(viper.GetString("auth_url"))
-			fmt.Println(viper.GetString("scope"))
-
 			return err
 		}
 
@@ -107,7 +102,7 @@ func init() {
 	rootCmd.PersistentFlags().String("client-id", "lakekeeper-admin", "oidc client_id  (can also be set with env LAKEKEEPER_CLIENT_ID)")
 	rootCmd.PersistentFlags().String("client-secret", "", "oidc client_secret  (can also be set with env LAKEKEEPER_CLIENT_SECRET)")
 	rootCmd.PersistentFlags().String("scope", "lakekeeper", "oidc scope, space separated (can also be set with env LAKEKEEPER_SCOPE)")
-	rootCmd.PersistentFlags().Bool("bootstrap", false, "bootstrap the server on startup. The current user will have the operator role")
+	rootCmd.PersistentFlags().Bool("bootstrap", false, "bootstrap the server on startup. The current user will have the operator role (can also be set with env LAKEKEEPER_BOOTSTRAP)")
 
 	_ = viper.BindPFlag("server", rootCmd.PersistentFlags().Lookup("server"))
 	_ = viper.BindPFlag("auth_url", rootCmd.PersistentFlags().Lookup("auth-url"))
@@ -115,6 +110,9 @@ func init() {
 	_ = viper.BindPFlag("client_secret", rootCmd.PersistentFlags().Lookup("client-secret"))
 	_ = viper.BindPFlag("scope", rootCmd.PersistentFlags().Lookup("scope"))
 	_ = viper.BindPFlag("bootstrap", rootCmd.PersistentFlags().Lookup("bootstrap"))
+
+	// load .env file if exists
+	_ = godotenv.Load()
 
 	viper.SetEnvPrefix("lakekeeper")
 	viper.AutomaticEnv()

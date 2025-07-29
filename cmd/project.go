@@ -16,16 +16,20 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
+	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // projectCmd represents the project command
 var projectCmd = &cobra.Command{
 	Use:   "project",
-	Short: "Interacts with the projects",
+	Short: "Interacts with projects",
 }
 
 // listProjectsCmd represents the project list command
@@ -56,9 +60,10 @@ var GetProjectCmd = &cobra.Command{
 	},
 }
 
-var createProjectCmd = &cobra.Command{
-	Use:   "create [name]",
-	Short: "Create a new project",
+// addProjectCmd represents the project add command
+var addProjectCmd = &cobra.Command{
+	Use:   "add [flags] <name>",
+	Short: "Add a new project",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		opt := managementv1.CreateProjectOptions{
@@ -74,10 +79,68 @@ var createProjectCmd = &cobra.Command{
 	},
 }
 
+// renameProjectCmd represents the project rename command
+var renameProjectCmd = &cobra.Command{
+	Use:   "rename [flags] <new-name>",
+	Short: "Rename the project",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		opt := managementv1.RenameProjectOptions{
+			NewName: args[0],
+		}
+
+		if _, err := c.ProjectV1().Rename(cmd.Context(), project, &opt); err != nil {
+			return err
+		}
+
+		return nil
+	},
+}
+
+// accessProjectCmd represents the project access command
+var accessProjectCmd = &cobra.Command{
+	Use:   "access [flags] [--user <user> | --role <role>]",
+	Short: "Get project access",
+	Long:  "Get project access. By default, current user's access is returned",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		user := viper.GetString("project_access_user")
+		role := viper.GetString("project_access_role")
+
+		if user != "" && role != "" {
+			return errors.New("you only can filter by user OR role, both were supplied")
+		}
+
+		opt := permissionv1.GetProjectAccessOptions{}
+
+		if user != "" {
+			opt.PrincipalUser = core.Ptr(user)
+		}
+
+		if role != "" {
+			opt.PrincipalRole = core.Ptr(role)
+		}
+
+		resp, _, err := c.PermissionV1().ProjectPermission().GetAccess(cmd.Context(), project, &opt)
+		if err != nil {
+			return err
+		}
+
+		return json.NewEncoder(cmd.OutOrStdout()).Encode(resp)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(projectCmd)
 
 	projectCmd.AddCommand(listProjectsCmd)
 	projectCmd.AddCommand(GetProjectCmd)
-	projectCmd.AddCommand(createProjectCmd)
+	projectCmd.AddCommand(addProjectCmd)
+	projectCmd.AddCommand(renameProjectCmd)
+	projectCmd.AddCommand(accessProjectCmd)
+
+	accessProjectCmd.Flags().String("user", "", "filter by user")
+	accessProjectCmd.Flags().String("role", "", "filter by role")
+
+	_ = viper.BindPFlag("project_access_user", accessProjectCmd.Flags().Lookup("user"))
+	_ = viper.BindPFlag("project_access_role", accessProjectCmd.Flags().Lookup("role"))
 }

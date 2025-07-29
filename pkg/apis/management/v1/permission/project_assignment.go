@@ -48,6 +48,17 @@ const (
 var (
 	_ json.Unmarshaler = (*ProjectAssignment)(nil)
 	_ json.Marshaler   = (*ProjectAssignment)(nil)
+
+	ValidProjectAssignmentTypes = []ProjectAssignmentType{
+		AdminProjectAssignment,
+		SecurityAdminProjectAssignment,
+		DataAdminProjectAssignment,
+		RoleCreatorProjectAssignment,
+		DescribeProjectAssignment,
+		SelectProjectAssignment,
+		CreateProjectAssignment,
+		ModifyProjectAssignment,
+	}
 )
 
 func (sa *ProjectAssignment) UnmarshalJSON(data []byte) error {

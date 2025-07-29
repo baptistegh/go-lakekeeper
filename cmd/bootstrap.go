@@ -25,7 +25,7 @@ var (
 	acceptTermsOfUse bool
 )
 
-// bootstrapCmd represents the bootstrap commad
+// bootstrapCmd represents the bootstrap command
 var bootstrapCmd = &cobra.Command{
 	Use:   "bootstrap",
 	Short: "Bootstraps the server with the current user",
@@ -43,6 +43,6 @@ var bootstrapCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(bootstrapCmd)
 
-	bootstrapCmd.Flags().BoolVar(&asOperator, "operator", false, "Bootstrap the server as an operator")
+	bootstrapCmd.Flags().BoolVar(&asOperator, "as-operator", false, "Bootstrap the server as an operator")
 	bootstrapCmd.Flags().BoolVar(&acceptTermsOfUse, "accept-terms-of-use", false, "Accept the terms of use")
 }

@@ -1,0 +1,98 @@
+# Copyright 2025 Baptiste Gouhoury <baptiste.gouhoury@scalend.fr>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+builds:
+  - id: lkctl
+    main: ./main.go
+    binary: lkctl
+    flags:
+      - -v
+    ldflags:
+      - > 
+        -s -w
+        -X github.com/baptistegh/go-lakekeeper/pkg/version.Version={{.Version}}
+        -X github.com/baptistegh/go-lakekeeper/pkg/version.Commit={{.Commit}}
+        -X github.com/baptistegh/go-lakekeeper/pkg/version.Date={{.Date}}
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+
+archives:
+  - id: default
+    builds:
+      - lkctl
+    format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+dockers:
+  - image_templates:
+      - "gcr.io/baptistegh/lkctl:{{ .Tag }}-amd64"
+      - "gcr.io/baptistegh/lkctl:v{{ .Major }}-amd64"
+      - "gcr.io/baptistegh/lkctl:v{{ .Major }}.{{ .Minor }}-amd64"
+      - "gcr.io/baptistegh/lkctl:latest-amd64"
+    dockerfile: docker/bin.Dockerfile
+    use: buildx
+    goos: linux
+    goarch: amd64
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/amd64"
+  - image_templates:
+      - "gcr.io/baptistegh/lkctl:{{ .Tag }}-arm64"
+      - "gcr.io/baptistegh/lkctl:v{{ .Major }}-arm64"
+      - "gcr.io/baptistegh/lkctl:v{{ .Major }}.{{ .Minor }}-arm64"
+      - "gcr.io/baptistegh/lkctl:latest-arm64"
+    dockerfile: docker/bin.Dockerfile
+    use: buildx
+    goos: linux
+    goarch: arm64
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/arm64"
+
+docker_manifests:
+  - name_template: "gcr.io/baptistegh/lkctl:{{ .Tag }}"
+    image_templates:
+      - "gcr.io/baptistegh/lkctl:{{ .Tag }}-arm64"
+      - "gcr.io/baptistegh/lkctl:{{ .Tag }}-amd64"
+  - name_template: "gcr.io/baptistegh/lkctl:latest"
+    image_templates:
+      - "gcr.io/baptistegh/lkctl:latest-amd64"
+      - "gcr.io/baptistegh/lkctl:latest-arm64"
+
+release:
+  github:
+    owner: baptistegh
+    name: lkctl
+
+checksum:
+  name_template: 'checksums.txt'
+
+signs:
+  - artifacts: checksum
+
+nightly:
+  publish_release: false

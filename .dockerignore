@@ -1,0 +1,14 @@
+.vscode/
+integration/
+scripts/
+tests/
+.golangci.yml
+.release-please-manifest.json
+CHANGELOG.md
+codecov.yml
+coverage.txt
+docker-compose.yml
+Makefile
+README.md
+release-please-config.json
+run-tests.sh
