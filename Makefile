@@ -47,11 +47,8 @@ GO_PROJECT=github.com/baptistegh/go-lakekeeper
 CGO_ENABLED_VALUE=0
 
 COMMIT_SHA := $(shell git rev-parse HEAD)
-
 DATE := $(shell git log -1 --format=%cI)
 
-# set the version number. you should not need to do this
-# for the majority of scenarios.
 ifeq ($(origin VERSION), undefined)
 VERSION := $(shell git describe --dirty --always --tags | sed 's/-/./2' | sed 's/-/./2' )
 endif
@@ -66,7 +63,7 @@ HOST_PLATFORM := $(GOHOSTOS)_$(GOHOSTARCH)
 REAL_HOST_PLATFORM=$(shell go env GOHOSTOS)_$(GOHOSTARCH)
 
 GO := go
-GOHOST := GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) go
+GOHOST := GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) $(GO)
 GO_VERSION := $(shell $(GO) version | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9][^.]\).*/\1/p')
 GO_FULL_VERSION := $(shell $(GO) version)
 
@@ -85,25 +82,30 @@ CONTAINER_COMPOSE_ENGINE ?= $(shell docker compose version >/dev/null 2>&1 && ec
 ENV_FILE := $(SELF_DIR)/.env
 
 $(BIN_DIR):
+	@echo === creating $(BIN_DIR)
 	@mkdir -p $(BIN_DIR)
 
 YQ_VERSION := v4.45.1
 YQ := $(BIN_DIR)/yq-$(YQ_VERSION)
 $(YQ): $(BIN_DIR)
-	@echo $(YQ)
 	@echo === installing yq $(YQ_VERSION) $(REAL_HOST_PLATFORM)
-	@mkdir -p $(BIN_DIR)
 	@curl -s -JL https://github.com/mikefarah/yq/releases/download/$(YQ_VERSION)/yq_$(REAL_HOST_PLATFORM) -o $(YQ)
 	@chmod +x $(YQ)
+	@echo Installed yq version $(YQ_VERSION) in $(YQ)
 
-GOLANGCI_LINT_VERSION ?= $(strip $(shell $(YQ) .jobs.golangci.steps[2].with.version .github/workflows/test.yml))
+GOLANGCI_LINT_VERSION ?= $(strip $(shell $(YQ) .jobs.lint.steps[2].with.version .github/workflows/test.yml))
 GOLANGCI_LINT ?= $(BIN_DIR)/golangci-lint
-$(GOLANGCI_LINT):
+$(GOLANGCI_LINT): $(BIN_DIR)
 	@echo === installing golangci-lint
 	@mkdir -p $(BIN_DIR)/tmp
 	@curl -sL https://github.com/golangci/golangci-lint/releases/download/$(GOLANGCI_LINT_VERSION)/golangci-lint-$(patsubst v%,%,$(GOLANGCI_LINT_VERSION))-$(shell go env GOHOSTOS)-$(GOHOSTARCH).tar.gz | tar -xz -C $(BIN_DIR)/tmp
 	@mv $(BIN_DIR)/tmp/golangci-lint-$(patsubst v%,%,$(GOLANGCI_LINT_VERSION))-$(shell go env GOHOSTOS)-$(GOHOSTARCH)/golangci-lint $(GOLANGCI_LINT)
 	@rm -fr $(BIN_DIR)/tmp
+
+ADD_LICENSE := $(BIN_DIR)/addlicense
+$(ADD_LICENSE): $(BIN_DIR)
+	@echo === installing addlicense
+	@GOBIN=$(BIN_DIR) $(GO) install github.com/google/addlicense@latest
 
 .PHONY: build
 build: build.common
@@ -111,7 +113,7 @@ build: build.common
 	CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GO) build -a $(GO_COMMON_FLAGS) -o $(BIN_DIR)/lkctl main.go
 
 .PHONY: build.common
-build.common: $(YQ) $(BIN_DIR)
+build.common: $(YQ)
 	@$(GOHOST) mod tidy
 	@$(MAKE) validate
 	@$(MAKE) test
@@ -141,7 +143,7 @@ vet:
 	CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GOHOST) vet $(GO_COMMON_FLAGS) ./...
 
 .PHONY: fmt
-fmt: $(GOLANGCI_LINT)
+fmt: license $(GOLANGCI_LINT)
 	@echo === go fmt fix
 	@$(GOLANGCI_LINT) run --fix ./...
 
@@ -151,7 +153,18 @@ lint: $(GOLANGCI_LINT)
 	@$(GOLANGCI_LINT) run ./...
 
 .PHONY: validate
-validate: vet lint
+validate: license-check vet lint
+
+COPYRIGHT ?= Baptiste Gouhoury <baptiste.gouhoury@scalend.fr>
+.PHONY: license
+license: $(ADD_LICENSE)
+	@echo ===  addlicense
+	@$(ADD_LICENSE) -l apache -c "$(COPYRIGHT)" .
+
+.PHONY: license-check
+license-check: $(ADD_LICENSE)
+	@echo === addlicense-check
+	@$(ADD_LICENSE) -check -l apache -c "$(COPYRIGHT)" .
 
 .PHONY: clean
 clean:
