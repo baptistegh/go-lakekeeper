@@ -8,17 +8,30 @@
 
 Go Client for [Lakekeeper API](https://docs.lakekeeper.io).
 
-It provides a convenient way to interact with Lakekeeper services from your Go applications.
+It provides a convenient way to interact with Lakekeeper services from your Go applications (And a new CLI tool in preview).
 
-## Installation
+## Table of Contents
 
-To install the client library, use `go get`:
+- [Lakekeeper Go Client](#lakekeeper-go-client)
+  - [Table of Contents](#table-of-contents)
+  - [CLI Usage](#cli-usage)
+    - [Installation](#installation)
+    - [Authentication](#authentication)
+    - [Bootstrapping](#bootstrapping)
+    - [Some Examples](#some-examples)
+  - [Go Package Usage](#go-package-usage)
+    - [Installation](#installation-1)
+    - [Client Initialization](#client-initialization)
+      - [Client Credentials (OIDC)](#client-credentials-oidc)
+      - [Kubernetes Service Account](#kubernetes-service-account)
+    - [Management API](#management-api)
+      - [Server Information](#server-information)
+      - [Projects](#projects)
+      - [Project-Scoped Resources (e.g., Roles, Warehouses)](#project-scoped-resources-eg-roles-warehouses)
+      - [Create resources (e.g., Warehouse)](#create-resources-eg-warehouse)
+    - [Catalog API (Iceberg REST Catalog)](#catalog-api-iceberg-rest-catalog)
+      - [Getting a REST Catalog interface](#getting-a-rest-catalog-interface)
 
-```sh
-go get github.com/baptistegh/go-lakekeeper
-```
-
-This library requires Go 1.24 or later.
 
 ## CLI Usage
 
@@ -103,6 +116,16 @@ The client is organized into services that correspond to different parts of the 
 The two main parts are [Management](#management-api) and [Catalog](#catalog-api-iceberg-rest-catalog).
 
 The Catalog part is handled by the Iceberg Go implementation : [go-iceberg](https://github.com/apache/iceberg-go).
+
+### Installation
+
+To install the client library, use `go get`:
+
+```sh
+go get github.com/baptistegh/go-lakekeeper
+```
+
+This library requires Go 1.24 or later.
 
 ### Client Initialization
 
