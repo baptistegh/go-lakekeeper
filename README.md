@@ -24,7 +24,7 @@ This library requires Go 1.24 or later.
 
 ### Installation
 
-You can direclty download the binaries on [Releases page](https://github.com/baptistegh/go-lakekeeper/releases/latest).
+You can directly download the binaries on [Releases page](https://github.com/baptistegh/go-lakekeeper/releases/latest).
 
 A docker image is also available
 
@@ -43,7 +43,7 @@ lkctl info \
     --server http://localhost:8181 \
     --auth-url http://localhost:30080/realms/iceberg/protocol/openid-connect/token \
     --client-id spark \
-    --client-secret 2OR3eRvYfSZzzZ16MlPd95jhLnOaLM
+    --client-secret 2OR3eRvYfSZzzZ16MlPd95jhLnOaLM \
     --scope lakekeeper
 ```
 
@@ -246,7 +246,7 @@ fmt.Printf("Warehouse with ID %s created!\n", warehouse.ID)
 
 ```go
 catalog, err := client.Catalog(ctx, projectID, warehouseName)
-if err != {
+if err != nil {
     log.Fatalf("Failed to get REST catalog for warehouse %s in project %s, %v", warehouseName, projectID, err)
 }
 
