@@ -51,10 +51,10 @@ var getProjectAssignmentsCmd = &cobra.Command{
 	},
 }
 
-// wProjectAssignmentsCmd represents the project assignments update command
+// wProjectAssignmentsCmd represents the project assignments add command
 var wProjectAssignmentsCmd = &cobra.Command{
-	Use:   "update [flags] --assignment <assignment> [--user <user> --role <role>]",
-	Short: "Update project assignments",
+	Use:   "add [flags] --assignment <assignment> [--user <user> --role <role>]",
+	Short: "add project assignments",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		opt := permissionv1.UpdateProjectPermissionsOptions{}
 		assignees := []permissionv1.UserOrRole{}
