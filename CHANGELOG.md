@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.0.12](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.11...v0.0.12) (2025-07-30)
+
+
+### Features
+
+* **cli:** introduction of the command line interface ([#103](https://github.com/baptistegh/go-lakekeeper/issues/103)) ([7133351](https://github.com/baptistegh/go-lakekeeper/commit/7133351991a341a31618d9c5ada998f8a2e410a1))
+* **test:** add client options tests ([#99](https://github.com/baptistegh/go-lakekeeper/issues/99)) ([08d7779](https://github.com/baptistegh/go-lakekeeper/commit/08d777929a585641aeb978eddd2b763896af290e))
+
+
+### Bug Fixes
+
+* **warehouse:** filter by status ([#102](https://github.com/baptistegh/go-lakekeeper/issues/102)) ([a97ff1e](https://github.com/baptistegh/go-lakekeeper/commit/a97ff1e904951b3476d67b78e4724a6dc0cc73bb))
+
+
+### Miscellaneous Chores
+
+* add status badges in README.md ([#98](https://github.com/baptistegh/go-lakekeeper/issues/98)) ([15b9850](https://github.com/baptistegh/go-lakekeeper/commit/15b98504727ef31025e6b72f20349f53b0d55832))
+* **build:** set go version to 1.24 ([#101](https://github.com/baptistegh/go-lakekeeper/issues/101)) ([21cf182](https://github.com/baptistegh/go-lakekeeper/commit/21cf182758e89c93f1873b0e03ca91589a4bd10a))
+* **ci:** publish container image on main branch ([#106](https://github.com/baptistegh/go-lakekeeper/issues/106)) ([62e20ff](https://github.com/baptistegh/go-lakekeeper/commit/62e20ffab931d331804f60e3620cd6c9d83b29bc))
+* **deps:** bump github.com/go-viper/mapstructure/v2 ([f6a6bc7](https://github.com/baptistegh/go-lakekeeper/commit/f6a6bc7d1ecc51078645ba3312f1d3bf41faace1))
+* **deps:** bump github.com/go-viper/mapstructure/v2 from 2.2.1 to 2.3.0 in the go_modules group ([#105](https://github.com/baptistegh/go-lakekeeper/issues/105)) ([f6a6bc7](https://github.com/baptistegh/go-lakekeeper/commit/f6a6bc7d1ecc51078645ba3312f1d3bf41faace1))
+* **deps:** bump the github-actions group with 2 updates ([#104](https://github.com/baptistegh/go-lakekeeper/issues/104)) ([914b439](https://github.com/baptistegh/go-lakekeeper/commit/914b4394defa652f3cd31ad331365d5072bb67bd))
+* set up release please sections ([#107](https://github.com/baptistegh/go-lakekeeper/issues/107)) ([2c04c77](https://github.com/baptistegh/go-lakekeeper/commit/2c04c778c7b64d675c2349e81732aa0bac33425a))
+
 ## [0.0.11](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.10...v0.0.11) (2025-07-21)
 
 
