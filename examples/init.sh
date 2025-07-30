@@ -13,8 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-set -e
+# set -e
 
 echo == 1. Bootstrap
 
@@ -42,7 +41,30 @@ lkctl project assignments add \
     --user oidc~7515be4b-ce5b-4371-ab31-f40b97f74ec6 \
     --assignment project_admin
 
-# 6. Listing project Assignments
 echo == 6. Listing Project Assignments
 
 lkctl project assignments get | jq .
+
+echo == 7. Creating the warehouse
+
+cat <<EOF | lkctl warehouse add -
+{
+    "warehouse-name": "demo",
+    "storage-profile": {
+        "type": "s3",
+        "bucket": "examples",
+        "key-prefix": "initial-warehouse",
+        "endpoint": "http://minio:9000",
+        "region": "local-01",
+        "path-style-access": true,
+        "flavor": "minio",
+        "sts-enabled": true
+    },
+    "storage-credential": {
+        "type": "s3",
+        "credential-type": "access-key",
+        "aws-access-key-id": "minio-root-user",
+        "aws-secret-access-key": "minio-root-password"
+    }
+}
+EOF
