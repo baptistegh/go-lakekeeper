@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+version: 2
 
 builds:
   - id: lkctl
@@ -34,17 +35,18 @@ builds:
 
 archives:
   - id: default
-    builds:
+    ids:
       - lkctl
-    format: tar.gz
+    formats: 
+      - tar.gz
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 dockers:
   - image_templates:
-      - "gcr.io/baptistegh/lkctl:{{ .Tag }}-amd64"
-      - "gcr.io/baptistegh/lkctl:v{{ .Major }}-amd64"
-      - "gcr.io/baptistegh/lkctl:v{{ .Major }}.{{ .Minor }}-amd64"
-      - "gcr.io/baptistegh/lkctl:latest-amd64"
+      - "ghcr.io/baptistegh/lkctl:v{{ .Version }}-amd64"
+      - "ghcr.io/baptistegh/lkctl:v{{ .Major }}-amd64"
+      - "ghcr.io/baptistegh/lkctl:v{{ .Major }}.{{ .Minor }}-amd64"
+      - "ghcr.io/baptistegh/lkctl:latest-amd64"
     dockerfile: docker/bin.Dockerfile
     use: buildx
     goos: linux
@@ -57,10 +59,10 @@ dockers:
       - "--label=org.opencontainers.image.version={{.Version}}"
       - "--platform=linux/amd64"
   - image_templates:
-      - "gcr.io/baptistegh/lkctl:{{ .Tag }}-arm64"
-      - "gcr.io/baptistegh/lkctl:v{{ .Major }}-arm64"
-      - "gcr.io/baptistegh/lkctl:v{{ .Major }}.{{ .Minor }}-arm64"
-      - "gcr.io/baptistegh/lkctl:latest-arm64"
+      - "ghcr.io/baptistegh/lkctl:v{{ .Version }}-arm64"
+      - "ghcr.io/baptistegh/lkctl:v{{ .Major }}-arm64"
+      - "ghcr.io/baptistegh/lkctl:v{{ .Major }}.{{ .Minor }}-arm64"
+      - "ghcr.io/baptistegh/lkctl:latest-arm64"
     dockerfile: docker/bin.Dockerfile
     use: buildx
     goos: linux
@@ -74,14 +76,14 @@ dockers:
       - "--platform=linux/arm64"
 
 docker_manifests:
-  - name_template: "gcr.io/baptistegh/lkctl:{{ .Tag }}"
+  - name_template: "ghcr.io/baptistegh/lkctl:{{ .Tag }}"
     image_templates:
-      - "gcr.io/baptistegh/lkctl:{{ .Tag }}-arm64"
-      - "gcr.io/baptistegh/lkctl:{{ .Tag }}-amd64"
-  - name_template: "gcr.io/baptistegh/lkctl:latest"
+      - "ghcr.io/baptistegh/lkctl:{{ .Tag }}-arm64"
+      - "ghcr.io/baptistegh/lkctl:{{ .Tag }}-amd64"
+  - name_template: "ghcr.io/baptistegh/lkctl:latest"
     image_templates:
-      - "gcr.io/baptistegh/lkctl:latest-amd64"
-      - "gcr.io/baptistegh/lkctl:latest-arm64"
+      - "ghcr.io/baptistegh/lkctl:latest-amd64"
+      - "ghcr.io/baptistegh/lkctl:latest-arm64"
 
 release:
   github:
@@ -94,5 +96,5 @@ checksum:
 signs:
   - artifacts: checksum
 
-nightly:
-  publish_release: false
+snapshot:
+  version_template: "{{ incpatch .Version }}-devel"
