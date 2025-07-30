@@ -12,6 +12,23 @@
           "type": "generic",
           "path": "pkg/version/version.go"
         }
+      ],
+      "changelog-sections": [
+        {
+          "type": "feat",
+          "hidden": false,
+          "section": "Features"
+        },
+        {
+          "type": "fix",
+          "hidden": false,
+          "section": "Bug Fixes"
+        },
+        {
+          "type": "chore",
+          "hidden": false,
+          "section": "Miscellaneous Chores"
+        }
       ]
     }
   },

@@ -23,7 +23,7 @@ echo "PR Title: $PR_TITLE"
 #   feat: add new login feature
 #   fix(account)!: breaking change in account handling
 #   chore(ci): update workflow
-REGEX="^(build|chore|ci|docs|feat|fix|perf|refactor|style|test)(\([^)]+\))?(!)?: .+"
+REGEX="^(chore|feat|fix)(\([^)]+\))?(!)?: .+"
 
 if [[ "$PR_TITLE" =~ $REGEX ]]; then
     echo "✅ PR title follows Conventional Commit format."
