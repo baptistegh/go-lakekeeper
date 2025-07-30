@@ -100,7 +100,7 @@ lkctl role add --project $PROJECT_ID new-role --description "This is a new role"
 Assign a role to a user
 
 ```sh
-lkctl role assign $ROLE_ID --user $USER_ID --assignment assignee
+lkctl role assignments add $ROLE_ID --user $USER_ID --assignment assignee
 ```
 
 Delete a project

@@ -1,0 +1,6 @@
+services:
+  set-up:
+    image: localhost/lkctl:latest
+    build:
+      context: ..
+      dockerfile: Dockerfile

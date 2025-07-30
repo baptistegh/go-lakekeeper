@@ -1,0 +1,19 @@
+services:
+  set-up:
+    image: ghcr.io/baptistegh/lkctl:${LKCTL_VERSION:-latest-main}
+    entrypoint: sh
+    command: ["/init.sh"]
+    environment:
+      - LAKEKEEPER_SERVER=http://lakekeeper:8181
+      - LAKEKEEPER_AUTH_URL=http://keycloak:8080/realms/iceberg/protocol/openid-connect/token
+      - LAKEKEEPER_CLIENT_ID=spark
+      - LAKEKEEPER_CLIENT_SECRET=2OR3eRvYfSZzzZ16MlPd95jhLnOaLM52
+    volumes:
+      - ./init.sh:/init.sh:ro
+    networks:
+      access-control-simple_iceberg_net:
+    restart: no
+
+networks:
+  access-control-simple_iceberg_net:
+    external: true
