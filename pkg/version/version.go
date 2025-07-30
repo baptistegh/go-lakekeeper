@@ -15,7 +15,7 @@
 package version
 
 var (
-	Version = "v0.0.12" // x-release-please-version
+	Version = "v0.0.13" // x-release-please-version
 	Commit  = "HEAD"
 	Date    = "now"
 )
