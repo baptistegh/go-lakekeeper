@@ -67,7 +67,9 @@ var addWarehouseCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			defer file.Close()
+			defer func() {
+				_ = file.Close()
+			}()
 
 			reader = file
 		}
@@ -119,5 +121,4 @@ func init() {
 
 	listWarehouseCmd.Flags().StringSlice("status", []string{}, "filter by status, values can be [active inactive]")
 	_ = viper.BindPFlag("warehouse_list_status", listWarehouseCmd.Flags().Lookup("status"))
-
 }
