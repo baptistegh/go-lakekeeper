@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.14](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.13...v0.0.14) (2025-07-30)
+
+
+### Miscellaneous Chores
+
+* fix goreleaser release repo name ([#110](https://github.com/baptistegh/go-lakekeeper/issues/110)) ([320e29a](https://github.com/baptistegh/go-lakekeeper/commit/320e29ae9a2567ed7e154d67b2852bff47392eef))
+
 ## [0.0.13](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.12...v0.0.13) (2025-07-30)
 
 
