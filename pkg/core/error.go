@@ -1,3 +1,17 @@
+// Copyright 2025 Baptiste Gouhoury <baptiste.gouhoury@scalend.fr>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package core
 
 import (
@@ -27,14 +41,21 @@ type (
 
 func (e *ApiError) Error() string {
 	if e.Response == nil {
-		return fmt.Sprintf("unexpected error response, %s, %v", e.Message, e.Cause)
+		errMsg := "unexpected error response"
+		if len(e.Message) > 0 {
+			errMsg = fmt.Sprintf("%s, %s", errMsg, e.Message)
+		}
+		if e.Cause != nil {
+			errMsg = fmt.Sprintf("%s, %v", errMsg, e.Cause)
+		}
+		return errMsg
 	}
 	return fmt.Sprintf("api error, code=%d message=%s type=%s", e.Response.Code, e.Response.Message, e.Response.Type)
 }
 
 func (e *ApiError) Type() string {
 	if e.Response == nil {
-		return "Uknown"
+		return "Unknown"
 	}
 	return e.Response.Type
 }
@@ -95,7 +116,6 @@ func ApiErrorFromError(err error) *ApiError {
 		return nil
 	}
 	return &ApiError{
-		Message: err.Error(),
-		Cause:   err,
+		Cause: err,
 	}
 }

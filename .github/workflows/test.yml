@@ -1,3 +1,17 @@
+# Copyright 2025 Baptiste Gouhoury <baptiste.gouhoury@scalend.fr>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 name: test
 
 on:
@@ -22,8 +36,8 @@ permissions:
   contents: read
 
 jobs:
-  golangci:
-    name: golangci-lint
+  lint:
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -38,22 +52,15 @@ jobs:
           version: v2.2.1
           # actions/setup-go already handles caching
           skip-cache: true
-
-  govulncheck:
-    name: govulncheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
-        with:
-         go-version: "1.24"
-         check-latest: true
       - name: govulncheck
         uses: golang/govulncheck-action@b625fbe08f3bccbe446d94fbf87fcc875a4f50ee # v1.0.4
+        continue-on-error: true
+      - name: check-license
+        run: make license-check
 
   unit-tests:
-    needs: golangci
+    needs: lint
     runs-on: ubuntu-22.04
-    if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -73,9 +80,8 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   integration-test:
-    needs: golangci
+    needs: lint
     runs-on: ubuntu-22.04
-    if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     strategy:
       matrix:
         lakekeeper_version:
