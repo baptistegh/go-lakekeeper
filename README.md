@@ -3,8 +3,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/baptistegh/go-lakekeeper)](https://goreportcard.com/report/github.com/baptistegh/go-lakekeeper)
 [![GoDoc](https://godoc.org/github.com/baptistegh/go-lakekeeper?status.svg)](https://godoc.org/github.com/baptistegh/go-lakekeeper)
 [![codecov](https://codecov.io/gh/baptistegh/go-lakekeeper/graph/badge.svg?token=2WF3AB10RA)](https://codecov.io/gh/baptistegh/go-lakekeeper)
-[![Unit Tests](https://github.com/baptistegh/go-lakekeeper/actions/workflows/test.yml/badge.svg)](https://github.com/baptistegh/go-lakekeeper/actions/workflows/test.yml)
-[![Integration Tests](https://github.com/baptistegh/go-lakekeeper/actions/workflows/integration.yml/badge.svg)](https://github.com/baptistegh/go-lakekeeper/actions/workflows/integration.yml)
+[![test](https://github.com/baptistegh/go-lakekeeper/actions/workflows/test.yml/badge.svg)](https://github.com/baptistegh/go-lakekeeper/actions/workflows/test.yml)
+[![nightly](https://github.com/baptistegh/go-lakekeeper/actions/workflows/nightly.yml/badge.svg)](https://github.com/baptistegh/go-lakekeeper/actions/workflows/nightly.yml)
 
 Go Client for [Lakekeeper API](https://docs.lakekeeper.io).
 
