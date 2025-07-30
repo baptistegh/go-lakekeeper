@@ -20,7 +20,83 @@ go get github.com/baptistegh/go-lakekeeper
 
 This library requires Go 1.24 or later.
 
-## Usage
+## CLI Usage
+
+### Installation
+
+You can direclty download the binaries on [Releases page](https://github.com/baptistegh/go-lakekeeper/releases/latest).
+
+A docker image is also available
+
+```sh
+docker run --rm ghcr.io/baptistegh/lkctl version
+```
+
+### Authentication
+
+You can authenticate to Lakekeeper using the CLI with both `flags` or `env` variables.
+
+Eg. with flags:
+
+```sh
+lkctl info \
+    --server http://localhost:8181 \
+    --auth-url http://localhost:30080/realms/iceberg/protocol/openid-connect/token \
+    --client-id spark \
+    --client-secret 2OR3eRvYfSZzzZ16MlPd95jhLnOaLM
+    --scope lakekeeper
+```
+
+Eg. with environment variables:
+
+```sh
+export LAKEKEEPER_SERVER=http://localhost:8181
+export LAKEKEEPER_AUTH_URL=http://localhost:30080/realms/iceberg/protocol/openid-connect/token
+export LAKEKEEPER_CLIENT_ID=spark
+export LAKEKEEPER_CLIENT_SECRET=2OR3eRvYfSZzzZ16MlPd95jhLnOaLM
+export LAKEKEEPER_SCOPE=lakekeeper
+
+lkctl info
+```
+
+You can also set these variables in a `.env` file.
+
+### Bootstrapping
+
+A flag is available to bootstrap the server before executing other commands. **The current user will have the operator role**
+
+```sh
+lkctl info --bootstrap
+```
+
+If you rather want to bootstrap the server with the appropriate command
+
+```sh
+lkctl bootstrap --accept-terms-of-use --as-operator
+```
+
+### Some Examples
+
+Create a project and a role
+
+```sh
+PROJECT_ID=$(lkctl project add new-project | jq -r .)
+lkctl role add --project $PROJECT_ID new-role --description "This is a new role"
+```
+
+Assign a role to a user
+
+```sh
+lkctl role assign $ROLE_ID --user $USER_ID --assignment assignee
+```
+
+Delete a project
+
+```sh
+lkctl delete project -p $PROJECT_ID
+```
+
+## Go Package Usage
 
 The client is organized into services that correspond to different parts of the Lakekeeper API.
 
