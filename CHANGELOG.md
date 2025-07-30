@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.13](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.12...v0.0.13) (2025-07-30)
+
+
+### Miscellaneous Chores
+
+* fix publish container image on release ([#108](https://github.com/baptistegh/go-lakekeeper/issues/108)) ([ace86ef](https://github.com/baptistegh/go-lakekeeper/commit/ace86efdbc04cf5afd5752f036ffb0d6710c3af7))
+
 ## [0.0.12](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.11...v0.0.12) (2025-07-30)
 
 
