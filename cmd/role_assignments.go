@@ -52,7 +52,7 @@ var getAssignmentsRoleCmd = &cobra.Command{
 	},
 }
 
-// wRoleAssignmentsCmd represents the project assignments add command
+// wRoleAssignmentsCmd represents the role assignments add command
 var wRoleAssignmentsCmd = &cobra.Command{
 	Use:   "add [flags] <role-id> --assignment <assignment> [--user <user> --role <role>]",
 	Short: "add role assignments",
@@ -69,14 +69,14 @@ var wRoleAssignmentsCmd = &cobra.Command{
 			return errors.New("you must set at least one user or role")
 		}
 
-		for _, v := range viper.GetStringSlice("project_ass_users") {
+		for _, v := range viper.GetStringSlice("role_ass_users") {
 			assignees = append(assignees, permissionv1.UserOrRole{
 				Type:  permissionv1.UserType,
 				Value: v,
 			})
 		}
 
-		for _, v := range viper.GetStringSlice("project_ass_roles") {
+		for _, v := range viper.GetStringSlice("role_ass_roles") {
 			assignees = append(assignees, permissionv1.UserOrRole{
 				Type:  permissionv1.RoleType,
 				Value: v,
@@ -84,7 +84,7 @@ var wRoleAssignmentsCmd = &cobra.Command{
 		}
 
 		for _, assignee := range assignees {
-			for _, assignment := range viper.GetStringSlice("project_ass_assignments") {
+			for _, assignment := range viper.GetStringSlice("role_ass_assignments") {
 				opt.Writes = append(opt.Writes, &permissionv1.RoleAssignment{
 					Assignee:   assignee,
 					Assignment: permissionv1.RoleAssignmentType(assignment),
