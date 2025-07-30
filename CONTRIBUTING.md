@@ -67,7 +67,11 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to help create 
 Run all tests before opening a PR:
 
 ```sh
+# Unit tests
 make test
+
+# Integration tests
+make test-integration
 ```
 
 If adding a feature or fixing a bug, include relevant unit and/or integration tests.
