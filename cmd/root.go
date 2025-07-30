@@ -43,7 +43,7 @@ var rootCmd = &cobra.Command{
 	SilenceUsage: true, // suppress usage on error
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		for _, arg := range os.Args[1:] {
-			if arg == "--help" || arg == "-h" || arg == "help" {
+			if arg == "--help" || arg == "-h" || arg == "help" || arg == "version" {
 				return nil
 			}
 		}
