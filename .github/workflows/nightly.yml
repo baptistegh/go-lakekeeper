@@ -45,12 +45,3 @@ jobs:
 
       - run: GOPATH=$(go env GOPATH) LAKEKEEPER_VERSION=latest-main make test-integration
         timeout-minutes: 10
-
-      - uses: docker/setup-qemu-action@v3
-
-      - uses: goreleaser/goreleaser-action@v6
-        with:
-          version: latest
-          args: release --nigthly
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
