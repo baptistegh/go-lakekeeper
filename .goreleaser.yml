@@ -88,7 +88,7 @@ docker_manifests:
 release:
   github:
     owner: baptistegh
-    name: lkctl
+    name: go-lakekeeper
 
 checksum:
   name_template: 'checksums.txt'
