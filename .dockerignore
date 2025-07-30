@@ -2,6 +2,7 @@
 integration/
 scripts/
 tests/
+examples/
 .golangci.yml
 .release-please-manifest.json
 CHANGELOG.md
@@ -10,5 +11,7 @@ coverage.txt
 docker-compose.yml
 Makefile
 README.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
 release-please-config.json
 run-tests.sh
