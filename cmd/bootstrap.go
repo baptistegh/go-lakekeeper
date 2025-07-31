@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package main
 
 import (
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
