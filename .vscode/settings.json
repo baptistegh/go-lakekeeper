@@ -7,12 +7,12 @@
   },
   "go.testFlags": [
     "-v",
-    "-tags=integration",
+    "-tags=integration,docs",
     "-parallel=2",
     "-timeout",
     "180s"
   ],
   "go.buildFlags": [
-    "--tags=integration"
+    "--tags=integration,docs"
   ],
 }

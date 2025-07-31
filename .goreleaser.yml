@@ -17,16 +17,18 @@ project_name: go-lakekeeper
 
 builds:
   - id: lkctl
-    main: ./main.go
+    main: ./cmd
     binary: lkctl-{{ .Os }}-{{ .Arch }}
     env:
       - CGO_ENABLED=0
     flags:
       - -v
     ldflags:
-      - -X github.com/baptistegh/go-lakekeeper/pkg/version.Version={{ .Version }}
-      - -X github.com/baptistegh/go-lakekeeper/pkg/version.Commit={{ .Commit }}
-      - -X github.com/baptistegh/go-lakekeeper/pkg/version.Date={{ .Date }}
+      - -X github.com/baptistegh/go-lakekeeper/pkg/version.version={{ .Version }}
+      - -X github.com/baptistegh/go-lakekeeper/pkg/version.buildDate={{ .Date }}
+      - -X github.com/baptistegh/go-lakekeeper/pkg/version.gitCommit={{ .FullCommit }}
+      - -X github.com/baptistegh/go-lakekeeper/pkg/version.gitTag={{ .Tag }}
+      - -X github.com/baptistegh/go-lakekeeper/pkg/version.gitTreeState={{ .Env.GIT_TREE_STATE }}
     goos:
       - linux
       - windows

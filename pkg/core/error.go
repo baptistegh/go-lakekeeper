@@ -23,7 +23,7 @@ import (
 )
 
 type (
-	ApiError struct {
+	APIError struct {
 		Status     string         `json:"-"`
 		StatusCode int            `json:"-"`
 		Message    string         `json:"-"`
@@ -39,10 +39,10 @@ type (
 	}
 )
 
-func (e *ApiError) Error() string {
+func (e *APIError) Error() string {
 	if e.Response == nil {
 		errMsg := "unexpected error response"
-		if len(e.Message) > 0 {
+		if e.Message != "" {
 			errMsg = fmt.Sprintf("%s, %s", errMsg, e.Message)
 		}
 		if e.Cause != nil {
@@ -53,29 +53,29 @@ func (e *ApiError) Error() string {
 	return fmt.Sprintf("api error, code=%d message=%s type=%s", e.Response.Code, e.Response.Message, e.Response.Type)
 }
 
-func (e *ApiError) Type() string {
+func (e *APIError) Type() string {
 	if e.Response == nil {
 		return "Unknown"
 	}
 	return e.Response.Type
 }
 
-func (e *ApiError) IsAuthError() bool {
+func (e *APIError) IsAuthError() bool {
 	return e.StatusCode == http.StatusUnauthorized || e.StatusCode == http.StatusForbidden
 }
 
-func (e *ApiError) WithCause(err error) *ApiError {
+func (e *APIError) WithCause(err error) *APIError {
 	e.Cause = err
 	return e
 }
 
-func (e *ApiError) WithMessage(format string, a ...any) *ApiError {
+func (e *APIError) WithMessage(format string, a ...any) *APIError {
 	e.Message = fmt.Sprintf(format, a...)
 	return e
 }
 
-func ApiErrorFromResponse(response *http.Response) *ApiError {
-	var apiErr ApiError
+func APIErrorFromResponse(response *http.Response) *APIError {
+	var apiErr APIError
 
 	// Read the body once
 	bodyBytes, err := io.ReadAll(response.Body)
@@ -89,12 +89,12 @@ func ApiErrorFromResponse(response *http.Response) *ApiError {
 	// Restore the body for potential further use
 	response.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
-	// Try to unmarshal into ApiError
+	// Try to unmarshal into APIError
 	if err := json.Unmarshal(bodyBytes, &apiErr); err != nil {
 		apiErr.Message = string(bodyBytes) // fallback: use raw body as message
 	}
 
-	// Try to unmarshal into ApiError
+	// Try to unmarshal into APIError
 	if err := json.Unmarshal(bodyBytes, &apiErr); err != nil {
 		apiErr.Message = string(bodyBytes) // fallback: use raw body as message
 	}
@@ -105,17 +105,17 @@ func ApiErrorFromResponse(response *http.Response) *ApiError {
 	return &apiErr
 }
 
-func ApiErrorFromMessage(format string, a ...any) *ApiError {
-	return &ApiError{
+func APIErrorFromMessage(format string, a ...any) *APIError {
+	return &APIError{
 		Message: fmt.Sprintf(format, a...),
 	}
 }
 
-func ApiErrorFromError(err error) *ApiError {
+func APIErrorFromError(err error) *APIError {
 	if err == nil {
 		return nil
 	}
-	return &ApiError{
+	return &APIError{
 		Cause: err,
 	}
 }

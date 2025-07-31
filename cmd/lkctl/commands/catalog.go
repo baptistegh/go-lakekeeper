@@ -12,31 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package commands
 
 import (
-	"github.com/baptistegh/go-lakekeeper/pkg/version"
-
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print the version of lkctl",
-	Run: func(cmd *cobra.Command, args []string) {
-		if viper.GetBool("version_short") {
-			cmd.Printf("%s\n", version.Version)
-			return
-		}
+func NewCatalogCmd(_ *clientOptions) *cobra.Command {
+	command := cobra.Command{
+		Use:   "catalog",
+		Short: "Interacts with catalogs (not implemented)",
+		Run: func(_ *cobra.Command, _ []string) {
+			logrus.Fatal("catalog command is not implemented")
+		},
+	}
 
-		cmd.Printf("version=%s, commit=%s, date=%s\n", version.Version, version.Commit, version.Date)
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(versionCmd)
-	versionCmd.Flags().Bool("short", false, "print only the version number")
-
-	_ = viper.BindPFlag("version_short", versionCmd.Flags().Lookup("short"))
+	return &command
 }

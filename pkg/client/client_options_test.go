@@ -25,6 +25,7 @@ import (
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestInitialBootstrapEnabled(t *testing.T) {
@@ -38,9 +39,9 @@ func TestInitialBootstrapEnabled(t *testing.T) {
 		}
 
 		err = WithInitialBootstrapV1Enabled(true, true, core.Ptr(managementv1.ApplicationUserType))(c)
-		assert.NoError(t, err)
-		assert.Equal(t, true, c.bootstrap)
-		assert.Equal(t, true, c.bootstrapAsOperator)
+		require.NoError(t, err)
+		assert.True(t, c.bootstrap)
+		assert.True(t, c.bootstrapAsOperator)
 		assert.Equal(t, managementv1.ApplicationUserType, c.bootstrapUserType)
 	})
 
@@ -52,16 +53,16 @@ func TestInitialBootstrapEnabled(t *testing.T) {
 		}
 
 		err = WithInitialBootstrapV1Enabled(false, true, core.Ptr(managementv1.ApplicationUserType))(c)
-		assert.NoError(t, err)
-		assert.Equal(t, false, c.bootstrap)
-		assert.Equal(t, false, c.bootstrapAsOperator)
+		require.NoError(t, err)
+		assert.False(t, c.bootstrap)
+		assert.False(t, c.bootstrapAsOperator)
 	})
 }
 
 func TestCustomHOptions(t *testing.T) {
 	t.Parallel()
-
 	t.Run("CustomHTTPClient", func(t *testing.T) {
+		t.Parallel()
 		// Arrange
 		customHTTPClient := &http.Client{}
 
@@ -81,6 +82,7 @@ func TestCustomHOptions(t *testing.T) {
 	})
 
 	t.Run("CustomRetryWaitMinMax", func(t *testing.T) {
+		t.Parallel()
 		// Act
 		opt := WithCustomRetryWaitMinMax(30*time.Second, 40*time.Second)
 
@@ -98,6 +100,7 @@ func TestCustomHOptions(t *testing.T) {
 	})
 
 	t.Run("WithtoutRetries", func(t *testing.T) {
+		t.Parallel()
 		// Act
 		opt := WithoutRetries()
 
@@ -110,11 +113,12 @@ func TestCustomHOptions(t *testing.T) {
 			t.Fatalf("Failed to set without retry, %v", err)
 		}
 
-		assert.Equal(t, true, c.disableRetries)
+		assert.True(t, c.disableRetries)
 	})
 
 	t.Run("ErrorHandler", func(t *testing.T) {
-		var handler retryablehttp.ErrorHandler = func(resp *http.Response, err error, numTries int) (*http.Response, error) {
+		t.Parallel()
+		var handler retryablehttp.ErrorHandler = func(_ *http.Response, _ error, _ int) (*http.Response, error) {
 			return nil, errors.New("custom error handler")
 		}
 
@@ -131,10 +135,11 @@ func TestCustomHOptions(t *testing.T) {
 
 		r, err := c.client.ErrorHandler(nil, nil, 0)
 		assert.Nil(t, r)
-		assert.Error(t, err, "custom error handler")
+		require.Error(t, err, "custom error handler")
 	})
 
 	t.Run("RequestOptions", func(t *testing.T) {
+		t.Parallel()
 		opt := WithRequestOptions(core.WithHeader("test", "test"))
 
 		c, err := NewClient(t.Context(), "", "http://localhost:8080")
@@ -150,7 +155,8 @@ func TestCustomHOptions(t *testing.T) {
 	})
 
 	t.Run("CustomBackOff", func(t *testing.T) {
-		var custom retryablehttp.Backoff = func(min, max time.Duration, attemptNum int, resp *http.Response) time.Duration {
+		t.Parallel()
+		var custom retryablehttp.Backoff = func(_, _ time.Duration, _ int, _ *http.Response) time.Duration {
 			return 67 * time.Second
 		}
 
@@ -169,7 +175,8 @@ func TestCustomHOptions(t *testing.T) {
 	})
 
 	t.Run("CustomRetry", func(t *testing.T) {
-		var custom retryablehttp.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
+		t.Parallel()
+		var custom retryablehttp.CheckRetry = func(_ context.Context, _ *http.Response, _ error) (bool, error) {
 			return true, errors.New("custom check retry")
 		}
 
@@ -186,10 +193,11 @@ func TestCustomHOptions(t *testing.T) {
 
 		b, err := c.client.CheckRetry(context.Background(), nil, nil)
 		assert.True(t, b)
-		assert.Error(t, err, "custom check retry")
+		require.Error(t, err, "custom check retry")
 	})
 
 	t.Run("CustomRetryMax", func(t *testing.T) {
+		t.Parallel()
 		custom := 258
 
 		opt := WithCustomRetryMax(custom)

@@ -24,6 +24,7 @@ import (
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWarehouseService_Get(t *testing.T) {
@@ -40,7 +41,7 @@ func TestWarehouseService_Get(t *testing.T) {
 	})
 
 	wh, resp, err := client.WarehouseV1(projectID).Get(t.Context(), warehouseID)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -70,7 +71,7 @@ func TestWarehouseService_List(t *testing.T) {
 	})
 
 	warehouses, resp, err := client.WarehouseV1(projectID).List(t.Context(), nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -130,7 +131,7 @@ func TestWarehouseService_Create(t *testing.T) {
 	}
 
 	w, resp, err := client.WarehouseV1(projectID).Create(t.Context(), opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
@@ -151,7 +152,7 @@ func TestWarehouseService_Delete(t *testing.T) {
 	})
 
 	resp, err := client.WarehouseV1(projectID).Delete(t.Context(), warehouseID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
@@ -164,13 +165,13 @@ func TestWarehouseService_Activate(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/activate", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/activate", func(_ http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
 	})
 
 	resp, err := client.WarehouseV1(projectID).Activate(t.Context(), warehouseID)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -183,13 +184,13 @@ func TestWarehouseService_Deactivate(t *testing.T) {
 	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
 	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
 
-	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/deactivate", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/deactivate", func(_ http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
 	})
 
 	resp, err := client.WarehouseV1(projectID).Deactivate(t.Context(), warehouseID)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -206,7 +207,7 @@ func TestWarehouseService_Rename(t *testing.T) {
 		NewName: "new-name",
 	}
 
-	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/rename", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/rename", func(_ http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
 		if !testutil.TestBodyJSON(t, r, opt) {
@@ -215,7 +216,7 @@ func TestWarehouseService_Rename(t *testing.T) {
 	})
 
 	resp, err := client.WarehouseV1(projectID).Rename(t.Context(), warehouseID, opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -233,7 +234,7 @@ func TestWarehouseService_UpdateStorageProfile(t *testing.T) {
 		StorageProfile:    profile.NewGCSStorageSettings("test-bucket").AsProfile(),
 	}
 
-	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/storage", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/storage", func(_ http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
 		if !testutil.TestBodyJSON(t, r, opt) {
@@ -242,7 +243,7 @@ func TestWarehouseService_UpdateStorageProfile(t *testing.T) {
 	})
 
 	resp, err := client.WarehouseV1(projectID).UpdateStorageProfile(t.Context(), warehouseID, opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -259,7 +260,7 @@ func TestWarehouseService_UpdateDeleteProfile(t *testing.T) {
 		DeleteProfile: *profile.NewTabularDeleteProfileSoft(3600).AsProfile(),
 	}
 
-	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/delete-profile", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/delete-profile", func(_ http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
 		if !testutil.TestBodyJSON(t, r, &opt) {
@@ -268,7 +269,7 @@ func TestWarehouseService_UpdateDeleteProfile(t *testing.T) {
 	})
 
 	resp, err := client.WarehouseV1(projectID).UpdateDeleteProfile(t.Context(), warehouseID, &opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -285,7 +286,7 @@ func TestWarehouseService_UpdateStorageCredential(t *testing.T) {
 		StorageCredential: core.Ptr(credential.NewGCSCredentialSystemIdentity().AsCredential()),
 	}
 
-	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/storage-credential", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/management/v1/warehouse/"+warehouseID+"/storage-credential", func(_ http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", projectID)
 		if !testutil.TestBodyJSON(t, r, &opt) {
@@ -294,7 +295,7 @@ func TestWarehouseService_UpdateStorageCredential(t *testing.T) {
 	})
 
 	resp, err := client.WarehouseV1(projectID).UpdateStorageCredential(t.Context(), warehouseID, &opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -343,7 +344,7 @@ func TestWarehouseService_ListSoftDeletedTabulars(t *testing.T) {
 	}
 
 	resp, r, err := client.WarehouseV1(projectID).ListSoftDeletedTabulars(t.Context(), warehouseID, &opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -381,7 +382,7 @@ func TestWarehouseService_UndropTabular(t *testing.T) {
 	})
 
 	r, err := client.WarehouseV1(projectID).UndropTabular(t.Context(), warehouseID, &opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 }
@@ -418,24 +419,27 @@ func TestWarehouseService_GetEntityProtection(t *testing.T) {
 	})
 
 	t.Run("Namespace protection", func(t *testing.T) {
+		t.Parallel()
 		resp, r, err := client.WarehouseV1(projectID).GetNamespaceProtection(t.Context(), warehouseID, entityID)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, r)
 		assert.Equal(t, http.StatusOK, r.StatusCode)
 
 		assert.Equal(t, want, resp)
 	})
 	t.Run("Table protection", func(t *testing.T) {
+		t.Parallel()
 		resp, r, err := client.WarehouseV1(projectID).GetTableProtection(t.Context(), warehouseID, entityID)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, r)
 		assert.Equal(t, http.StatusOK, r.StatusCode)
 
 		assert.Equal(t, want, resp)
 	})
 	t.Run("View protection", func(t *testing.T) {
+		t.Parallel()
 		resp, r, err := client.WarehouseV1(projectID).GetViewProtection(t.Context(), warehouseID, entityID)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, r)
 		assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -497,32 +501,36 @@ func TestWarehouseService_SetEntityProtection(t *testing.T) {
 	})
 
 	t.Run("Warehouse protection", func(t *testing.T) {
+		t.Parallel()
 		resp, r, err := client.WarehouseV1(projectID).SetWarehouseProtection(t.Context(), warehouseID, opt)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, r)
 		assert.Equal(t, http.StatusOK, r.StatusCode)
 
 		assert.Equal(t, want, resp)
 	})
 	t.Run("Namespace protection", func(t *testing.T) {
+		t.Parallel()
 		resp, r, err := client.WarehouseV1(projectID).SetNamespaceProtection(t.Context(), warehouseID, entityID, opt)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, r)
 		assert.Equal(t, http.StatusOK, r.StatusCode)
 
 		assert.Equal(t, want, resp)
 	})
 	t.Run("Table protection", func(t *testing.T) {
+		t.Parallel()
 		resp, r, err := client.WarehouseV1(projectID).SetTableProtection(t.Context(), warehouseID, entityID, opt)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, r)
 		assert.Equal(t, http.StatusOK, r.StatusCode)
 
 		assert.Equal(t, want, resp)
 	})
 	t.Run("View protection", func(t *testing.T) {
+		t.Parallel()
 		resp, r, err := client.WarehouseV1(projectID).SetViewProtection(t.Context(), warehouseID, entityID, opt)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, r)
 		assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -569,7 +577,7 @@ func TestWarehouseService_GetStatistics(t *testing.T) {
 	}
 
 	resp, r, err := client.WarehouseV1(projectID).GetStatistics(t.Context(), warehouseID, opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 

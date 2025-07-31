@@ -16,7 +16,7 @@ package permission
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 )
 
 type (
@@ -59,7 +59,21 @@ var (
 		CreateProjectAssignment,
 		ModifyProjectAssignment,
 	}
+
+	_ Assignment = (*ProjectAssignment)(nil)
 )
+
+func (sa *ProjectAssignment) GetAssignment() string {
+	return string(sa.Assignment)
+}
+
+func (sa *ProjectAssignment) GetPrincipalID() string {
+	return sa.Assignee.Value
+}
+
+func (sa *ProjectAssignment) GetPrincipalType() UserOrRoleType {
+	return sa.Assignee.Type
+}
 
 func (sa *ProjectAssignment) UnmarshalJSON(data []byte) error {
 	aux := &struct {
@@ -75,11 +89,11 @@ func (sa *ProjectAssignment) UnmarshalJSON(data []byte) error {
 	sa.Assignment = aux.Type
 
 	if aux.Role == nil && aux.User == nil {
-		return fmt.Errorf("error reading project assignment, role or user must be provided")
+		return errors.New("error reading project assignment, role or user must be provided")
 	}
 
 	if aux.Role != nil && aux.User != nil {
-		return fmt.Errorf("error reading project assignment, role and user can't be both provided")
+		return errors.New("error reading project assignment, role and user can't be both provided")
 	}
 
 	if aux.Role != nil {
@@ -97,7 +111,7 @@ func (sa *ProjectAssignment) UnmarshalJSON(data []byte) error {
 		}
 		return nil
 	}
-	return fmt.Errorf("incorrect project assignment")
+	return errors.New("incorrect project assignment")
 }
 
 func (sa ProjectAssignment) MarshalJSON() ([]byte, error) {

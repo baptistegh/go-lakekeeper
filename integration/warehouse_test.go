@@ -26,6 +26,7 @@ import (
 	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/credential"
 	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/profile"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWarehouse_Create_Default(t *testing.T) {
@@ -49,18 +50,18 @@ func TestWarehouse_Create_Default(t *testing.T) {
 			StorageCredential: sc,
 		},
 	)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusCreated, r.StatusCode)
 
 	t.Cleanup(func() {
 		r, err = client.WarehouseV1(defaultProjectID).Delete(context.Background(), resp.ID, nil)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 	})
 
 	w, r, err := client.WarehouseV1(defaultProjectID).Get(t.Context(), resp.ID)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, w)
 
 	want := &managementv1.Warehouse{
@@ -83,7 +84,7 @@ func TestWarehouse_Create_NewProject(t *testing.T) {
 	p, r, err := client.ProjectV1().Create(t.Context(), &managementv1.CreateProjectOptions{
 		Name: "test-project",
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, p)
 
 	sp := profile.NewS3StorageSettings(
@@ -98,17 +99,17 @@ func TestWarehouse_Create_NewProject(t *testing.T) {
 			StorageCredential: credential.NewS3CredentialAccessKey("minio-root-user", "minio-root-password").AsCredential(),
 		},
 	)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusCreated, r.StatusCode)
 
 	t.Cleanup(func() {
 		r, err = client.WarehouseV1(p.ID).Delete(context.Background(), resp.ID, nil)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 		r, err = client.ProjectV1().Delete(context.Background(), p.ID)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, http.StatusNoContent, r.StatusCode)
 	})
 }
@@ -121,7 +122,7 @@ func TestWarehouse_ListSoftDeletedTabulars(t *testing.T) {
 	warehouseID, _ := MustCreateWarehouse(t, client, project)
 
 	resp, r, err := client.WarehouseV1(project).ListSoftDeletedTabulars(t.Context(), warehouseID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.NotNil(t, resp)
 
@@ -145,7 +146,7 @@ func TestWarehouse_Statistics(t *testing.T) {
 	warehouseID, _ := MustCreateWarehouse(t, client, project)
 
 	resp, r, err := client.WarehouseV1(project).GetStatistics(t.Context(), warehouseID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -167,7 +168,7 @@ func TestWarehouse_SetProtection(t *testing.T) {
 	resp, r, err := client.WarehouseV1(project).SetWarehouseProtection(t.Context(), warehouseID, &managementv1.SetProtectionOptions{
 		Protected: true,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 	assert.Equal(t, true, resp.Protected)
 	assert.NotNil(t, resp.UpdatedAt)

@@ -22,6 +22,7 @@ import (
 
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestServerService_Info(t *testing.T) {
@@ -29,7 +30,7 @@ func TestServerService_Info(t *testing.T) {
 
 	info, _, err := client.ServerV1().Info(t.Context())
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, true, info.Bootstrapped)
 	assert.NotEmpty(t, true, info.ServerID)
 	assert.NotEmpty(t, true, info.DefaultProjectID)
@@ -43,11 +44,11 @@ func TestServerService_Bootstrap(t *testing.T) {
 		AcceptTermsOfUse: true,
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	info, _, err := client.ServerV1().Info(t.Context())
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, true, info.Bootstrapped)
 }

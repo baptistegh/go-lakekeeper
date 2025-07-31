@@ -12,23 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package permission
 
-import (
-	"errors"
-
-	"github.com/spf13/cobra"
-)
-
-// catalogCmd represents the catalog command
-var catalogCmd = &cobra.Command{
-	Use:   "catalog",
-	Short: "Invoke go-iceberg command line",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return errors.New("catalog command is not implemented")
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(catalogCmd)
+type Assignment interface {
+	GetPrincipalType() UserOrRoleType
+	GetPrincipalID() string
+	GetAssignment() string
 }

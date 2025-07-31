@@ -197,18 +197,18 @@ func WithSTSTokenValiditySeconds(seconds int64) S3StorageSettingsOptions {
 	}
 }
 
-func (s *S3StorageSettings) AsProfile() StorageProfile {
-	return StorageProfile{StorageSettings: s}
+func (sp *S3StorageSettings) AsProfile() StorageProfile {
+	return StorageProfile{StorageSettings: sp}
 }
 
-func (s S3StorageSettings) MarshalJSON() ([]byte, error) {
+func (sp S3StorageSettings) MarshalJSON() ([]byte, error) {
 	type Alias S3StorageSettings
 	aux := struct {
 		Type string `json:"type"`
 		Alias
 	}{
 		Type:  string(StorageFamilyS3),
-		Alias: Alias(s),
+		Alias: Alias(sp),
 	}
 	return json.Marshal(aux)
 }

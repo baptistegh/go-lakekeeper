@@ -16,7 +16,7 @@ package permission
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 )
 
 type (
@@ -42,7 +42,21 @@ const (
 var (
 	_ json.Unmarshaler = (*ServerAssignment)(nil)
 	_ json.Marshaler   = (*ServerAssignment)(nil)
+
+	_ Assignment = (*ServerAssignment)(nil)
 )
+
+func (sa *ServerAssignment) GetAssignment() string {
+	return string(sa.Assignment)
+}
+
+func (sa *ServerAssignment) GetPrincipalID() string {
+	return sa.Assignee.Value
+}
+
+func (sa *ServerAssignment) GetPrincipalType() UserOrRoleType {
+	return sa.Assignee.Type
+}
 
 func (sa *ServerAssignment) UnmarshalJSON(data []byte) error {
 	aux := &struct {
@@ -58,11 +72,11 @@ func (sa *ServerAssignment) UnmarshalJSON(data []byte) error {
 	sa.Assignment = aux.Type
 
 	if aux.Role == nil && aux.User == nil {
-		return fmt.Errorf("error reading server assignment, role or user must be provided")
+		return errors.New("error reading server assignment, role or user must be provided")
 	}
 
 	if aux.Role != nil && aux.User != nil {
-		return fmt.Errorf("error reading server assignment, role and user can't be both provided")
+		return errors.New("error reading server assignment, role and user can't be both provided")
 	}
 
 	if aux.Role != nil {
@@ -80,7 +94,7 @@ func (sa *ServerAssignment) UnmarshalJSON(data []byte) error {
 		}
 		return nil
 	}
-	return fmt.Errorf("incorrect server assignment")
+	return errors.New("incorrect server assignment")
 }
 
 func (sa ServerAssignment) MarshalJSON() ([]byte, error) {

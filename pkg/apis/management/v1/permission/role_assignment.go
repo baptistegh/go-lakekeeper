@@ -16,7 +16,7 @@ package permission
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 )
 
 type (
@@ -46,7 +46,21 @@ var (
 		OwnershipRoleAssignment,
 		AssigneeRoleAssignment,
 	}
+
+	_ Assignment = (*RoleAssignment)(nil)
 )
+
+func (sa *RoleAssignment) GetAssignment() string {
+	return string(sa.Assignment)
+}
+
+func (sa *RoleAssignment) GetPrincipalID() string {
+	return sa.Assignee.Value
+}
+
+func (sa *RoleAssignment) GetPrincipalType() UserOrRoleType {
+	return sa.Assignee.Type
+}
 
 func (sa *RoleAssignment) UnmarshalJSON(data []byte) error {
 	aux := &struct {
@@ -62,11 +76,11 @@ func (sa *RoleAssignment) UnmarshalJSON(data []byte) error {
 	sa.Assignment = aux.Type
 
 	if aux.Role == nil && aux.User == nil {
-		return fmt.Errorf("error reading role assignment, role or user must be provided")
+		return errors.New("error reading role assignment, role or user must be provided")
 	}
 
 	if aux.Role != nil && aux.User != nil {
-		return fmt.Errorf("error reading role assignment, role and user can't be both provided")
+		return errors.New("error reading role assignment, role and user can't be both provided")
 	}
 
 	if aux.Role != nil {
@@ -84,7 +98,7 @@ func (sa *RoleAssignment) UnmarshalJSON(data []byte) error {
 		}
 		return nil
 	}
-	return fmt.Errorf("incorrect role assignment")
+	return errors.New("incorrect role assignment")
 }
 
 func (sa RoleAssignment) MarshalJSON() ([]byte, error) {

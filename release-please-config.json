@@ -25,6 +25,11 @@
           "section": "Bug Fixes"
         },
         {
+          "type": "docs",
+          "hidden": false,
+          "section": "Documentation"
+        },
+        {
           "type": "chore",
           "hidden": false,
           "section": "Miscellaneous Chores"
