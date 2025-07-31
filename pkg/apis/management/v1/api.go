@@ -17,7 +17,7 @@ package v1
 import "github.com/baptistegh/go-lakekeeper/pkg/core"
 
 const (
-	ApiManagementVersionPath = "/management/v1"
+	APIManagementVersionPath = "/management/v1"
 
 	ProjectIDHeader = "x-project-id"
 )

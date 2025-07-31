@@ -37,7 +37,7 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 )
 
-var userAgent = fmt.Sprintf("go-lakekeeper/%s", version.Version)
+var userAgent = "go-lakekeeper/" + version.GetVersion().Version
 
 type Client struct {
 	// HTTP client used to communicate with the API.
@@ -123,14 +123,14 @@ func (c *Client) CatalogV1(ctx context.Context, projectID, warehouse string, opt
 	}
 
 	baseURL := c.BaseURL()
-	baseURL.Path = strings.TrimSuffix(baseURL.Path, managementv1.ApiManagementVersionPath) + "/catalog"
+	baseURL.Path = strings.TrimSuffix(baseURL.Path, managementv1.APIManagementVersionPath) + "/catalog"
 
 	return rest.NewCatalog(ctx, "rest", baseURL.String(), opts...)
 }
 
 // NewClient returns a new Lakekeeper API client.
 // You must provide a valid access token.
-func NewClient(ctx context.Context, token string, baseURL string, options ...ClientOptionFunc) (*Client, error) {
+func NewClient(ctx context.Context, token, baseURL string, options ...ClientOptionFunc) (*Client, error) {
 	as := core.AccessTokenAuthSource{Token: token}
 	return NewAuthSourceClient(ctx, &as, baseURL, options...)
 }
@@ -222,8 +222,8 @@ func (c *Client) setBaseURL(urlStr string) error {
 		return err
 	}
 
-	if !strings.HasSuffix(baseURL.Path, managementv1.ApiManagementVersionPath) {
-		baseURL.Path += managementv1.ApiManagementVersionPath
+	if !strings.HasSuffix(baseURL.Path, managementv1.APIManagementVersionPath) {
+		baseURL.Path += managementv1.APIManagementVersionPath
 	}
 
 	// Update the base URL of the client.
@@ -304,19 +304,19 @@ func (c *Client) NewRequest(ctx context.Context, method, path string, opt any, o
 // error if an API error has occurred. If v implements the io.Writer
 // interface, the raw response body will be written to v, without attempting to
 // first decode it.
-func (c *Client) Do(req *retryablehttp.Request, v any) (*http.Response, *core.ApiError) {
+func (c *Client) Do(req *retryablehttp.Request, v any) (*http.Response, *core.APIError) {
 	var err error
 
 	c.authSourceInit.Do(func() {
 		err = c.authSource.Init(req.Context())
 	})
 	if err != nil {
-		return nil, core.ApiErrorFromMessage("initializing token source failed:").WithCause(err)
+		return nil, core.APIErrorFromMessage("initializing token source failed:").WithCause(err)
 	}
 
 	authKey, authValue, err := c.authSource.Header(req.Context())
 	if err != nil {
-		return nil, core.ApiErrorFromError(err)
+		return nil, core.APIErrorFromError(err)
 	}
 
 	if v := req.Header.Values(authKey); len(v) == 0 {
@@ -327,7 +327,7 @@ func (c *Client) Do(req *retryablehttp.Request, v any) (*http.Response, *core.Ap
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, core.ApiErrorFromError(err)
+		return nil, core.APIErrorFromError(err)
 	}
 
 	defer func() {
@@ -350,17 +350,17 @@ func (c *Client) Do(req *retryablehttp.Request, v any) (*http.Response, *core.Ap
 		}
 	}
 
-	return resp, core.ApiErrorFromError(err)
+	return resp, core.APIErrorFromError(err)
 }
 
 // CheckResponse checks the API response for errors, and returns them if present.
-func CheckResponse(r *http.Response) *core.ApiError {
+func CheckResponse(r *http.Response) *core.APIError {
 	switch r.StatusCode {
-	case 200, 201, 202, 204, 304:
+	case http.StatusOK, http.StatusCreated, http.StatusAccepted, http.StatusNoContent, http.StatusNotModified:
 		return nil
 	}
 
-	return core.ApiErrorFromResponse(r)
+	return core.APIErrorFromResponse(r)
 }
 
 // retryHTTPCheck provides a callback for Client.CheckRetry which
@@ -372,7 +372,7 @@ func (c *Client) retryHTTPCheck(ctx context.Context, resp *http.Response, err er
 	if err != nil {
 		return false, err
 	}
-	if !c.disableRetries && (resp.StatusCode == 429 || resp.StatusCode >= 500) {
+	if !c.disableRetries && (resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode >= 500) {
 		return true, nil
 	}
 	return false, nil
@@ -380,6 +380,8 @@ func (c *Client) retryHTTPCheck(ctx context.Context, resp *http.Response, err er
 
 // retryHTTPBackoff provides a generic callback for Client.Backoff which
 // will pass through all calls based on the status code of the response.
+//
+//nolint:gocritic // builtinShadow: min is a meaningful name here
 func (c *Client) retryHTTPBackoff(min, max time.Duration, attemptNum int, resp *http.Response) time.Duration {
 	return retryablehttp.LinearJitterBackoff(min, max, attemptNum, resp)
 }

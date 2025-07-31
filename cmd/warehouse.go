@@ -36,7 +36,7 @@ var warehouseCmd = &cobra.Command{
 var listWarehouseCmd = &cobra.Command{
 	Use:   "list [flags]",
 	Short: "List available warehouses",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		opt := managementv1.ListWarehouseOptions{}
 
 		for _, v := range viper.GetStringSlice("warehouse_list_status") {

@@ -22,6 +22,7 @@ import (
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUserService_Get(t *testing.T) {
@@ -36,7 +37,7 @@ func TestUserService_Get(t *testing.T) {
 	})
 
 	user, resp, err := client.UserV1().Get(t.Context(), userID)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -63,7 +64,7 @@ func TestUserService_Whoami(t *testing.T) {
 	})
 
 	user, resp, err := client.UserV1().Whoami(t.Context())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -113,7 +114,7 @@ func TestUserService_Provision(t *testing.T) {
 	}
 
 	user, resp, err := client.UserV1().Provision(t.Context(), &opts)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
@@ -132,7 +133,7 @@ func TestUserService_Delete(t *testing.T) {
 	})
 
 	resp, err := client.UserV1().Delete(t.Context(), userID)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
 }
@@ -154,7 +155,7 @@ func TestUserService_List(t *testing.T) {
 			PageToken: core.Ptr("cd298407-556e-49b6-a12b-92c212a7df3b"),
 		},
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -200,7 +201,7 @@ func TestUserService_Search(t *testing.T) {
 	resp, r, err := client.UserV1().Search(t.Context(), &managementv1.SearchUserOptions{
 		Search: "test",
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 

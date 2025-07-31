@@ -16,7 +16,7 @@ package permission
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 )
 
 type (
@@ -62,11 +62,11 @@ func (sa *RoleAssignment) UnmarshalJSON(data []byte) error {
 	sa.Assignment = aux.Type
 
 	if aux.Role == nil && aux.User == nil {
-		return fmt.Errorf("error reading role assignment, role or user must be provided")
+		return errors.New("error reading role assignment, role or user must be provided")
 	}
 
 	if aux.Role != nil && aux.User != nil {
-		return fmt.Errorf("error reading role assignment, role and user can't be both provided")
+		return errors.New("error reading role assignment, role and user can't be both provided")
 	}
 
 	if aux.Role != nil {
@@ -84,7 +84,7 @@ func (sa *RoleAssignment) UnmarshalJSON(data []byte) error {
 		}
 		return nil
 	}
-	return fmt.Errorf("incorrect role assignment")
+	return errors.New("incorrect role assignment")
 }
 
 func (sa RoleAssignment) MarshalJSON() ([]byte, error) {

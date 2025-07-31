@@ -35,7 +35,7 @@ var projectAssignmentsCmd = &cobra.Command{
 var getProjectAssignmentsCmd = &cobra.Command{
 	Use:   "get [flags] [--relation <assignment> ...]",
 	Short: "Get project assignments",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		opt := permissionv1.GetProjectAssignmentsOptions{}
 
 		for _, v := range viper.GetStringSlice("project_relations") {
@@ -55,7 +55,7 @@ var getProjectAssignmentsCmd = &cobra.Command{
 var wProjectAssignmentsCmd = &cobra.Command{
 	Use:   "add [flags] --assignment <assignment> [--user <user> --role <role>]",
 	Short: "add project assignments",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		opt := permissionv1.UpdateProjectPermissionsOptions{}
 		assignees := []permissionv1.UserOrRole{}
 
@@ -100,7 +100,7 @@ var wProjectAssignmentsCmd = &cobra.Command{
 }
 
 func init() {
-	projectCmd.AddCommand(projectAssignmentsCmd)
+	// projectCmd.AddCommand(projectAssignmentsCmd)
 
 	projectAssignmentsCmd.AddCommand(getProjectAssignmentsCmd)
 	projectAssignmentsCmd.AddCommand(wProjectAssignmentsCmd)

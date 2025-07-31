@@ -50,19 +50,19 @@ func (sc *StorageCredential) UnmarshalJSON(data []byte) error {
 	}
 
 	switch fmt.Sprintf("%s:%s", peek.Type, peek.CredentialType) {
-	case fmt.Sprintf("%s:%s", S3CredentialFamily, peek.CredentialType):
+	case fmt.Sprintf("%s:%s", S3CredentialFamily, AccessKey):
 		var cfg S3CredentialAccessKey
 		if err := json.Unmarshal(data, &cfg); err != nil {
 			return err
 		}
 		sc.Settings = &cfg
-	case fmt.Sprintf("%s:%s", S3CredentialFamily, peek.CredentialType):
+	case fmt.Sprintf("%s:%s", S3CredentialFamily, AWSSystemIdentity):
 		var cfg S3CredentialSystemIdentity
 		if err := json.Unmarshal(data, &cfg); err != nil {
 			return err
 		}
 		sc.Settings = &cfg
-	case fmt.Sprintf("%s:%s", S3CredentialFamily, peek.CredentialType):
+	case fmt.Sprintf("%s:%s", S3CredentialFamily, CloudflareR2):
 		var cfg CloudflareR2Credential
 		if err := json.Unmarshal(data, &cfg); err != nil {
 			return err

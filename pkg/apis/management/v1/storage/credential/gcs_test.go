@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGCSCredentialServiceAccountKey(t *testing.T) {
@@ -46,11 +47,11 @@ func TestGCSCredentialServiceAccountKey(t *testing.T) {
 	assert.Equal(t, want, creds.AsCredential())
 
 	b, err := json.Marshal(creds)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	jsonStr := `{"type":"gcs","credential-type":"service-account-key","key":{"auth_provider_x509_cert_url":"auth-provider-x509-cert-url","auth_uri":"auth-uri","client_email":"client-email","client_id":"client-id","client_x509_cert_url":"client-x509-cert-url","private_key":"private-key","private_key_id":"private-key-id","project_id":"project-id","token_uri":"token-uri","type":"type","universe_domain":"universe-domain"}}`
 
-	assert.Equal(t, jsonStr, string(b))
+	assert.JSONEq(t, jsonStr, string(b))
 }
 
 func TestGCSCredentialSystemIdentity(t *testing.T) {
@@ -66,9 +67,9 @@ func TestGCSCredentialSystemIdentity(t *testing.T) {
 	assert.Equal(t, want, creds.AsCredential())
 
 	b, err := json.Marshal(creds)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	jsonStr := `{"type":"gcs","credential-type":"gcp-system-identity"}`
 
-	assert.Equal(t, jsonStr, string(b))
+	assert.JSONEq(t, jsonStr, string(b))
 }

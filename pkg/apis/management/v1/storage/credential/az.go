@@ -85,16 +85,16 @@ func (c *AZCredentialClientCredentials) AsCredential() StorageCredential {
 	return StorageCredential{Settings: c}
 }
 
-func (s AZCredentialClientCredentials) MarshalJSON() ([]byte, error) {
+func (c AZCredentialClientCredentials) MarshalJSON() ([]byte, error) {
 	type Alias AZCredentialClientCredentials
 	aux := struct {
 		Type           string `json:"type"`
 		CredentialType string `json:"credential-type"`
 		Alias
 	}{
-		Type:           string(s.GetCredentialFamily()),
-		CredentialType: string(s.GetAZCredentialType()),
-		Alias:          Alias(s),
+		Type:           string(c.GetCredentialFamily()),
+		CredentialType: string(c.GetAZCredentialType()),
+		Alias:          Alias(c),
 	}
 	return json.Marshal(aux)
 }
@@ -111,16 +111,16 @@ func (c *AZCredentialSharedAccessKey) AsCredential() StorageCredential {
 	return StorageCredential{Settings: c}
 }
 
-func (s AZCredentialSharedAccessKey) MarshalJSON() ([]byte, error) {
+func (c AZCredentialSharedAccessKey) MarshalJSON() ([]byte, error) {
 	type Alias AZCredentialSharedAccessKey
 	aux := struct {
 		Type           string `json:"type"`
 		CredentialType string `json:"credential-type"`
 		Alias
 	}{
-		Type:           string(s.GetCredentialFamily()),
-		CredentialType: string(s.GetAZCredentialType()),
-		Alias:          Alias(s),
+		Type:           string(c.GetCredentialFamily()),
+		CredentialType: string(c.GetAZCredentialType()),
+		Alias:          Alias(c),
 	}
 	return json.Marshal(aux)
 }
@@ -137,13 +137,13 @@ func (c *AZCredentialManagedIdentity) AsCredential() StorageCredential {
 	return StorageCredential{Settings: c}
 }
 
-func (s AZCredentialManagedIdentity) MarshalJSON() ([]byte, error) {
+func (c AZCredentialManagedIdentity) MarshalJSON() ([]byte, error) {
 	aux := struct {
 		Type           string `json:"type"`
 		CredentialType string `json:"credential-type"`
 	}{
-		Type:           string(s.GetCredentialFamily()),
-		CredentialType: string(s.GetAZCredentialType()),
+		Type:           string(c.GetCredentialFamily()),
+		CredentialType: string(c.GetAZCredentialType()),
 	}
 	return json.Marshal(aux)
 }

@@ -24,7 +24,7 @@ import (
 var whoamiCmd = &cobra.Command{
 	Use:   "whoami",
 	Short: "Print the current user's informations",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		resp, _, err := c.UserV1().Whoami(cmd.Context())
 		if err != nil {
 			return err

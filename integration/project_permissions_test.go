@@ -23,13 +23,14 @@ import (
 
 	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPermissions_Project_GetAccess(t *testing.T) {
 	client := Setup(t)
 
 	resp, r, err := client.PermissionV1().ProjectPermission().GetAccess(t.Context(), defaultProjectID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -62,7 +63,7 @@ func TestPermissions_Project_GetAssignments(t *testing.T) {
 	client := Setup(t)
 
 	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), defaultProjectID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -89,7 +90,7 @@ func TestPermissions_Project_Update(t *testing.T) {
 	user := MustProvisionUser(t, client)
 
 	resp, _, err := client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), defaultProjectID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	// initial permissions
@@ -121,12 +122,12 @@ func TestPermissions_Project_Update(t *testing.T) {
 		},
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	resp, _, err = client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), defaultProjectID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	// permission added
@@ -165,12 +166,12 @@ func TestPermissions_Project_Update(t *testing.T) {
 		},
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	resp, _, err = client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), defaultProjectID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	// permission deleted
@@ -210,14 +211,14 @@ func TestPermissions_Project_SameAdd(t *testing.T) {
 	// adding permission
 	r, err := client.PermissionV1().ProjectPermission().Update(t.Context(), defaultProjectID, opt)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	// adding same permission
 	r, err = client.PermissionV1().ProjectPermission().Update(t.Context(), defaultProjectID, opt)
 
-	assert.ErrorContains(t, err, "TupleAlreadyExistsError")
+	require.ErrorContains(t, err, "TupleAlreadyExistsError")
 }
 
 func TestPermissions_Project_Add_NewProject(t *testing.T) {
@@ -228,7 +229,7 @@ func TestPermissions_Project_Add_NewProject(t *testing.T) {
 	projectID := MustCreateProject(t, client)
 
 	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), projectID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -262,12 +263,12 @@ func TestPermissions_Project_Add_NewProject(t *testing.T) {
 
 	// adding permission
 	r, err = client.PermissionV1().ProjectPermission().Update(t.Context(), projectID, opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	resp, r, err = client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), projectID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -312,12 +313,12 @@ func TestPermissions_Project_Add_Role(t *testing.T) {
 			},
 		},
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	resp, r, err := client.PermissionV1().ProjectPermission().GetAssignments(t.Context(), project, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 
 	want := &permissionv1.GetProjectAssignmentsResponse{

@@ -20,6 +20,7 @@ import (
 
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 )
@@ -34,7 +35,7 @@ func TestRolePermissionService_GetAccess(t *testing.T) {
 	})
 
 	access, resp, err := client.PermissionV1().RolePermission().GetAccess(t.Context(), "ed149356-70a0-4a9b-af80-b54b411dae33", nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &permissionv1.GetRoleAccessResponse{
@@ -62,7 +63,7 @@ func TestRolePermissionService_GetAssignments(t *testing.T) {
 	})
 
 	access, resp, err := client.PermissionV1().RolePermission().GetAssignments(t.Context(), "ed149356-70a0-4a9b-af80-b54b411dae33", nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &permissionv1.GetRoleAssignmentsResponse{
@@ -114,7 +115,7 @@ func TestRolePermissionService_Update(t *testing.T) {
 	})
 
 	resp, err := client.PermissionV1().RolePermission().Update(t.Context(), "6068343f-7e97-4438-b5c1-866618e3619d", opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)

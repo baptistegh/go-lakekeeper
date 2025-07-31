@@ -24,7 +24,7 @@ import (
 var infoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "Gets server informations",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		return json.NewEncoder(cmd.OutOrStdout()).Encode(serverInfo)
 	},
 }

@@ -12,31 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package errors
 
 import (
-	"github.com/baptistegh/go-lakekeeper/pkg/version"
+	"os"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	log "github.com/sirupsen/logrus"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print the version of lkctl",
-	Run: func(cmd *cobra.Command, args []string) {
-		if viper.GetBool("version_short") {
-			cmd.Printf("%s\n", version.Version)
-			return
+// Check logs a fatal message and exits with ErrorGeneric if err is not nil
+func Check(err error) {
+	if err != nil {
+		exitfunc := func() {
+			os.Exit(1)
 		}
-
-		cmd.Printf("version=%s, commit=%s, date=%s\n", version.Version, version.Commit, version.Date)
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(versionCmd)
-	versionCmd.Flags().Bool("short", false, "print only the version number")
-
-	_ = viper.BindPFlag("version_short", versionCmd.Flags().Lookup("short"))
+		log.RegisterExitHandler(exitfunc)
+		log.Fatal(err)
+	}
 }

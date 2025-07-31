@@ -116,7 +116,7 @@ func (c *S3CredentialAccessKey) AsCredential() StorageCredential {
 	return StorageCredential{Settings: c}
 }
 
-func (s S3CredentialAccessKey) MarshalJSON() ([]byte, error) {
+func (c S3CredentialAccessKey) MarshalJSON() ([]byte, error) {
 	type Alias S3CredentialAccessKey
 	aux := struct {
 		Type           string `json:"type"`
@@ -125,7 +125,7 @@ func (s S3CredentialAccessKey) MarshalJSON() ([]byte, error) {
 	}{
 		Type:           string(S3CredentialFamily),
 		CredentialType: string(AccessKey),
-		Alias:          Alias(s),
+		Alias:          Alias(c),
 	}
 	return json.Marshal(aux)
 }
@@ -142,7 +142,7 @@ func (c *S3CredentialSystemIdentity) AsCredential() StorageCredential {
 	return StorageCredential{Settings: c}
 }
 
-func (s S3CredentialSystemIdentity) MarshalJSON() ([]byte, error) {
+func (c S3CredentialSystemIdentity) MarshalJSON() ([]byte, error) {
 	type Alias S3CredentialSystemIdentity
 	aux := struct {
 		Type           string `json:"type"`
@@ -151,7 +151,7 @@ func (s S3CredentialSystemIdentity) MarshalJSON() ([]byte, error) {
 	}{
 		Type:           string(S3CredentialFamily),
 		CredentialType: string(AWSSystemIdentity),
-		Alias:          Alias(s),
+		Alias:          Alias(c),
 	}
 	return json.Marshal(aux)
 }
@@ -168,7 +168,7 @@ func (c *CloudflareR2Credential) AsCredential() StorageCredential {
 	return StorageCredential{Settings: c}
 }
 
-func (s CloudflareR2Credential) MarshalJSON() ([]byte, error) {
+func (c CloudflareR2Credential) MarshalJSON() ([]byte, error) {
 	type Alias CloudflareR2Credential
 	aux := struct {
 		Type           string `json:"type"`
@@ -177,7 +177,7 @@ func (s CloudflareR2Credential) MarshalJSON() ([]byte, error) {
 	}{
 		Type:           string(S3CredentialFamily),
 		CredentialType: string(CloudflareR2),
-		Alias:          Alias(s),
+		Alias:          Alias(c),
 	}
 	return json.Marshal(aux)
 }

@@ -148,7 +148,7 @@ const (
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
 func (s *WarehousePermissionService) GetAuthzProperties(ctx context.Context, id string, options ...core.RequestOptionFunc) (*GetWarehouseAuthzPropertiesResponse, *http.Response, error) {
-	path := fmt.Sprintf("/permissions/warehouse/%s", id)
+	path := "/permissions/warehouse/" + id
 
 	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil, options)
 	if err != nil {

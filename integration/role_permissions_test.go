@@ -23,6 +23,7 @@ import (
 
 	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPermissions_Role_GetAccess(t *testing.T) {
@@ -31,7 +32,7 @@ func TestPermissions_Role_GetAccess(t *testing.T) {
 	role := MustCreateRole(t, client, defaultProjectID)
 
 	resp, r, err := client.PermissionV1().RolePermission().GetAccess(t.Context(), role.ID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -57,7 +58,7 @@ func TestPermissions_Role_GetAssignments(t *testing.T) {
 	role := MustCreateRole(t, client, defaultProjectID)
 
 	resp, r, err := client.PermissionV1().RolePermission().GetAssignments(t.Context(), role.ID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -85,7 +86,7 @@ func TestPermissions_Role_Update(t *testing.T) {
 	user := MustProvisionUser(t, client)
 
 	resp, _, err := client.PermissionV1().RolePermission().GetAssignments(t.Context(), role.ID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	// initial permissions
@@ -116,12 +117,12 @@ func TestPermissions_Role_Update(t *testing.T) {
 		},
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	resp, _, err = client.PermissionV1().RolePermission().GetAssignments(t.Context(), role.ID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	// permission added
@@ -159,12 +160,12 @@ func TestPermissions_Role_Update(t *testing.T) {
 		},
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	resp, _, err = client.PermissionV1().RolePermission().GetAssignments(t.Context(), role.ID, nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	// permission deleted
@@ -204,12 +205,12 @@ func TestPermissions_Role_SameAdd(t *testing.T) {
 	// adding permission
 	r, err := client.PermissionV1().RolePermission().Update(t.Context(), role.ID, opt)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	// adding same permission
 	r, err = client.PermissionV1().RolePermission().Update(t.Context(), role.ID, opt)
 
-	assert.ErrorContains(t, err, "TupleAlreadyExistsError")
+	require.ErrorContains(t, err, "TupleAlreadyExistsError")
 }

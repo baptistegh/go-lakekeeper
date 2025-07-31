@@ -100,18 +100,18 @@ func WithHost(host string) ADLSStorageSettingsOptions {
 	}
 }
 
-func (s *ADLSStorageSettings) AsProfile() StorageProfile {
-	return StorageProfile{s}
+func (sp *ADLSStorageSettings) AsProfile() StorageProfile {
+	return StorageProfile{sp}
 }
 
-func (s ADLSStorageSettings) MarshalJSON() ([]byte, error) {
+func (sp ADLSStorageSettings) MarshalJSON() ([]byte, error) {
 	type Alias ADLSStorageSettings
 	aux := struct {
 		Type string `json:"type"`
 		Alias
 	}{
 		Type:  string(StorageFamilyADLS),
-		Alias: Alias(s),
+		Alias: Alias(sp),
 	}
 	return json.Marshal(aux)
 }

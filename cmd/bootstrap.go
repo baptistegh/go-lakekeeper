@@ -29,7 +29,7 @@ var (
 var bootstrapCmd = &cobra.Command{
 	Use:   "bootstrap",
 	Short: "Bootstraps the server with the current user",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		opt := managementv1.BootstrapServerOptions{
 			AcceptTermsOfUse: acceptTermsOfUse,
 			IsOperator:       &asOperator,

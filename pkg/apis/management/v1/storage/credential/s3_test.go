@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestS3CredentialSystemIdentity(t *testing.T) {
@@ -36,11 +37,11 @@ func TestS3CredentialSystemIdentity(t *testing.T) {
 	assert.Equal(t, want, creds.AsCredential())
 
 	b, err := json.Marshal(creds)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	jsonStr := `{"type":"s3","credential-type":"aws-system-identity","external-id":"external-id"}`
 
-	assert.Equal(t, jsonStr, string(b))
+	assert.JSONEq(t, jsonStr, string(b))
 }
 
 func TestS3CredentialAccessKey(t *testing.T) {
@@ -58,11 +59,11 @@ func TestS3CredentialAccessKey(t *testing.T) {
 	assert.Equal(t, want, creds.AsCredential())
 
 	b, err := json.Marshal(creds)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	jsonStr := `{"type":"s3","credential-type":"access-key","aws-access-key-id":"access-key","aws-secret-access-key":"secret-key","external-id":"external-id"}`
 
-	assert.Equal(t, jsonStr, string(b))
+	assert.JSONEq(t, jsonStr, string(b))
 }
 
 func TestCloudflareR2Credential(t *testing.T) {
@@ -80,9 +81,9 @@ func TestCloudflareR2Credential(t *testing.T) {
 	assert.Equal(t, want, creds.AsCredential())
 
 	b, err := json.Marshal(creds)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	jsonStr := `{"type":"s3","credential-type":"cloudflare-r2","access-key-id":"access-key","secret-access-key":"secret-key","account=id":"account-id","token":"token"}`
 
-	assert.Equal(t, jsonStr, string(b))
+	assert.JSONEq(t, jsonStr, string(b))
 }

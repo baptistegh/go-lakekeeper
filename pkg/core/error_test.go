@@ -22,34 +22,39 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestError_From(t *testing.T) {
 	t.Parallel()
 
 	t.Run("FromError", func(t *testing.T) {
-		given := ApiErrorFromError(errors.New("error message, testing"))
+		t.Parallel()
+		given := APIErrorFromError(errors.New("error message, testing"))
 
 		expected := "unexpected error response, error message, testing"
 
-		assert.ErrorContains(t, given, expected)
+		require.ErrorContains(t, given, expected)
 	})
 
 	t.Run("FromErro Nil", func(t *testing.T) {
-		given := ApiErrorFromError(nil)
+		t.Parallel()
+		given := APIErrorFromError(nil)
 
 		assert.Nil(t, given)
 	})
 
 	t.Run("From Message", func(t *testing.T) {
-		given := ApiErrorFromMessage("error message %s", "testing")
+		t.Parallel()
+		given := APIErrorFromMessage("error message %s", "testing")
 
 		expected := "unexpected error response, error message testing"
 
-		assert.ErrorContains(t, given, expected)
+		require.ErrorContains(t, given, expected)
 	})
 
 	t.Run("FromResponse", func(t *testing.T) {
+		t.Parallel()
 		mux := http.NewServeMux()
 
 		server := httptest.NewServer(mux)
@@ -65,15 +70,15 @@ func TestError_From(t *testing.T) {
 		})
 
 		resp, err := http.Get(server.URL + "/error")
-		assert.NoError(t, err)
+		require.NoError(t, err, "failed to read service account token")
 
-		given := ApiErrorFromResponse(resp)
+		given := APIErrorFromResponse(resp)
 
-		assert.Equal(t, given.Response.Code, 32)
-		assert.Equal(t, given.Response.Message, "testing message")
-		assert.Equal(t, given.Type(), "error-type")
+		assert.Equal(t, 32, given.Response.Code)
+		assert.Equal(t, "testing message", given.Response.Message)
+		assert.Equal(t, "error-type", given.Type())
 
-		assert.ErrorContains(t, given, "api error, code=32 message=testing message type=error-type")
+		require.ErrorContains(t, given, "api error, code=32 message=testing message type=error-type")
 	})
 }
 
@@ -81,41 +86,45 @@ func TestError_With(t *testing.T) {
 	t.Parallel()
 
 	t.Run("WithCause", func(t *testing.T) {
-		apiErr := &ApiError{}
+		t.Parallel()
+		apiErr := &APIError{}
 
 		given := apiErr.WithCause(errors.New("testing error"))
 
-		assert.ErrorContains(t, given, "unexpected error response, testing error")
+		require.ErrorContains(t, given, "unexpected error response, testing error")
 	})
 
 	t.Run("WithMessage", func(t *testing.T) {
-		apiErr := &ApiError{}
+		t.Parallel()
+		apiErr := &APIError{}
 
 		given := apiErr.WithMessage("message is %s", "testing")
 
-		assert.ErrorContains(t, given, "unexpected error response, message is testing")
+		require.ErrorContains(t, given, "unexpected error response, message is testing")
 	})
 }
 
 func TestError_IsAuthError(t *testing.T) {
-	unauthorized := &ApiError{
+	t.Parallel()
+	unauthorized := &APIError{
 		StatusCode: 401,
 	}
 
-	forbidden := &ApiError{
+	forbidden := &APIError{
 		StatusCode: 403,
 	}
 
-	assert.Equal(t, unauthorized.IsAuthError(), true)
-	assert.Equal(t, forbidden.IsAuthError(), true)
+	assert.True(t, unauthorized.IsAuthError())
+	assert.True(t, forbidden.IsAuthError())
 }
 
 func TestError_Type(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Unknown", func(t *testing.T) {
-		given := &ApiError{}
+		t.Parallel()
+		given := &APIError{}
 
-		assert.Equal(t, given.Type(), "Unknown")
+		assert.Equal(t, "Unknown", given.Type())
 	})
 }

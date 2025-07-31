@@ -83,7 +83,7 @@ func (as *OAuthTokenSource) Header(context.Context) (string, string, error) {
 	return "Authorization", fmt.Sprintf("%s %s", t.TokenType, t.AccessToken), nil
 }
 
-func (as *OAuthTokenSource) GetToken(ctx context.Context) (string, error) {
+func (as *OAuthTokenSource) GetToken(_ context.Context) (string, error) {
 	t, err := as.TokenSource.Token()
 	if err != nil {
 		return "", fmt.Errorf("failed to get token: %w", err)
@@ -95,32 +95,32 @@ func (*AccessTokenAuthSource) Init(context.Context) error {
 	return nil
 }
 
-func (s *AccessTokenAuthSource) Header(context.Context) (string, string, error) {
-	return "Authorization", "Bearer " + s.Token, nil
+func (as *AccessTokenAuthSource) Header(context.Context) (string, string, error) {
+	return "Authorization", "Bearer " + as.Token, nil
 }
 
 func (as *AccessTokenAuthSource) GetToken(context.Context) (string, error) {
 	return as.Token, nil
 }
 
-func (s *K8sServiceAccountAuthSource) Init(context.Context) error {
+func (as *K8sServiceAccountAuthSource) Init(context.Context) error {
 	// Get service account token
 	// This is typically done by reading the token from a file mounted in the pod.
 	// For example, the token is usually available at /var/run/secrets/kubernetes.io/serviceaccount/token.
 	var err error
-	s.doOnce.Do(func() {
-		if s.ServiceAccountTokenPath == nil {
-			s.ServiceAccountTokenPath = Ptr("/var/run/secrets/kubernetes.io/serviceaccount/token")
+	as.doOnce.Do(func() {
+		if as.ServiceAccountTokenPath == nil {
+			as.ServiceAccountTokenPath = Ptr("/var/run/secrets/kubernetes.io/serviceaccount/token")
 		}
 
-		token, e := os.ReadFile(*s.ServiceAccountTokenPath)
+		token, e := os.ReadFile(*as.ServiceAccountTokenPath)
 		if e != nil {
 			err = fmt.Errorf("failed to read service account token: %w", e)
 		}
 
-		s.token = string(token)
-		if s.token == "" {
-			err = fmt.Errorf("service account token is empty, please ensure the file at %s contains a valid token", *s.ServiceAccountTokenPath)
+		as.token = string(token)
+		if as.token == "" {
+			err = fmt.Errorf("service account token is empty, please ensure the file at %s contains a valid token", *as.ServiceAccountTokenPath)
 		}
 	})
 	if err != nil {
@@ -130,13 +130,13 @@ func (s *K8sServiceAccountAuthSource) Init(context.Context) error {
 	return nil
 }
 
-func (s *K8sServiceAccountAuthSource) Header(context.Context) (string, string, error) {
-	return "Authorization", "Bearer " + s.token, nil
+func (as *K8sServiceAccountAuthSource) Header(context.Context) (header, value string, err error) {
+	return "Authorization", "Bearer " + as.token, nil
 }
 
-func (s *K8sServiceAccountAuthSource) GetToken(ctx context.Context) (string, error) {
-	if err := s.Init(ctx); err != nil {
+func (as *K8sServiceAccountAuthSource) GetToken(ctx context.Context) (string, error) {
+	if err := as.Init(ctx); err != nil {
 		return "", err
 	}
-	return s.token, nil
+	return as.token, nil
 }

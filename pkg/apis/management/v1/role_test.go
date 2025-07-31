@@ -22,6 +22,7 @@ import (
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRoleService_Get(t *testing.T) {
@@ -38,7 +39,7 @@ func TestRoleService_Get(t *testing.T) {
 	})
 
 	role, resp, err := client.RoleV1(projectID).Get(t.Context(), roleID)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &managementv1.Role{
@@ -86,7 +87,7 @@ func TestRoleService_Create(t *testing.T) {
 	})
 
 	role, resp, err := client.RoleV1(projectID).Create(t.Context(), &opts)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 
@@ -124,7 +125,7 @@ func TestRoleService_Update(t *testing.T) {
 	})
 
 	role, resp, err := client.RoleV1(projectID).Update(t.Context(), roleID, &opts)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -145,7 +146,7 @@ func TestRoleService_Delete(t *testing.T) {
 	})
 
 	resp, err := client.RoleV1(projectID).Delete(t.Context(), roleID)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
 }
@@ -186,7 +187,7 @@ func TestRoleService_List(t *testing.T) {
 			PageToken: core.Ptr("cd298407-556e-49b6-a12b-92c212a7df3b"),
 		},
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -228,7 +229,7 @@ func TestRoleService_Search(t *testing.T) {
 	}
 
 	roles, resp, err := client.RoleV1(projectID).Search(t.Context(), opts)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 

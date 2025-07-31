@@ -80,16 +80,16 @@ func (c *GCSCredentialServiceAccountKey) AsCredential() StorageCredential {
 	return StorageCredential{Settings: c}
 }
 
-func (s GCSCredentialServiceAccountKey) MarshalJSON() ([]byte, error) {
+func (c GCSCredentialServiceAccountKey) MarshalJSON() ([]byte, error) {
 	type Alias GCSCredentialServiceAccountKey
 	aux := struct {
 		Type           string `json:"type"`
 		CredentialType string `json:"credential-type"`
 		Alias
 	}{
-		Type:           string(s.GetCredentialFamily()),
-		CredentialType: string(s.GetGCSCredentialType()),
-		Alias:          Alias(s),
+		Type:           string(c.GetCredentialFamily()),
+		CredentialType: string(c.GetGCSCredentialType()),
+		Alias:          Alias(c),
 	}
 	return json.Marshal(aux)
 }
@@ -106,13 +106,13 @@ func (c *GCSCredentialSystemIdentity) AsCredential() StorageCredential {
 	return StorageCredential{Settings: c}
 }
 
-func (s GCSCredentialSystemIdentity) MarshalJSON() ([]byte, error) {
+func (c GCSCredentialSystemIdentity) MarshalJSON() ([]byte, error) {
 	aux := struct {
 		Type           string `json:"type"`
 		CredentialType string `json:"credential-type"`
 	}{
-		Type:           string(s.GetCredentialFamily()),
-		CredentialType: string(s.GetGCSCredentialType()),
+		Type:           string(c.GetCredentialFamily()),
+		CredentialType: string(c.GetGCSCredentialType()),
 	}
 	return json.Marshal(aux)
 }

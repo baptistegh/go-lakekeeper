@@ -20,6 +20,7 @@ import (
 
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 )
@@ -34,7 +35,7 @@ func TestServerPermissionService_GetAccess(t *testing.T) {
 	})
 
 	access, resp, err := client.PermissionV1().ServerPermission().GetAccess(t.Context(), nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &permissionv1.GetServerAccessResponse{
@@ -62,7 +63,7 @@ func TestServerPermissionService_GetAssignments(t *testing.T) {
 	})
 
 	access, resp, err := client.PermissionV1().ServerPermission().GetAssignments(t.Context(), nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &permissionv1.GetServerAssignmentsResponse{
@@ -114,7 +115,7 @@ func TestServerPermissionService_Update(t *testing.T) {
 	})
 
 	resp, err := client.PermissionV1().ServerPermission().Update(t.Context(), opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)

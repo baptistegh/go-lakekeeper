@@ -34,6 +34,7 @@ import (
 // configured to talk to that test server.  Tests should register handlers on
 // mux which provide mock responses for the API method being tested.
 func ServerMux(t *testing.T) (*http.ServeMux, *client.Client) {
+	t.Helper()
 	// mux is the HTTP request multiplexer used with the test server.
 	mux := http.NewServeMux()
 
@@ -41,12 +42,12 @@ func ServerMux(t *testing.T) (*http.ServeMux, *client.Client) {
 	server := httptest.NewServer(mux)
 	t.Cleanup(server.Close)
 
-	client, err := client.NewClient(t.Context(), "", server.URL)
+	c, err := client.NewClient(t.Context(), "", server.URL)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	return mux, client
+	return mux, c
 }
 
 func TestURL(t *testing.T, r *http.Request, want string) {
@@ -69,7 +70,7 @@ func TestHeader(t *testing.T, r *http.Request, key, want string) {
 
 // Tests that a given form attribute has a value in a form request. Useful
 // for testing file upload API requests.
-func TestFormBody(t *testing.T, r *http.Request, key string, want string) {
+func TestFormBody(t *testing.T, r *http.Request, key, want string) {
 	if got := r.FormValue(key); got != want {
 		t.Errorf("Request body for key %s got: %s, want %s", key, got, want)
 	}
@@ -99,11 +100,12 @@ func TestBodyJSON[T any](t *testing.T, r *http.Request, want T) bool {
 // testParam checks whether the given request contains the expected parameter and whether the parameter has the expected value.
 func TestParam(t *testing.T, r *http.Request, key, value string) {
 	require.True(t, r.URL.Query().Has(key), "Request does not contain the %q parameter", key)
-	assert.Equal(t, 1, len(r.URL.Query()[key]), "Request contains multiple %q parameters when only one is expected", key)
+	assert.Len(t, r.URL.Query()[key], 1, "Request contains multiple %q parameters when only one is expected", key)
 	require.Equal(t, value, r.URL.Query().Get(key))
 }
 
 func MustWriteHTTPResponse(t *testing.T, w io.Writer, fixturePath string) {
+	t.Helper()
 	f, err := os.Open(fixturePath) //nolint:all
 	if err != nil {
 		t.Fatalf("error opening fixture file: %v", err)
@@ -121,6 +123,7 @@ func MustWriteHTTPResponse(t *testing.T, w io.Writer, fixturePath string) {
 // It uses t.Fatal to stop the test and report an error if encoding the response fails.
 // This helper is useful when implementing handlers in unit tests.
 func MustWriteJSONResponse(t *testing.T, w io.Writer, response any) {
+	t.Helper()
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		t.Fatalf("Failed to write response: %v", err)
 	}
@@ -130,6 +133,7 @@ func MustWriteJSONResponse(t *testing.T, w io.Writer, response any) {
 // It uses t.Fatal to stop the test and report an error if encoding the response fails.
 // This is useful when testing error conditions.
 func MustWriteErrorResponse(t *testing.T, w io.Writer, err error) {
+	t.Helper()
 	MustWriteJSONResponse(t, w, map[string]any{
 		"error": err.Error(),
 	})

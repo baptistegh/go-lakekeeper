@@ -34,7 +34,7 @@ var userCmd = &cobra.Command{
 var listUsersCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List users",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		opt := managementv1.ListUsersOptions{}
 
 		if viper.GetString("user_name") != "" {
@@ -62,7 +62,7 @@ var addUserCmd = &cobra.Command{
 			UserType: core.Ptr(managementv1.UserType(args[2])),
 		}
 
-		if len(viper.GetString("email")) > 0 {
+		if viper.GetString("email") != "" {
 			opt.Email = core.Ptr(viper.GetString("email"))
 		}
 

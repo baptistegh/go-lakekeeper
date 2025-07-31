@@ -24,7 +24,7 @@ import (
 var catalogCmd = &cobra.Command{
 	Use:   "catalog",
 	Short: "Invoke go-iceberg command line",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		return errors.New("catalog command is not implemented")
 	},
 }

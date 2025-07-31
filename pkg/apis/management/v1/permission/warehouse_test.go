@@ -20,6 +20,7 @@ import (
 
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 )
@@ -34,7 +35,7 @@ func TestWarehousePermissionService_GetAuthzProperties(t *testing.T) {
 	})
 
 	resp, r, err := client.PermissionV1().WarehousePermission().GetAuthzProperties(t.Context(), "6068343f-7e97-4438-b5c1-866618e3619d")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -55,7 +56,7 @@ func TestWarehousePermissionService_GetAccess(t *testing.T) {
 	})
 
 	access, resp, err := client.PermissionV1().WarehousePermission().GetAccess(t.Context(), "62709608-250c-41e0-9457-32bb4de3345c", nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &permissionv1.GetWarehouseAccessResponse{
@@ -96,7 +97,7 @@ func TestWarehousePermissionService_GetAssignments(t *testing.T) {
 	})
 
 	access, resp, err := client.PermissionV1().WarehousePermission().GetAssignments(t.Context(), "ed149356-70a0-4a9b-af80-b54b411dae33", nil)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &permissionv1.GetWarehouseAssignmentsResponse{
@@ -148,7 +149,7 @@ func TestWarehousePermissionService_Update(t *testing.T) {
 	})
 
 	resp, err := client.PermissionV1().WarehousePermission().Update(t.Context(), "6068343f-7e97-4438-b5c1-866618e3619d", opt)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)

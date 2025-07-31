@@ -57,7 +57,7 @@ func WithContext(ctx context.Context) RequestOptionFunc {
 }
 
 // copyContextValues copy some context key and values in old context
-func CopyContextValues(oldCtx context.Context, newCtx context.Context) context.Context {
+func CopyContextValues(oldCtx, newCtx context.Context) context.Context {
 	checkRetry := checkRetryFromContext(oldCtx)
 
 	if checkRetry != nil {

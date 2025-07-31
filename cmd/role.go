@@ -36,7 +36,7 @@ var roleCmd = &cobra.Command{
 var listRolesCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available roles",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		opt := managementv1.ListRolesOptions{}
 
 		if viper.GetString("role_name") != "" {
@@ -114,7 +114,7 @@ var updateRoleCmd = &cobra.Command{
 			Name: args[1],
 		}
 
-		if len(viper.GetString("role_u_description")) > 0 {
+		if viper.GetString("role_u_description") != "" {
 			opt.Description = core.Ptr(viper.GetString("role_u_description"))
 		}
 
@@ -136,7 +136,7 @@ var accessRoleCmd = &cobra.Command{
 		user := viper.GetString("role_access_user")
 		role := viper.GetString("role_access_role")
 
-		if len(user) > 0 && len(role) > 0 {
+		if user != "" && role != "" {
 			return errors.New("you only can filter by user OR role, both were supplied")
 		}
 
