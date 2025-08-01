@@ -1,0 +1,56 @@
+name: "Lint Pull Request"
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    permissions:
+      contents: read
+      pull-requests: write
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    if: github.repository == 'baptistegh/go-lakekeeper'
+    steps:
+      - uses: thehanimo/pr-title-checker@7fbfe05602bdd86f926d3fb3bccb6f3aed43bc70 # v1.4.3
+        id: check
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          configuration_path: ".github/pr-title-checker-config.json"
+          pass_on_octokit_error: false
+
+      - name: Add comment to fix PR title
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: ${{ steps.check.outputs.success == 'false'}}
+        with:
+          header: 'PR Title Check'
+          recreate: true
+          message: |
+              ### 🚨 PR Title Needs Formatting
+              The title of this PR needs to be formatted correctly. 
+              Please update the title to match the format `type: description`. Examples:
+              * `feat: add new feature`
+              * `fix: fix typo in README.md`
+              * `chore(deps): update dependencies`
+              * `chore: fixing build pipeline`
+
+      - name: Add comment that PR title is fixed
+        if: ${{ steps.check.outputs.success == 'true'}}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: 'PR Title Check'
+          recreate: true
+          message: |
+              ### ✅ PR Title Formatted Correctly
+              The title of this PR match the correct format. Thank you!
+    
+      - uses: actions/labeler@v5
+        with:
+         sync-labels: 'true'
