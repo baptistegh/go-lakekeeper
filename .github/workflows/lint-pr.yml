@@ -1,0 +1,81 @@
+# Copyright 2025 Baptiste Gouhoury <baptiste.gouhoury@scalend.fr>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: "Lint Pull Request"
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - labeled
+      - unlabeled
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    permissions:
+      contents: read
+      pull-requests: write
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    if: github.repository == 'baptistegh/go-lakekeeper'
+    steps:
+      - uses: thehanimo/pr-title-checker@7fbfe05602bdd86f926d3fb3bccb6f3aed43bc70 # v1.4.3
+        id: check
+        continue-on-error: true
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          configuration_path: ".github/pr-title-checker-config.json"
+          pass_on_octokit_error: false
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        if: ${{ steps.check.outputs.success == 'false'}}
+        with:
+          header: 'pr-title-checker'
+          recreate: true
+          message: |
+              ### 🚨 PR Title Needs Formatting
+              The title of this PR needs to be formatted correctly. 
+              Please update the title to match the [conventional commits](https://www.conventionalcommits.org) format. Examples:
+              
+              * `feat: feature description` for a new feature
+              * `fix: what was fixed` for a bug fix
+              * `docs: documentation` for documentation changes
+              * `chore(deps): update dependencies` other changes
+
+              We only use types: `feat`, `fix`, `docs` and `chore`.
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        if: ${{ steps.check.outputs.success == 'true'}}
+        with:
+          header: 'pr-title-checker'
+          recreate: true
+          message: |
+              ### ✅ PR Title Formatted Correctly
+              The title of this PR match the correct format. Thank you!
+      
+      - if: ${{ steps.check.outputs.success == 'false'}}
+        name: Fail on invalid title
+        run: exit 1
+    
+      - uses: actions/labeler@v5
+        with:
+         sync-labels: 'true'
