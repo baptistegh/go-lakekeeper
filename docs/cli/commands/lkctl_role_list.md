@@ -11,7 +11,6 @@ lkctl role list [flags]
 ```
   # List available roles
   lkctl role ls
-
 ```
 
 ### Options

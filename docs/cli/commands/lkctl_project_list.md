@@ -11,7 +11,6 @@ lkctl project list [flags]
 ```
   # List all the available projects for the current user
   lkctl project list
-
 ```
 
 ### Options

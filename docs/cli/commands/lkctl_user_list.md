@@ -11,7 +11,6 @@ lkctl user list [flags]
 ```
   # List users
   lkctl user ls
-
 ```
 
 ### Options

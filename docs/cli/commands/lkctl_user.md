@@ -27,6 +27,8 @@ lkctl user [flags]
 ### SEE ALSO
 
 * [lkctl](lkctl.md)	 - A CLI to interact with Lakekeeper's management - and Iceberg catalog APIs powered by go-iceberg.
+* [lkctl user create](lkctl_user_create.md)	 - Create a new user
+* [lkctl user delete](lkctl_user_delete.md)	 - Delete a user by id
 * [lkctl user get](lkctl_user_get.md)	 - Get a user by id
 * [lkctl user list](lkctl_user_list.md)	 - List users
 

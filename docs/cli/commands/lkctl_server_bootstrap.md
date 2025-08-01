@@ -14,7 +14,6 @@ lkctl server bootstrap [flags]
 
   # Bootstrap the server as an operator
   lkctl bootstrap --accept-terms-of-use --as-operator
-
 ```
 
 ### Options

@@ -11,7 +11,6 @@ lkctl project create PROJECTNAME [flags]
 ```
   # Create a new project
   lkctl project create "New Project"
-
 ```
 
 ### Options

@@ -25,7 +25,7 @@ import (
 )
 
 func main() {
-	err := doc.GenMarkdownTree(commands.NewCommand(), "./docs/user-guide/commands")
+	err := doc.GenMarkdownTree(commands.NewCommand(), "./docs/cli/commands")
 	if err != nil {
 		log.Fatal(err)
 	}

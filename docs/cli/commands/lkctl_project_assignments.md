@@ -17,7 +17,6 @@ lkctl project assignments PROJECT-ID [flags]
 
   # Filter by multiple assignment types
   lkctl project assignments 01986184-3cb1-7526-a98c-72fecfe97731 --relations project_admin --relations select
-
 ```
 
 ### Options

@@ -18,7 +18,6 @@ lkctl role access ROLEID [flags]
 
   # Get role access for a specific user
   lkctl role access 01986184-3cb1-7526-a98c-72fecfe97731 --user oidc~0198618c-5be8-7a82-a0b9-1076c9dd12
-
 ```
 
 ### Options

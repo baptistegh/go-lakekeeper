@@ -1,38 +1,16 @@
-## lkctl project access
+## lkctl warehouse
 
-Get project access
-
-### Synopsis
-
-Get project access. By default, current user's access is returned
+Manage warehouses
 
 ```
-lkctl project access PROJECT-ID [flags]
-```
-
-### Examples
-
-```
-  # Get default project access
-  lkctl project access
-
-  # Get specific project access
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731
-
-  # Get project access for a specific user
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731 --user oidc~0198618c-5be8-7a82-a0b9-1076c9dd12f0
-
-  # Get project access for a specific role
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731 --role oidc~0198618c-5be8-7a82-a0b9-1076c9dd12f0
+lkctl warehouse [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help            help for access
-  -o, --output string   Output format. One of: json|text (default "text")
-      --role string     Filter by role
-      --user string     Filter by user
+  -h, --help             help for warehouse
+  -p, --project string   Select a project (default "00000000-0000-0000-0000-000000000000")
 ```
 
 ### Options inherited from parent commands
@@ -49,5 +27,9 @@ lkctl project access PROJECT-ID [flags]
 
 ### SEE ALSO
 
-* [lkctl project](lkctl_project.md)	 - Manage projects
+* [lkctl](lkctl.md)	 - A CLI to interact with Lakekeeper's management - and Iceberg catalog APIs powered by go-iceberg.
+* [lkctl warehouse create](lkctl_warehouse_create.md)	 - Create a new warehouse
+* [lkctl warehouse delete](lkctl_warehouse_delete.md)	 - delete a warehouse by id
+* [lkctl warehouse get](lkctl_warehouse_get.md)	 - get a warehouse by id
+* [lkctl warehouse list](lkctl_warehouse_list.md)	 - List warehouses
 

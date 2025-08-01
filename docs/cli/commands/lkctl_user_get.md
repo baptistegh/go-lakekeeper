@@ -11,7 +11,6 @@ lkctl user get USERID [flags]
 ```
   # Get a user by its id
   lkctl user get oidc~d223d88c-85b6-4859-b5c5-27f3825e47f6
-
 ```
 
 ### Options

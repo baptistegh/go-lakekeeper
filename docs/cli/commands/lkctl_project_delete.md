@@ -11,7 +11,6 @@ lkctl project delete PROJECT-ID [flags]
 ```
   # Delete project
   lkctl project delete 019861a0-6d4e-7bf3-96c6-9aef2d4a2749
-
 ```
 
 ### Options
