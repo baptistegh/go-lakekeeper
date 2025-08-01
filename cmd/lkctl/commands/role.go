@@ -42,19 +42,19 @@ func NewRoleCmd(clientOptions *clientOptions) *cobra.Command {
 
 	command.PersistentFlags().StringVarP(&project, "project", "p", uuid.Nil.String(), "Select a project")
 
-	command.AddCommand(NewRoleListCmd(clientOptions, project))
-	command.AddCommand(NewRoleGetCmd(clientOptions, project))
-	command.AddCommand(NewRoleCreateCmd(clientOptions, project))
-	command.AddCommand(NewRoleDeleteCmd(clientOptions, project))
-	command.AddCommand(NewRoleUpdateCmd(clientOptions, project))
-	command.AddCommand(NewRoleAccessCmd(clientOptions, project))
-	command.AddCommand(NewRoleAssignmentsCmd(clientOptions, project))
-	command.AddCommand(NewRoleGrantCmd(clientOptions, project))
+	command.AddCommand(NewRoleListCmd(clientOptions, &project))
+	command.AddCommand(NewRoleGetCmd(clientOptions, &project))
+	command.AddCommand(NewRoleCreateCmd(clientOptions, &project))
+	command.AddCommand(NewRoleDeleteCmd(clientOptions, &project))
+	command.AddCommand(NewRoleUpdateCmd(clientOptions, &project))
+	command.AddCommand(NewRoleAccessCmd(clientOptions, &project))
+	command.AddCommand(NewRoleAssignmentsCmd(clientOptions, &project))
+	command.AddCommand(NewRoleGrantCmd(clientOptions, &project))
 
 	return &command
 }
 
-func NewRoleListCmd(clientOptions *clientOptions, project string) *cobra.Command {
+func NewRoleListCmd(clientOptions *clientOptions, project *string) *cobra.Command {
 	var (
 		listOpts listOpts
 
@@ -71,7 +71,7 @@ func NewRoleListCmd(clientOptions *clientOptions, project string) *cobra.Command
 			ctx := cmd.Context()
 
 			opt := managementv1.ListRolesOptions{
-				ProjectID: core.Ptr(project),
+				ProjectID: project,
 				ListOptions: managementv1.ListOptions{
 					PageSize: core.Ptr(listOpts.limit),
 				},
@@ -85,7 +85,7 @@ func NewRoleListCmd(clientOptions *clientOptions, project string) *cobra.Command
 				opt.Name = core.Ptr(listOpts.name)
 			}
 
-			resp, _, err := MustCreateClient(ctx, clientOptions).RoleV1(project).List(ctx, &opt)
+			resp, _, err := MustCreateClient(ctx, clientOptions).RoleV1(*project).List(ctx, &opt)
 			errors.Check(err)
 
 			switch output {
@@ -129,7 +129,7 @@ func NewRoleListCmd(clientOptions *clientOptions, project string) *cobra.Command
 	return &command
 }
 
-func NewRoleGetCmd(clientOptions *clientOptions, project string) *cobra.Command {
+func NewRoleGetCmd(clientOptions *clientOptions, project *string) *cobra.Command {
 	var output string
 
 	command := cobra.Command{
@@ -145,7 +145,7 @@ func NewRoleGetCmd(clientOptions *clientOptions, project string) *cobra.Command 
 				os.Exit(1)
 			}
 
-			resp, _, err := MustCreateClient(ctx, clientOptions).RoleV1(project).Get(ctx, args[0])
+			resp, _, err := MustCreateClient(ctx, clientOptions).RoleV1(*project).Get(ctx, args[0])
 			errors.Check(err)
 
 			switch output {
@@ -176,7 +176,7 @@ func NewRoleGetCmd(clientOptions *clientOptions, project string) *cobra.Command 
 	return &command
 }
 
-func NewRoleCreateCmd(clientOpts *clientOptions, project string) *cobra.Command {
+func NewRoleCreateCmd(clientOpts *clientOptions, project *string) *cobra.Command {
 	var (
 		output      string
 		description string
@@ -196,7 +196,7 @@ func NewRoleCreateCmd(clientOpts *clientOptions, project string) *cobra.Command 
 				os.Exit(1)
 			}
 
-			err := createRole(cmd.Context(), clientOpts, args[0], project, description, output)
+			err := createRole(cmd.Context(), clientOpts, args[0], *project, description, output)
 			errors.Check(err)
 		},
 	}
@@ -207,7 +207,7 @@ func NewRoleCreateCmd(clientOpts *clientOptions, project string) *cobra.Command 
 	return &command
 }
 
-func NewRoleDeleteCmd(clientOpts *clientOptions, project string) *cobra.Command {
+func NewRoleDeleteCmd(clientOpts *clientOptions, project *string) *cobra.Command {
 	command := cobra.Command{
 		Use:     "delete ROLEID",
 		Short:   "Delete a role by id",
@@ -221,7 +221,7 @@ func NewRoleDeleteCmd(clientOpts *clientOptions, project string) *cobra.Command 
 			}
 
 			ctx := cmd.Context()
-			_, err := MustCreateClient(ctx, clientOpts).RoleV1(project).Delete(ctx, args[0])
+			_, err := MustCreateClient(ctx, clientOpts).RoleV1(*project).Delete(ctx, args[0])
 			errors.Check(err)
 
 			fmt.Printf("Role %s deleted\n", args[0])
@@ -231,7 +231,7 @@ func NewRoleDeleteCmd(clientOpts *clientOptions, project string) *cobra.Command 
 	return &command
 }
 
-func NewRoleUpdateCmd(clientOpts *clientOptions, project string) *cobra.Command {
+func NewRoleUpdateCmd(clientOpts *clientOptions, project *string) *cobra.Command {
 	var (
 		output      string
 		description string
@@ -250,7 +250,7 @@ func NewRoleUpdateCmd(clientOpts *clientOptions, project string) *cobra.Command 
 				os.Exit(1)
 			}
 
-			err := updateRole(cmd.Context(), clientOpts, args[0], project, args[1], description, output)
+			err := updateRole(cmd.Context(), clientOpts, args[0], *project, args[1], description, output)
 			errors.Check(err)
 		},
 	}
@@ -261,7 +261,7 @@ func NewRoleUpdateCmd(clientOpts *clientOptions, project string) *cobra.Command 
 	return &command
 }
 
-func NewRoleAccessCmd(clientOpts *clientOptions, _ string) *cobra.Command {
+func NewRoleAccessCmd(clientOpts *clientOptions, _ *string) *cobra.Command {
 	var (
 		accessOpts accessOpts
 
@@ -328,7 +328,7 @@ func NewRoleAccessCmd(clientOpts *clientOptions, _ string) *cobra.Command {
 	return &command
 }
 
-func NewRoleAssignmentsCmd(clientOpts *clientOptions, _ string) *cobra.Command {
+func NewRoleAssignmentsCmd(clientOpts *clientOptions, _ *string) *cobra.Command {
 	var (
 		assignmentsOpts assignmentsOpts
 
@@ -382,7 +382,7 @@ func NewRoleAssignmentsCmd(clientOpts *clientOptions, _ string) *cobra.Command {
 	return &command
 }
 
-func NewRoleGrantCmd(clientOpts *clientOptions, _ string) *cobra.Command {
+func NewRoleGrantCmd(clientOpts *clientOptions, _ *string) *cobra.Command {
 	var (
 		users []string
 		roles []string

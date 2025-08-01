@@ -44,15 +44,15 @@ func NewWarehouseCmd(clientOpts *clientOptions) *cobra.Command {
 
 	command.PersistentFlags().StringVarP(&project, "project", "p", uuid.Nil.String(), "Select a project")
 
-	command.AddCommand(NewWarehouseListCmd(clientOpts, project))
-	command.AddCommand(NewWarehouseGetCmd(clientOpts, project))
-	command.AddCommand(NewWarehouseCreateCmd(clientOpts, project))
-	command.AddCommand(NewWarehouseDeleteCmd(clientOpts, project))
+	command.AddCommand(NewWarehouseListCmd(clientOpts, &project))
+	command.AddCommand(NewWarehouseGetCmd(clientOpts, &project))
+	command.AddCommand(NewWarehouseCreateCmd(clientOpts, &project))
+	command.AddCommand(NewWarehouseDeleteCmd(clientOpts, &project))
 
 	return &command
 }
 
-func NewWarehouseCreateCmd(clientOpts *clientOptions, project string) *cobra.Command {
+func NewWarehouseCreateCmd(clientOpts *clientOptions, project *string) *cobra.Command {
 	var config string
 
 	command := cobra.Command{
@@ -76,7 +76,7 @@ func NewWarehouseCreateCmd(clientOpts *clientOptions, project string) *cobra.Com
 			if config == "-" {
 				reader = cmd.InOrStdin()
 			} else {
-				file, err := os.Open(args[0])
+				file, err := os.Open(config)
 				errors.Check(err)
 				defer file.Close()
 
@@ -94,15 +94,15 @@ func NewWarehouseCreateCmd(clientOpts *clientOptions, project string) *cobra.Com
 
 			//nolint:staticcheck // project id needs to be remove from the API first
 			if opt.ProjectID == nil {
-				opt.ProjectID = &project //nolint:staticcheck // project id needs to be remove from the API first
+				opt.ProjectID = project //nolint:staticcheck // project id needs to be remove from the API first
 			}
 
 			//nolint:staticcheck // project id needs to be remove from the API first
-			if project != *opt.ProjectID {
+			if *project != *opt.ProjectID {
 				log.Fatal("Project ID provided in config does not match the project ID supplied as argument")
 			}
 
-			resp, _, err := MustCreateClient(ctx, clientOpts).WarehouseV1(project).Create(cmd.Context(), &opt)
+			resp, _, err := MustCreateClient(ctx, clientOpts).WarehouseV1(*project).Create(cmd.Context(), &opt)
 			errors.Check(err)
 
 			fmt.Printf("Warehouse %s created with id %s\n", opt.Name, resp.ID)
@@ -114,7 +114,7 @@ func NewWarehouseCreateCmd(clientOpts *clientOptions, project string) *cobra.Com
 	return &command
 }
 
-func NewWarehouseListCmd(clientOpts *clientOptions, project string) *cobra.Command {
+func NewWarehouseListCmd(clientOpts *clientOptions, project *string) *cobra.Command {
 	var (
 		status []string
 
@@ -134,7 +134,7 @@ func NewWarehouseListCmd(clientOpts *clientOptions, project string) *cobra.Comma
 			ctx := cmd.Context()
 
 			opt := managementv1.ListWarehouseOptions{
-				ProjectID:       core.Ptr(project),
+				ProjectID:       project,
 				WarehouseStatus: []managementv1.WarehouseStatus{},
 			}
 
@@ -144,7 +144,7 @@ func NewWarehouseListCmd(clientOpts *clientOptions, project string) *cobra.Comma
 				}
 			}
 
-			resp, _, err := MustCreateClient(ctx, clientOpts).WarehouseV1(project).List(ctx, &opt)
+			resp, _, err := MustCreateClient(ctx, clientOpts).WarehouseV1(*project).List(ctx, &opt)
 			errors.Check(err)
 
 			switch output {
@@ -165,7 +165,7 @@ func NewWarehouseListCmd(clientOpts *clientOptions, project string) *cobra.Comma
 	return &command
 }
 
-func NewWarehouseGetCmd(clientOpts *clientOptions, project string) *cobra.Command {
+func NewWarehouseGetCmd(clientOpts *clientOptions, project *string) *cobra.Command {
 	var output string
 
 	command := cobra.Command{
@@ -181,7 +181,7 @@ func NewWarehouseGetCmd(clientOpts *clientOptions, project string) *cobra.Comman
 				os.Exit(1)
 			}
 
-			resp, _, err := MustCreateClient(ctx, clientOpts).WarehouseV1(project).Get(ctx, args[0])
+			resp, _, err := MustCreateClient(ctx, clientOpts).WarehouseV1(*project).Get(ctx, args[0])
 			errors.Check(err)
 
 			switch output {
@@ -203,7 +203,7 @@ func NewWarehouseGetCmd(clientOpts *clientOptions, project string) *cobra.Comman
 	return &command
 }
 
-func NewWarehouseDeleteCmd(clientOpts *clientOptions, project string) *cobra.Command {
+func NewWarehouseDeleteCmd(clientOpts *clientOptions, project *string) *cobra.Command {
 	var force bool
 
 	command := cobra.Command{
@@ -226,7 +226,7 @@ func NewWarehouseDeleteCmd(clientOpts *clientOptions, project string) *cobra.Com
 				Force: core.Ptr(force),
 			}
 
-			_, err := MustCreateClient(ctx, clientOpts).WarehouseV1(project).Delete(ctx, args[0], &opt)
+			_, err := MustCreateClient(ctx, clientOpts).WarehouseV1(*project).Delete(ctx, args[0], &opt)
 			errors.Check(err)
 
 			fmt.Printf("Warehouse %s deleted\n", args[0])
