@@ -22,6 +22,7 @@ import (
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestProjectService_Get(t *testing.T) {
@@ -35,7 +36,7 @@ func TestProjectService_Get(t *testing.T) {
 	})
 
 	project, resp, err := client.ProjectV1().Get(t.Context(), "01f2fdfc-81fc-444d-8368-5b6701566e35")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &managementv1.Project{
@@ -57,7 +58,7 @@ func TestProjectService_GetDefault(t *testing.T) {
 	})
 
 	project, resp, err := client.ProjectV1().GetDefault(t.Context())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &managementv1.Project{
@@ -78,7 +79,7 @@ func TestProjectService_List(t *testing.T) {
 	})
 
 	project, resp, err := client.ProjectV1().List(t.Context())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &managementv1.ListProjectsResponse{
@@ -105,7 +106,7 @@ func TestProjectService_RenameDefault(t *testing.T) {
 		NewName: "project-renamed",
 	}
 
-	mux.HandleFunc("/management/v1/default-project/rename", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/management/v1/default-project/rename", func(_ http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		if !testutil.TestBodyJSON(t, r, opts) {
 			t.Fatalf("wrong json body")
@@ -113,7 +114,7 @@ func TestProjectService_RenameDefault(t *testing.T) {
 	})
 
 	resp, err := client.ProjectV1().RenameDefault(t.Context(), opts)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
@@ -127,7 +128,7 @@ func TestProjectService_Rename(t *testing.T) {
 		NewName: "project-renamed",
 	}
 
-	mux.HandleFunc("/management/v1/project/rename", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/management/v1/project/rename", func(_ http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodPost)
 		testutil.TestHeader(t, r, "x-project-id", "01f2fdfc-81fc-444d-8368-5b6701566e35")
 		if !testutil.TestBodyJSON(t, r, opts) {
@@ -136,7 +137,7 @@ func TestProjectService_Rename(t *testing.T) {
 	})
 
 	resp, err := client.ProjectV1().Rename(t.Context(), "01f2fdfc-81fc-444d-8368-5b6701566e35", opts)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
@@ -152,7 +153,7 @@ func TestProjectService_Delete(t *testing.T) {
 	})
 
 	resp, err := client.ProjectV1().Delete(t.Context(), "01f2fdfc-81fc-444d-8368-5b6701566e35")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 }
 
@@ -167,7 +168,7 @@ func TestProjectService_DeleteDefault(t *testing.T) {
 	})
 
 	resp, err := client.ProjectV1().DeleteDefault(t.Context())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 }
 
@@ -188,7 +189,7 @@ func TestProjectService_Create(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/create_project.json")
 	})
 	project, resp, err := client.ProjectV1().Create(t.Context(), &opts)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &managementv1.CreateProjectResponse{
@@ -221,7 +222,7 @@ func TestProjectService_GetAPIStatistics(t *testing.T) {
 		testutil.MustWriteHTTPResponse(t, w, "testdata/project_get_api_statistics.json")
 	})
 	project, resp, err := client.ProjectV1().GetAPIStatistics(t.Context(), "01f2fdfc-81fc-444d-8368-5b6701566e35", &opts)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &managementv1.GetAPIStatisticsResponse{

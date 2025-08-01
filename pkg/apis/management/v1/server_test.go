@@ -21,6 +21,7 @@ import (
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestServerService_Info(t *testing.T) {
@@ -33,7 +34,7 @@ func TestServerService_Info(t *testing.T) {
 	})
 
 	info, resp, err := client.ServerV1().Info(t.Context())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	want := &managementv1.ServerInfo{
@@ -66,7 +67,7 @@ func TestServerService_Bootstrap(t *testing.T) {
 	})
 
 	r, err := client.ServerV1().Bootstrap(t.Context(), opts)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 }

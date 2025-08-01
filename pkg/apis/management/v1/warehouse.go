@@ -191,7 +191,7 @@ type (
 		Force *bool `url:"force,omitempty"`
 	}
 
-	// SetProtectionResponse represent the reponse sent by SetProtection()
+	// SetProtectionResponse represent the response sent by SetProtection()
 	//
 	// Lakekeeper API docs:
 	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/set_warehouse_protection

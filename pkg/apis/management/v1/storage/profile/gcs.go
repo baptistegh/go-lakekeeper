@@ -57,18 +57,18 @@ func WithGCSKeyPrefix(prefix string) GCSStorageSettingsOptions {
 	}
 }
 
-func (s *GCSStorageSettings) AsProfile() StorageProfile {
-	return StorageProfile{s}
+func (sp *GCSStorageSettings) AsProfile() StorageProfile {
+	return StorageProfile{sp}
 }
 
-func (s GCSStorageSettings) MarshalJSON() ([]byte, error) {
+func (sp GCSStorageSettings) MarshalJSON() ([]byte, error) {
 	type Alias GCSStorageSettings
 	aux := struct {
 		Type string `json:"type"`
 		Alias
 	}{
 		Type:  string(StorageFamilyGCS),
-		Alias: Alias(s),
+		Alias: Alias(sp),
 	}
 	return json.Marshal(aux)
 }

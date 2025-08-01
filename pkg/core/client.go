@@ -23,5 +23,5 @@ import (
 
 type Client interface {
 	NewRequest(ctx context.Context, method, path string, opt any, options []RequestOptionFunc) (*retryablehttp.Request, error)
-	Do(req *retryablehttp.Request, v any) (*http.Response, *ApiError)
+	Do(req *retryablehttp.Request, v any) (*http.Response, *APIError)
 }

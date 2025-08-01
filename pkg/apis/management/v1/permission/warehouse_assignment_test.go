@@ -17,6 +17,8 @@ package permission
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestWarehouseAssignment_MarshalJSON(t *testing.T) {
@@ -91,6 +93,36 @@ func TestWarehouseAssignment_MarshalJSON(t *testing.T) {
 			t.Fatalf("exepcted %s got %s", v, string(b))
 		}
 	}
+}
+
+func TestWarehouseAssignment_Getters(t *testing.T) {
+	t.Run("user assignee", func(t *testing.T) {
+		wa := WarehouseAssignment{
+			Assignee: UserOrRole{
+				Type:  UserType,
+				Value: "user-id-123",
+			},
+			Assignment: OwnershipWarehouseAssignment,
+		}
+
+		assert.Equal(t, "ownership", wa.GetAssignment())
+		assert.Equal(t, "user-id-123", wa.GetPrincipalID())
+		assert.Equal(t, UserType, wa.GetPrincipalType())
+	})
+
+	t.Run("role assignee", func(t *testing.T) {
+		wa := WarehouseAssignment{
+			Assignee: UserOrRole{
+				Type:  RoleType,
+				Value: "role-id-456",
+			},
+			Assignment: SelectWarehouseAssignment,
+		}
+
+		assert.Equal(t, "select", wa.GetAssignment())
+		assert.Equal(t, "role-id-456", wa.GetPrincipalID())
+		assert.Equal(t, RoleType, wa.GetPrincipalType())
+	})
 }
 
 func TestWarehouseAssignment_UnmarshalJSON(t *testing.T) {

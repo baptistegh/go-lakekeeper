@@ -1,4 +1,4 @@
-// Copyright © 2025 Baptiste Gouhoury <baptiste.gouhoury@scalend.fr>
+// Copyright 2025 Baptiste Gouhoury <baptiste.gouhoury@scalend.fr>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package commands
 
-import "github.com/baptistegh/go-lakekeeper/cmd"
+import (
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+)
 
-func main() {
-	cmd.Execute()
+func NewCatalogCmd(_ *clientOptions) *cobra.Command {
+	command := cobra.Command{
+		Use:   "catalog",
+		Short: "Interacts with catalogs (not implemented)",
+		Run: func(_ *cobra.Command, _ []string) {
+			logrus.Fatal("catalog command is not implemented")
+		},
+	}
+
+	return &command
 }

@@ -16,6 +16,7 @@ package v1
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
@@ -363,4 +364,8 @@ func (s *ProjectService) GetAPIStatistics(ctx context.Context, id string, opt *G
 	}
 
 	return &resp, r, nil
+}
+
+func (p *Project) String() string {
+	return fmt.Sprintf("Project{ID: %s, Name: %s}", p.ID, p.Name)
 }

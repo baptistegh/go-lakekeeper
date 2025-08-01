@@ -37,7 +37,7 @@ func TestNewClient(t *testing.T) {
 			t.Fatalf("Failed to create client: %v", err)
 		}
 
-		expectedBaseURL := "http://localhost:8080" + managementv1.ApiManagementVersionPath
+		expectedBaseURL := "http://localhost:8080" + managementv1.APIManagementVersionPath
 
 		if c.BaseURL().String() != expectedBaseURL {
 			t.Errorf("NewClient BaseURL is %s, want %s", c.BaseURL().String(), expectedBaseURL)
@@ -54,7 +54,7 @@ func TestNewClient(t *testing.T) {
 			t.Fatalf("Failed to create client: %v", err)
 		}
 
-		expectedBaseURL := "http://localhost:8080" + managementv1.ApiManagementVersionPath
+		expectedBaseURL := "http://localhost:8080" + managementv1.APIManagementVersionPath
 
 		if c.BaseURL().String() != expectedBaseURL {
 			t.Errorf("NewClient BaseURL is %s, want %s", c.BaseURL().String(), expectedBaseURL)
@@ -174,7 +174,7 @@ func TestRequestWithContext(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	req, err := c.NewRequest(t.Context(), http.MethodGet, "test", nil, []core.RequestOptionFunc{core.WithContext(ctx)}) //nolint:staticcheck
+	req, err := c.NewRequest(t.Context(), http.MethodGet, "test", nil, []core.RequestOptionFunc{core.WithContext(ctx)}) //nolint:staticcheck // we let the unit test use the deprecated method for coverage
 	if err != nil {
 		t.Fatalf("Failed to create request: %v", err)
 	}

@@ -1,0 +1,47 @@
+# Copyright 2025 Baptiste Gouhoury <baptiste.gouhoury@scalend.fr>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+nav:
+- Overview: index.md
+- Developer Guide: go-pkg/index.md
+- Command Line Interface:
+  - Get Started:
+    - Installation: cli/get-started/installation.md
+    - Authentication: cli/get-started/authentication.md
+    - Bootstrap: cli/get-started/bootstrap.md
+  - Command Reference: cli/commands/lkctl.md
+- Releases ⧉: https://github.com/baptistegh/go-lakekeeper/releases
+repo_url: https://github.com/baptistegh/go-lakekeeper
+site_name: go-lakekeeper
+# site_url: !ENV READTHEDOCS_CANONICAL_URL
+strict: true
+theme:
+  favicon: assets/bear.svg
+  font:
+    text: Work Sans
+  logo: assets/bear.svg
+  name: material
+  palette:
+  - media: '(prefers-color-scheme: light)'
+    primary: indigo
+    scheme: default
+    toggle:
+      icon: material/brightness-7
+      name: Switch to dark mode
+  - media: '(prefers-color-scheme: dark)'
+    primary: indigo
+    scheme: slate
+    toggle:
+      icon: material/brightness-4
+      name: Switch to light mode

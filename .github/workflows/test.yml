@@ -106,9 +106,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
+      
+      - name: Set environment variables for ldflags
+        id: set_ldflag
+        run: |
+          echo "GIT_TREE_STATE=$(if [ -z "`git status --porcelain`" ]; then echo "clean" ; else echo "dirty"; fi)" >> $GITHUB_ENV
+
       - uses: goreleaser/goreleaser-action@v6
         with:
           version: latest
           args: release --clean --snapshot --skip sign
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_TREE_STATE: ${{ env.GIT_TREE_STATE }}

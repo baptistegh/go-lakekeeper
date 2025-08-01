@@ -24,6 +24,7 @@ import (
 
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestProject_Create(t *testing.T) {
@@ -33,7 +34,7 @@ func TestProject_Create(t *testing.T) {
 		Name: "test-project",
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusCreated, r.StatusCode)
 	assert.NotEmpty(t, resp.ID)
@@ -54,7 +55,7 @@ func TestProject_Rename(t *testing.T) {
 		Name: "test-project-2",
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.NotNil(t, resp)
 	assert.Equal(t, http.StatusCreated, r.StatusCode)
@@ -72,12 +73,12 @@ func TestProject_Rename(t *testing.T) {
 		NewName: "test-project-renamed",
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
 	project, r, err := client.ProjectV1().Get(t.Context(), resp.ID)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 	assert.Equal(t, "test-project-renamed", project.Name)
 }
@@ -99,12 +100,12 @@ func TestProject_RenameDefault(t *testing.T) {
 		NewName: "test-project-renamed",
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
 	project, r, err := client.ProjectV1().GetDefault(t.Context())
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 	assert.Equal(t, "test-project-renamed", project.Name)
 }
@@ -114,7 +115,7 @@ func TestProject_Default(t *testing.T) {
 
 	project, r, err := client.ProjectV1().GetDefault(t.Context())
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -129,21 +130,21 @@ func TestProject_Delete(t *testing.T) {
 		Name: "test-project-3",
 	})
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusCreated, r.StatusCode)
 	assert.NotEmpty(t, project.ID)
 
 	r, err = client.ProjectV1().Delete(t.Context(), project.ID)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
 
 	p, r, err := client.ProjectV1().Get(t.Context(), project.ID)
 
 	// Lakekeeper API sends 403 when trying to read a non existent object
-	assert.ErrorContains(t, err, "Forbidden")
+	require.ErrorContains(t, err, "Forbidden")
 	assert.NotNil(t, r)
 	assert.Nil(t, p)
 }
@@ -162,7 +163,7 @@ func TestProject_List(t *testing.T) {
 		},
 	}
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
@@ -186,7 +187,7 @@ func TestProject_List(t *testing.T) {
 // 		},
 // 	})
 //
-// 	assert.NoError(t, err)
+// 	require.NoError(t, err)
 // 	assert.NotNil(t, r)
 // 	assert.Equal(t, http.StatusOK, r.StatusCode)
 //

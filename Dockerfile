@@ -32,7 +32,7 @@ COPY . .
 # print platform for debug
 RUN echo "Building for $GOOS/$GOARCH"
 
-RUN go build -o lkctl main.go
+RUN go build -o lkctl ./cmd
 
 FROM docker.io/bitnami/minideb:bookworm
 

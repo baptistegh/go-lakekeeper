@@ -79,13 +79,13 @@ You can also set these variables in a `.env` file.
 A flag is available to bootstrap the server before executing other commands. **The current user will have the operator role**
 
 ```sh
-lkctl info --bootstrap
+lkctl project ls --bootstrap
 ```
 
 If you rather want to bootstrap the server with the appropriate command
 
 ```sh
-lkctl bootstrap --accept-terms-of-use --as-operator
+lkctl server bootstrap --accept-terms-of-use --as-operator
 ```
 
 ### Some Examples
@@ -100,13 +100,13 @@ lkctl role add --project $PROJECT_ID new-role --description "This is a new role"
 Assign a role to a user
 
 ```sh
-lkctl role assignments add $ROLE_ID --user $USER_ID --assignment assignee
+lkctl role assign $ROLE_ID --user $USER_ID --assignment assignee
 ```
 
 Delete a project
 
 ```sh
-lkctl delete project -p $PROJECT_ID
+lkctl project rm $PROJECT_ID
 ```
 
 ## Go Package Usage

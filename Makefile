@@ -67,8 +67,12 @@ GOHOST := GOOS=$(GOHOSTOS) GOARCH=$(GOHOSTARCH) $(GO)
 GO_VERSION := $(shell $(GO) version | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9][^.]\).*/\1/p')
 GO_FULL_VERSION := $(shell $(GO) version)
 
+BUILD_DATE := $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+GIT_FULL_COMMIT := $(shell git rev-parse HEAD)
+GIT_TREE_STATE := $(shell if [ -z "`git status --porcelain`" ]; then echo "clean" ; else echo "dirty"; fi)
+
 GO_BUILDFLAGS=$(BUILDFLAGS)
-GO_LDFLAGS=$(LDFLAGS)
+GO_LDFLAGS=-X github.com/baptistegh/go-lakekeeper/pkg/version.buildDate=$(NOW) -X github.com/baptistegh/go-lakekeeper/pkg/version.gitCommit=$(FULL_COMMIT) -X github.com/baptistegh/go-lakekeeper/pkg/version.gitTreeState=$(GIT_TREE_STATE) $(LDFLAGS)
 GO_TAGS=$(TAGS)
 
 GO_COMMON_FLAGS = $(GO_BUILDFLAGS) -tags '$(GO_TAGS)' -ldflags '$(GO_LDFLAGS)'
@@ -79,6 +83,7 @@ BIN_DIR := $(SELF_DIR)/bin
 DIST_DIR := $(SELF_DIR)/dist
 
 CONTAINER_COMPOSE_ENGINE ?= $(shell docker compose version >/dev/null 2>&1 && echo 'docker compose' || echo 'docker-compose')
+DOCKER ?= docker
 
 ENV_FILE := $(SELF_DIR)/.env
 
@@ -88,15 +93,15 @@ $(BIN_DIR):
 
 YQ_VERSION := v4.45.1
 YQ := $(BIN_DIR)/yq-$(YQ_VERSION)
-$(YQ): $(BIN_DIR)
+$(YQ): | $(BIN_DIR)
 	@echo === installing yq $(YQ_VERSION) $(REAL_HOST_PLATFORM)
 	@curl -s -JL https://github.com/mikefarah/yq/releases/download/$(YQ_VERSION)/yq_$(REAL_HOST_PLATFORM) -o $(YQ)
 	@chmod +x $(YQ)
 	@echo Installed yq version $(YQ_VERSION) in $(YQ)
 
-GOLANGCI_LINT_VERSION ?= $(strip $(shell $(YQ) .jobs.lint.steps[2].with.version .github/workflows/test.yml))
-GOLANGCI_LINT ?= $(BIN_DIR)/golangci-lint
-$(GOLANGCI_LINT): $(BIN_DIR)
+GOLANGCI_LINT_VERSION := $(strip $(shell $(YQ) .jobs.lint.steps[2].with.version .github/workflows/test.yml))
+GOLANGCI_LINT := $(BIN_DIR)/golangci-lint
+$(GOLANGCI_LINT): | $(BIN_DIR)
 	@echo === installing golangci-lint
 	@mkdir -p $(BIN_DIR)/tmp
 	@curl -sL https://github.com/golangci/golangci-lint/releases/download/$(GOLANGCI_LINT_VERSION)/golangci-lint-$(patsubst v%,%,$(GOLANGCI_LINT_VERSION))-$(shell go env GOHOSTOS)-$(GOHOSTARCH).tar.gz | tar -xz -C $(BIN_DIR)/tmp
@@ -104,21 +109,21 @@ $(GOLANGCI_LINT): $(BIN_DIR)
 	@rm -fr $(BIN_DIR)/tmp
 
 ADD_LICENSE := $(BIN_DIR)/addlicense
-$(ADD_LICENSE): $(BIN_DIR)
+$(ADD_LICENSE): | $(BIN_DIR)
 	@echo === installing addlicense
 	@GOBIN=$(BIN_DIR) $(GO) install github.com/google/addlicense@latest
 
 .PHONY: build
 build: build.common
-	@echo === go build $(DIST_DIR)/lkctl
-	@CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GO) build -a $(GO_COMMON_FLAGS) -o $(DIST_DIR)/lkctl main.go
+	@echo === go build dist/lkctl
+	@CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GO) build -a $(GO_COMMON_FLAGS) -o $(DIST_DIR)/lkctl ./cmd
 
 .PHONY: build.common
-build.common: $(YQ)
+build.common: $(YQ) mod license fmt vet test
+
+.PHONY: mod
+mod: 
 	@$(GOHOST) mod tidy
-	@$(MAKE) fmt
-	@$(MAKE) validate
-	@$(MAKE) test
 
 .PHONY: test
 test: ## Runs unit tests.
@@ -130,6 +135,16 @@ LAKEKEEPER_VERSION ?= latest-main
 test-integration: $(ENV_FILE) ## Runs integration tests.
 	@echo === ./run-tests.sh
 	CONTAINER_COMPOSE_ENGINE="$(CONTAINER_COMPOSE_ENGINE)" LAKEKEEPER_VERSION="$(LAKEKEEPER_VERSION)" ./run-tests.sh
+
+GORELEASER := $(BIN_DIR)/goreleaser
+$(GORELEASER): | $(BIN_DIR)
+	@echo === installing goreleaser
+	@GOBIN=$(BIN_DIR) $(GO) install github.com/goreleaser/goreleaser/v2@latest
+
+.PHONY: snapshot
+snapshot: $(GORELEASER)
+	@echo === goreleaser snapshot
+	@GIT_TREE_STATE=$(GIT_TREE_STATE) $(GORELEASER) --clean --snapshot --skip sign
 
 $(ENV_FILE):
 	@echo === creating integration tests environments
@@ -145,13 +160,13 @@ vet:
 	@CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GOHOST) vet $(GO_COMMON_FLAGS) ./...
 
 .PHONY: fmt
-fmt: license $(GOLANGCI_LINT)
-	@echo === go fmt fix
+fmt: $(GOLANGCI_LINT)
+	@echo === golangci-lint fix
 	@$(GOLANGCI_LINT) run --fix ./...
 
 .PHONY: lint
 lint: $(GOLANGCI_LINT)
-	@echo === go fmt
+	@echo === golangci-lint
 	@$(GOLANGCI_LINT) run ./...
 
 .PHONY: validate
@@ -167,6 +182,22 @@ license: $(ADD_LICENSE)
 license-check: $(ADD_LICENSE)
 	@echo === addlicense-check
 	@$(ADD_LICENSE) -check -l apache -c "$(COPYRIGHT)" .
+
+MKDOCS_DOCKER_IMAGE?=python:3.12-alpine
+MKDOCS_RUN_ARGS?=
+
+.PHONY: clidocsgen
+clidocsgen:
+	@echo === generate cli docs
+	@$(GO) run ./tools/cmd-docs
+
+.PHONY: build-docs
+build-docs:
+	$(DOCKER) run ${MKDOCS_RUN_ARGS} --rm -it -v ${SELF_DIR}:/docs -w /docs --entrypoint "" ${MKDOCS_DOCKER_IMAGE} sh -c 'pip install mkdocs; pip install $$(mkdocs get-deps); mkdocs build'
+
+.PHONY: serve-docs
+serve-docs:
+	$(DOCKER) run ${MKDOCS_RUN_ARGS} --rm -it -p 8000:8000 -v ${SELF_DIR}:/docs -w /docs --entrypoint "" ${MKDOCS_DOCKER_IMAGE} sh -c 'pip install mkdocs; pip install $$(mkdocs get-deps); mkdocs serve -a $$(ip route get 1 | awk '\''{print $$7}'\''):8000'
 
 .PHONY: clean
 clean:
