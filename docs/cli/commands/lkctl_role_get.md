@@ -11,7 +11,6 @@ lkctl role get [flags]
 ```
   # Get a role by id
   lkctl role get 01986184-3cb1-7526-a98c-72fecfe97731
-
 ```
 
 ### Options

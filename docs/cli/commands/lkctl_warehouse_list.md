@@ -1,38 +1,27 @@
-## lkctl project access
+## lkctl warehouse list
 
-Get project access
-
-### Synopsis
-
-Get project access. By default, current user's access is returned
+List warehouses
 
 ```
-lkctl project access PROJECT-ID [flags]
+lkctl warehouse list [flags]
 ```
 
 ### Examples
 
 ```
-  # Get default project access
-  lkctl project access
-
-  # Get specific project access
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731
-
-  # Get project access for a specific user
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731 --user oidc~0198618c-5be8-7a82-a0b9-1076c9dd12f0
-
-  # Get project access for a specific role
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731 --role oidc~0198618c-5be8-7a82-a0b9-1076c9dd12f0
+  # List warehouses
+  lkctl warehouse ls
+  
+  # Filter by inactive status
+  lkctl warehouse ls --status inactive
 ```
 
 ### Options
 
 ```
-  -h, --help            help for access
-  -o, --output string   Output format. One of: json|text (default "text")
-      --role string     Filter by role
-      --user string     Filter by user
+  -h, --help             help for list
+  -o, --output string    Output format. One of: json|text|wide (default "text")
+      --status strings   Filter by status. Can be repeated multiple times to filter by multiple statuses. One of: active|inactice
 ```
 
 ### Options inherited from parent commands
@@ -43,11 +32,12 @@ lkctl project access PROJECT-ID [flags]
       --client-id string       OAuth2 client_id; set this or LAKEKEEPER_CLIENT_ID environment variable (default "lakekeeper-admin")
       --client-secret string   OAuth2 client_secret; set this or LAKEKEEPER_CLIENT_SECRET environment variable (default "KNjaj1saNq5yRidVEMdf1vI09Hm0pQaL")
       --debug                  Enable debug mode
+  -p, --project string         Select a project (default "00000000-0000-0000-0000-000000000000")
       --scopes strings         OAuth2 scopes; set this or LAKEKEEPER_SCOPE environment variable (default [lakekeeper])
       --server string          Lakekeeper base URL; set this or LAKEKEEPER_SERVER environment variable (default "http://localhost:8181")
 ```
 
 ### SEE ALSO
 
-* [lkctl project](lkctl_project.md)	 - Manage projects
+* [lkctl warehouse](lkctl_warehouse.md)	 - Manage warehouses
 

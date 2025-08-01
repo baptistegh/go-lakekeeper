@@ -14,7 +14,6 @@ lkctl role create ROLENAME [flags]
 
   # Create a new role with a description
   lkctl role create "New Role" --description "With a description"
-
 ```
 
 ### Options

@@ -11,7 +11,6 @@ lkctl role delete ROLEID [flags]
 ```
   # Delete role
   lkctl role rm 01986184-3cb1-7526-a98c-72fecfe97731
-
 ```
 
 ### Options

@@ -17,7 +17,6 @@ lkctl role assignments ROLEID [flags]
 
   # Filter by multiple assignment types
   lkctl role assignments 01986184-3cb1-7526-a98c-72fecfe97731 --relations ownership --relations assignee
-
 ```
 
 ### Options

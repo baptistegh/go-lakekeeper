@@ -27,5 +27,6 @@ lkctl [flags]
 * [lkctl server](lkctl_server.md)	 - Manage server
 * [lkctl user](lkctl_user.md)	 - Manage users
 * [lkctl version](lkctl_version.md)	 - Print version information
+* [lkctl warehouse](lkctl_warehouse.md)	 - Manage warehouses
 * [lkctl whoami](lkctl_whoami.md)	 - Print the current user
 

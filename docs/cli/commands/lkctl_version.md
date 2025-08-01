@@ -20,7 +20,6 @@ lkctl version [flags]
 
   # Print only client and server core version strings in YAML format
   lkctl version --short
-
 ```
 
 ### Options

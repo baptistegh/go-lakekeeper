@@ -1,38 +1,31 @@
-## lkctl project access
+## lkctl user create
 
-Get project access
-
-### Synopsis
-
-Get project access. By default, current user's access is returned
+Create a new user
 
 ```
-lkctl project access PROJECT-ID [flags]
+lkctl user create USERID NAME USERTYPE [flags]
 ```
 
 ### Examples
 
 ```
-  # Get default project access
-  lkctl project access
+  # Create a new human user authenticated from OIDC
+  lkctl user create oidc~d223d88c-85b6-4859-b5c5-27f3825e47f6 "Peter Cold" human
+  
+  # Create an application user from kubernetes
+  lkctl user create kubernetes~d223d88c-85b6-4859-b5c5-27f3825e47f6 "Service Account" application
 
-  # Get specific project access
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731
-
-  # Get project access for a specific user
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731 --user oidc~0198618c-5be8-7a82-a0b9-1076c9dd12f0
-
-  # Get project access for a specific role
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731 --role oidc~0198618c-5be8-7a82-a0b9-1076c9dd12f0
+  # Create a user with an email
+  lkctl user create oidc~d223d88c-85b6-4859-b5c5-27f3825e47f6 "Peter Cold" human --email peter.cold@example.com
 ```
 
 ### Options
 
 ```
-  -h, --help            help for access
+      --email string    Add an email to the user
+  -h, --help            help for create
   -o, --output string   Output format. One of: json|text (default "text")
-      --role string     Filter by role
-      --user string     Filter by user
+      --update          Update the user if exists
 ```
 
 ### Options inherited from parent commands
@@ -49,5 +42,5 @@ lkctl project access PROJECT-ID [flags]
 
 ### SEE ALSO
 
-* [lkctl project](lkctl_project.md)	 - Manage projects
+* [lkctl user](lkctl_user.md)	 - Manage users
 

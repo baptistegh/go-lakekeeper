@@ -11,7 +11,6 @@ lkctl project rename PROJECT-ID NEW-NAME [flags]
 ```
   # Rename a project
   lkctl project rename 01986184-3cb1-7526-a98c-72fecfe97731 "New Project Name"
-
 ```
 
 ### Options

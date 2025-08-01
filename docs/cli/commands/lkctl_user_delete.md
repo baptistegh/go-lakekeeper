@@ -1,38 +1,22 @@
-## lkctl project access
+## lkctl user delete
 
-Get project access
-
-### Synopsis
-
-Get project access. By default, current user's access is returned
+Delete a user by id
 
 ```
-lkctl project access PROJECT-ID [flags]
+lkctl user delete USERID [flags]
 ```
 
 ### Examples
 
 ```
-  # Get default project access
-  lkctl project access
-
-  # Get specific project access
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731
-
-  # Get project access for a specific user
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731 --user oidc~0198618c-5be8-7a82-a0b9-1076c9dd12f0
-
-  # Get project access for a specific role
-  lkctl project access 01986184-3cb1-7526-a98c-72fecfe97731 --role oidc~0198618c-5be8-7a82-a0b9-1076c9dd12f0
+  # Delete a user
+  lkctl user delete oidc~d223d88c-85b6-4859-b5c5-27f3825e47f6
 ```
 
 ### Options
 
 ```
-  -h, --help            help for access
-  -o, --output string   Output format. One of: json|text (default "text")
-      --role string     Filter by role
-      --user string     Filter by user
+  -h, --help   help for delete
 ```
 
 ### Options inherited from parent commands
@@ -49,5 +33,5 @@ lkctl project access PROJECT-ID [flags]
 
 ### SEE ALSO
 
-* [lkctl project](lkctl_project.md)	 - Manage projects
+* [lkctl user](lkctl_user.md)	 - Manage users
 

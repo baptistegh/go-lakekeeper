@@ -14,7 +14,6 @@ lkctl role update ROLEID ROLENAME [flags]
 
   # Update role and delete its description
   lkctl role update 01986184-3cb1-7526-a98c-72fecfe97731 "Updated Name"
-
 ```
 
 ### Options
