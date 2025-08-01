@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.0.15](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.14...v0.0.15) (2025-08-01)
+
+
+### Features
+
+* **cli:** add role assignments add command ([#118](https://github.com/baptistegh/go-lakekeeper/issues/118)) ([ad35389](https://github.com/baptistegh/go-lakekeeper/commit/ad353898461062c947bf30d534fd260169390959))
+* **cli:** add server permissions-related commands ([#126](https://github.com/baptistegh/go-lakekeeper/issues/126)) ([dc5adc0](https://github.com/baptistegh/go-lakekeeper/commit/dc5adc03cd374da3571df655175119ce965545d8))
+* **cli:** introduction of tab writer ([#124](https://github.com/baptistegh/go-lakekeeper/issues/124)) ([c1eb5ac](https://github.com/baptistegh/go-lakekeeper/commit/c1eb5ac66fd4c9411b59a478c577834d61346322))
+* **cli:** rename project asssignments update command to add ([#119](https://github.com/baptistegh/go-lakekeeper/issues/119)) ([91c8d22](https://github.com/baptistegh/go-lakekeeper/commit/91c8d22f11e208281503f9b339e66c329af03566))
+* **cli:** warehouse commands add/delete/list ([#121](https://github.com/baptistegh/go-lakekeeper/issues/121)) ([73c5879](https://github.com/baptistegh/go-lakekeeper/commit/73c5879d57c5ae1e265716ef32ab1ef8215d968c))
+
+
+### Bug Fixes
+
+* **cli:** no authentication on version command ([#113](https://github.com/baptistegh/go-lakekeeper/issues/113)) ([d5687de](https://github.com/baptistegh/go-lakekeeper/commit/d5687de8f48a6bd2941b1ce93a51c0700aaf9fee))
+
+
+### Documentation
+
+* generate CLI documentation ([#127](https://github.com/baptistegh/go-lakekeeper/issues/127)) ([0610765](https://github.com/baptistegh/go-lakekeeper/commit/0610765ea2b227c4e55b37bda97987c19c47a4b0))
+
+
+### Miscellaneous Chores
+
+* **ci:** Add PR title checker ([#123](https://github.com/baptistegh/go-lakekeeper/issues/123)) ([8ca0ca9](https://github.com/baptistegh/go-lakekeeper/commit/8ca0ca9636f6cec60bdd7df11d46ca5ab343b0ae))
+* **ci:** fix lint CLI add warehouse command ([#122](https://github.com/baptistegh/go-lakekeeper/issues/122)) ([91b7cb9](https://github.com/baptistegh/go-lakekeeper/commit/91b7cb9bf8b54824e372352f17f1d0de053ce0d0))
+* **ci:** rename published binaries ([#117](https://github.com/baptistegh/go-lakekeeper/issues/117)) ([a1e5f52](https://github.com/baptistegh/go-lakekeeper/commit/a1e5f52c18dfbcf9546b6145d22db5efce73b560))
+* **ci:** set docs label on docs/** change ([#125](https://github.com/baptistegh/go-lakekeeper/issues/125)) ([b06c2a1](https://github.com/baptistegh/go-lakekeeper/commit/b06c2a1180fd29cd80368885d224e4d9113bd78a))
+* **docs:** add a table of contents in README.me ([#116](https://github.com/baptistegh/go-lakekeeper/issues/116)) ([486f4c9](https://github.com/baptistegh/go-lakekeeper/commit/486f4c994e24886554a806c030948d7bda908820))
+* **docs:** add CLI examples ([#120](https://github.com/baptistegh/go-lakekeeper/issues/120)) ([ed6d451](https://github.com/baptistegh/go-lakekeeper/commit/ed6d45163fb99d167afb552829090e61b5ab405d))
+* **docs:** add CLI usage in README.md ([#114](https://github.com/baptistegh/go-lakekeeper/issues/114)) ([6844b14](https://github.com/baptistegh/go-lakekeeper/commit/6844b14cfd06a3c231dcffc24ba81d85dacfde61))
+* **docs:** replace nightly badge in README.md ([#112](https://github.com/baptistegh/go-lakekeeper/issues/112)) ([5aed91f](https://github.com/baptistegh/go-lakekeeper/commit/5aed91f451c82acdebb56cff6b6285f2d44cade9))
+
 ## [0.0.14](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.13...v0.0.14) (2025-07-30)
 
 
