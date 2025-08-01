@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.16](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.15...v0.0.16) (2025-08-01)
+
+
+### Bug Fixes
+
+* **cli:** project was not used in role/warehouse commands ([#128](https://github.com/baptistegh/go-lakekeeper/issues/128)) ([6251582](https://github.com/baptistegh/go-lakekeeper/commit/6251582c18402f455aa71ab2f1b31981f1867251))
+
 ## [0.0.15](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.14...v0.0.15) (2025-08-01)
 
 
