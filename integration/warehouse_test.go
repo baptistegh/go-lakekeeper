@@ -38,6 +38,7 @@ func TestWarehouse_Create_Default(t *testing.T) {
 		"eu-local-1",
 		profile.WithPathStyleAccess(),
 		profile.WithEndpoint("http://minio:9000/"),
+		profile.WithRemoteSigningURLStyle(profile.PathSigningURLStyle),
 	).AsProfile()
 
 	sc := credential.NewS3CredentialAccessKey("minio-root-user", "minio-root-password").AsCredential()
