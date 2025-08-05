@@ -93,8 +93,8 @@ const (
 	S3CompatFlavor S3Flavor = "s3-compat"
 
 	AutoSigningURLStyle        RemoteSigningURLStyle = "auto"
-	PathSigningURLStyle        RemoteSigningURLStyle = "path-style"
-	VirtualHostSigningURLStyle RemoteSigningURLStyle = "virtual-host"
+	PathSigningURLStyle        RemoteSigningURLStyle = "path"
+	VirtualHostSigningURLStyle RemoteSigningURLStyle = "virtual_host"
 )
 
 func (sp *S3StorageSettings) GetStorageFamily() StorageFamily {
