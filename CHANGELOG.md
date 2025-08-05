@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.17](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.16...v0.0.17) (2025-08-05)
+
+
+### Bug Fixes
+
+* **warehouse:** rename remote signing url styles for s3 storage profile ([#130](https://github.com/baptistegh/go-lakekeeper/issues/130)) ([82f30bf](https://github.com/baptistegh/go-lakekeeper/commit/82f30bf3d10d391dd95d5352d84085ea193a7e96))
+
 ## [0.0.16](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.15...v0.0.16) (2025-08-01)
 
 
