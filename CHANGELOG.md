@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.18](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.17...v0.0.18) (2025-08-26)
+
+
+### Miscellaneous Chores
+
+* **ci:** remove lock workflow ([#134](https://github.com/baptistegh/go-lakekeeper/issues/134)) ([db69bb1](https://github.com/baptistegh/go-lakekeeper/commit/db69bb1ae160c523e2531db6dd1016b762581a29))
+* **deps:** bump actions/checkout from 4 to 5 in the github-actions group ([#132](https://github.com/baptistegh/go-lakekeeper/issues/132)) ([5ec4f2c](https://github.com/baptistegh/go-lakekeeper/commit/5ec4f2c875f8cc4402a68b2ebe7badfc79053299))
+* **deps:** bump github.com/go-viper/mapstructure/v2 from 2.3.0 to 2.4.0 in the go_modules group ([#135](https://github.com/baptistegh/go-lakekeeper/issues/135)) ([d0400a9](https://github.com/baptistegh/go-lakekeeper/commit/d0400a9acec2b9ed16d20e3202206aca122a3c7f))
+* **deps:** bump github.com/stretchr/testify from 1.10.0 to 1.11.0 ([#136](https://github.com/baptistegh/go-lakekeeper/issues/136)) ([1f94fb8](https://github.com/baptistegh/go-lakekeeper/commit/1f94fb87408ed55c2a9de43222dcfa4835f2e10e))
+
 ## [0.0.17](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.16...v0.0.17) (2025-08-05)
 
 
