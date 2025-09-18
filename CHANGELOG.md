@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.0.18](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.17...v0.0.18) (2025-09-18)
+
+
+### Miscellaneous Chores
+
+* **ci:** remove lock workflow ([#134](https://github.com/baptistegh/go-lakekeeper/issues/134)) ([db69bb1](https://github.com/baptistegh/go-lakekeeper/commit/db69bb1ae160c523e2531db6dd1016b762581a29))
+* **deps:** bump actions/checkout from 4 to 5 in the github-actions group ([#132](https://github.com/baptistegh/go-lakekeeper/issues/132)) ([5ec4f2c](https://github.com/baptistegh/go-lakekeeper/commit/5ec4f2c875f8cc4402a68b2ebe7badfc79053299))
+* **deps:** bump github.com/go-viper/mapstructure/v2 from 2.3.0 to 2.4.0 in the go_modules group ([#135](https://github.com/baptistegh/go-lakekeeper/issues/135)) ([d0400a9](https://github.com/baptistegh/go-lakekeeper/commit/d0400a9acec2b9ed16d20e3202206aca122a3c7f))
+* **deps:** bump github.com/spf13/cobra from 1.9.1 to 1.10.1 ([#138](https://github.com/baptistegh/go-lakekeeper/issues/138)) ([15bcbc3](https://github.com/baptistegh/go-lakekeeper/commit/15bcbc3073a8e4a4b1d3c19d4708154858175b37))
+* **deps:** bump github.com/stretchr/testify from 1.10.0 to 1.11.0 ([#136](https://github.com/baptistegh/go-lakekeeper/issues/136)) ([1f94fb8](https://github.com/baptistegh/go-lakekeeper/commit/1f94fb87408ed55c2a9de43222dcfa4835f2e10e))
+* **deps:** bump github.com/stretchr/testify from 1.11.0 to 1.11.1 ([#137](https://github.com/baptistegh/go-lakekeeper/issues/137)) ([5f1f15f](https://github.com/baptistegh/go-lakekeeper/commit/5f1f15f747759f3fa3517abfb6c7477e1659165e))
+* **deps:** bump golang.org/x/oauth2 from 0.30.0 to 0.31.0 ([#140](https://github.com/baptistegh/go-lakekeeper/issues/140)) ([b991475](https://github.com/baptistegh/go-lakekeeper/commit/b991475e0c318cd7a38123ac23a043ef3a1fbe7e))
+* **deps:** bump the github-actions group with 2 updates ([#139](https://github.com/baptistegh/go-lakekeeper/issues/139)) ([099c378](https://github.com/baptistegh/go-lakekeeper/commit/099c378c18cfcc9aac0c07a5a0c668decd542af4))
+* remove bitnami postgresql image ([#142](https://github.com/baptistegh/go-lakekeeper/issues/142)) ([dc5881f](https://github.com/baptistegh/go-lakekeeper/commit/dc5881fabd457414a711788efb3f900f50182261))
+
 ## [0.0.17](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.16...v0.0.17) (2025-08-05)
 
 
