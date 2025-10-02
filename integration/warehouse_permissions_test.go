@@ -113,6 +113,8 @@ func TestPermissions_Warehouse_GetAccess(t *testing.T) {
 			permissionv1.GrantPassGrants,
 			permissionv1.GrantManageGrants,
 			permissionv1.ChangeOwnership,
+			permissionv1.GetAllTasks,
+			permissionv1.ControlAllTasks,
 		},
 	}
 
