@@ -141,6 +141,8 @@ const (
 	GrantPassGrants          WarehouseAction = "grant_pass_grants"
 	GrantManageGrants        WarehouseAction = "grant_manage_grants"
 	ChangeOwnership          WarehouseAction = "change_ownership"
+	GetAllTasks              WarehouseAction = "get_all_tasks"
+	ControlAllTasks          WarehouseAction = "control_all_tasks"
 )
 
 // GetAuthzProperties retrieves authorization properties of a warehouse.
