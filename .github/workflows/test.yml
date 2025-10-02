@@ -84,10 +84,7 @@ jobs:
       matrix:
         lakekeeper_version:
           - latest-main
-          # This is the only compatible version for now, due to the introduction of "skip storage validation"
-          # See: https://github.com/lakekeeper/lakekeeper/pull/1239
-          # The Go client should be compatible with versions >= v0.9.3 once released
-          - v0.9.3
+          - v0.10.0
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
