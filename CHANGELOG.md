@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.19](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.18...v0.0.19) (2025-10-02)
+
+
+### Features
+
+* **warehouse:** add new actions `get_all_tasks` and `control_all_tasks` ([#143](https://github.com/baptistegh/go-lakekeeper/issues/143)) ([acab155](https://github.com/baptistegh/go-lakekeeper/commit/acab15570352548da7d033f329b9d762b0a70f7b))
+
+
+### Miscellaneous Chores
+
+* **ci:** use lakekeeper v0.10.0 ([#144](https://github.com/baptistegh/go-lakekeeper/issues/144)) ([0ae88f2](https://github.com/baptistegh/go-lakekeeper/commit/0ae88f22ba1a8de82d040f2a0205203d4d97f04e))
+
 ## [0.0.18](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.17...v0.0.18) (2025-09-18)
 
 
