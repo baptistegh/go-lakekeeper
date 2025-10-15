@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.20](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.19...v0.0.20) (2025-10-15)
+
+
+### Miscellaneous Chores
+
+* **deps:** bump github.com/apache/iceberg-go from 0.3.0 to 0.4.0 ([#147](https://github.com/baptistegh/go-lakekeeper/issues/147)) ([98b9ef4](https://github.com/baptistegh/go-lakekeeper/commit/98b9ef453f52fa2c31220f07271b44af110c3488))
+
 ## [0.0.19](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.18...v0.0.19) (2025-10-02)
 
 
