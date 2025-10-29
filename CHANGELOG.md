@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.20](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.19...v0.0.20) (2025-10-29)
+
+
+### Miscellaneous Chores
+
+* **deps:** bump github.com/apache/iceberg-go from 0.3.0 to 0.4.0 ([#147](https://github.com/baptistegh/go-lakekeeper/issues/147)) ([98b9ef4](https://github.com/baptistegh/go-lakekeeper/commit/98b9ef453f52fa2c31220f07271b44af110c3488))
+* **deps:** bump golang.org/x/oauth2 from 0.31.0 to 0.32.0 ([#146](https://github.com/baptistegh/go-lakekeeper/issues/146)) ([ece634e](https://github.com/baptistegh/go-lakekeeper/commit/ece634e7559c05e72e277f5d95a69329484b9fa1))
+
 ## [0.0.19](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.18...v0.0.19) (2025-10-02)
 
 
