@@ -115,6 +115,8 @@ func TestPermissions_Warehouse_GetAccess(t *testing.T) {
 			permissionv1.ChangeOwnership,
 			permissionv1.GetAllTasks,
 			permissionv1.ControlAllTasks,
+			permissionv1.SetWarehouseProtection,
+			permissionv1.GetWarehouseEndpointStatistics,
 		},
 	}
 
