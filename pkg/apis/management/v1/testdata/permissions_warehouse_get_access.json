@@ -19,6 +19,8 @@
         "grant_select",
         "grant_pass_grants",
         "grant_manage_grants",
-        "change_ownership"
+        "change_ownership",
+        "set_protection",
+        "get_endpoint_statistics"
     ]
 }
