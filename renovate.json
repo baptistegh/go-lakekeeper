@@ -12,14 +12,16 @@
       "matchDepTypes": ["golang"],
       "groupName": "go-toolchain",
       "separateMinorPatch": true,
-      "separateMajor": true
+      "separateMultipleMajor": true,
+      "separateMultipleMinor": true
     },
     {
       "matchManagers": ["gomod"],
-      "matchDepTypes": ["go"],
+      "matchDepNames": ["go"],
       "groupName": "go-version",
       "separateMinorPatch": true,
-      "separateMajor": true
+      "separateMultipleMajor": true,
+      "separateMultipleMinor": true
     }
   ]
 }
