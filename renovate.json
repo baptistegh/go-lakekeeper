@@ -9,17 +9,13 @@
   ],
   "packageRules": [
     {
+      "matchManagers": ["gomod"],
+      "matchDepNames": ["go"],
       "matchDepTypes": ["golang"],
       "groupName": "go-toolchain",
-      "separateMinorPatch": true,
-      "separateMajor": true
-    },
-    {
-      "matchManagers": ["gomod"],
-      "matchDepTypes": ["go"],
-      "groupName": "go-version",
-      "separateMinorPatch": true,
-      "separateMajor": true
+      "automerge": false,
+      "separateMajorMinor": true,
+      "separateMinorPatch": false,
     }
   ]
 }
