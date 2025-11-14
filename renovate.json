@@ -4,7 +4,6 @@
     "config:base",
     "config:recommended",
     "group:allNonMajor",
-    "schedule:daily",
     ":automergeMinor",
     ":automergePatch"
   ]
