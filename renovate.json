@@ -8,16 +8,8 @@
   ],
   "packageRules": [
     {
-      "matchManagers": [
-        "gomod"
-      ],
-      "matchDepNames": [
-        "go"
-      ],
-      "matchDepTypes": [
-        "golang"
-      ],
-      "groupName": "go-toolchain",
+      "matchDepNames": ["go", "golang"],
+      "groupName": "go-version",
       "automerge": false,
       "separateMajorMinor": true,
       "separateMinorPatch": false
