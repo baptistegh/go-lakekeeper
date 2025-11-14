@@ -15,6 +15,7 @@
         "grant_select",
         "grant_project_admin",
         "grant_security_admin",
-        "grant_data_admin"
+        "grant_data_admin",
+        "get_endpoint_statistics"
     ]
 }
