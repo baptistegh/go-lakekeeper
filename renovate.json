@@ -14,9 +14,6 @@
       "matchDepNames": [
         "go"
       ],
-      "matchDepTypes": [
-        "golang"
-      ],
       "groupName": "go-toolchain",
       "automerge": false,
       "separateMajorMinor": true,
