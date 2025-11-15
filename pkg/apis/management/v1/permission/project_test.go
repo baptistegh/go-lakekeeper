@@ -56,6 +56,7 @@ func TestProjectPermissionService_GetAccess(t *testing.T) {
 			permissionv1.GrantProjectAdmin,
 			permissionv1.GrantSecurityAdmin,
 			permissionv1.GrantDataAdmin,
+			permissionv1.GetProjectEndpointStatistics,
 		},
 	}
 

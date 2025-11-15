@@ -82,7 +82,8 @@ GO_PACKAGES := ./pkg/...
 BIN_DIR := $(SELF_DIR)/bin
 DIST_DIR := $(SELF_DIR)/dist
 
-CONTAINER_COMPOSE_ENGINE ?= $(shell docker compose version >/dev/null 2>&1 && echo 'docker compose' || echo 'docker-compose')
+CONTAINER_ENGINE ?= docker
+CONTAINER_COMPOSE_ENGINE ?= $(shell $(CONTAINER_ENGINE) compose version >/dev/null 2>&1 && echo '$(CONTAINER_ENGINE) compose' || echo '$(CONTAINER_ENGINE)-compose')
 DOCKER ?= docker
 
 ENV_FILE := $(SELF_DIR)/.env
@@ -107,11 +108,6 @@ $(GOLANGCI_LINT): | $(BIN_DIR)
 	@curl -sL https://github.com/golangci/golangci-lint/releases/download/$(GOLANGCI_LINT_VERSION)/golangci-lint-$(patsubst v%,%,$(GOLANGCI_LINT_VERSION))-$(shell go env GOHOSTOS)-$(GOHOSTARCH).tar.gz | tar -xz -C $(BIN_DIR)/tmp
 	@mv $(BIN_DIR)/tmp/golangci-lint-$(patsubst v%,%,$(GOLANGCI_LINT_VERSION))-$(shell go env GOHOSTOS)-$(GOHOSTARCH)/golangci-lint $(GOLANGCI_LINT)
 	@rm -fr $(BIN_DIR)/tmp
-
-ADD_LICENSE := $(BIN_DIR)/addlicense
-$(ADD_LICENSE): | $(BIN_DIR)
-	@echo === installing addlicense
-	@GOBIN=$(BIN_DIR) $(GO) install github.com/google/addlicense@latest
 
 .PHONY: build
 build: build.common
@@ -170,18 +166,7 @@ lint: $(GOLANGCI_LINT)
 	@$(GOLANGCI_LINT) run ./...
 
 .PHONY: validate
-validate: license-check vet lint
-
-COPYRIGHT ?= Baptiste Gouhoury <baptiste.gouhoury@scalend.fr>
-.PHONY: license
-license: $(ADD_LICENSE)
-	@echo ===  addlicense
-	@$(ADD_LICENSE) -l apache -c "$(COPYRIGHT)" .
-
-.PHONY: license-check
-license-check: $(ADD_LICENSE)
-	@echo === addlicense-check
-	@$(ADD_LICENSE) -check -l apache -c "$(COPYRIGHT)" .
+validate: vet lint
 
 MKDOCS_DOCKER_IMAGE?=python:3.12-alpine
 MKDOCS_RUN_ARGS?=

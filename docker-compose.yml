@@ -1,16 +1,4 @@
-# Copyright 2025 Baptiste Gouhoury <baptiste.gouhoury@scalend.fr>
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 
 # Acceptance tests depend on a running Lakekeeper instance.
 # Only one of these services should be run at a time.
@@ -101,7 +89,7 @@ services:
       iceberg_net:
   
   openfga-migrate:
-    image: openfga/openfga:v1.8
+    image: openfga/openfga:v1.11
     command: migrate
     environment:
       - OPENFGA_DATASTORE_ENGINE=postgres
@@ -118,7 +106,7 @@ services:
         condition: service_healthy
       openfga-migrate:
         condition: service_completed_successfully
-    image: openfga/openfga:v1.8
+    image: openfga/openfga:v1.11
     command: run
     environment:
       - OPENFGA_DATASTORE_ENGINE=postgres
@@ -139,7 +127,7 @@ services:
       retries: 3
   
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0.7
+    image: quay.io/keycloak/keycloak:26.4.5
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
