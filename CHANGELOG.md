@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.0.20](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.19...v0.0.20) (2025-11-15)
+
+
+### Features
+
+* add statistics and protection warehouse/project actions ([#162](https://github.com/baptistegh/go-lakekeeper/issues/162)) ([ef5feed](https://github.com/baptistegh/go-lakekeeper/commit/ef5feed1aec6b75d3e640920475ca21f65b40246))
+
+
+### Miscellaneous Chores
+
+* **ci:** remove daily schedule on renovate config ([#166](https://github.com/baptistegh/go-lakekeeper/issues/166)) ([d37272b](https://github.com/baptistegh/go-lakekeeper/commit/d37272bd322b25ba621e3f4f45ae6540509ebb80))
+* **ci:** set up renovate ([#163](https://github.com/baptistegh/go-lakekeeper/issues/163)) ([cf6078c](https://github.com/baptistegh/go-lakekeeper/commit/cf6078c406747b02043a852856b628d895cc3c51))
+* **config:** migrate Renovate config ([#172](https://github.com/baptistegh/go-lakekeeper/issues/172)) ([7bc83cb](https://github.com/baptistegh/go-lakekeeper/commit/7bc83cb748f334836ebf229b86b2a259791be9a0))
+* **deps:** bump github.com/apache/iceberg-go from 0.3.0 to 0.4.0 ([#147](https://github.com/baptistegh/go-lakekeeper/issues/147)) ([98b9ef4](https://github.com/baptistegh/go-lakekeeper/commit/98b9ef453f52fa2c31220f07271b44af110c3488))
+* **deps:** bump golang.org/x/oauth2 from 0.31.0 to 0.32.0 ([#146](https://github.com/baptistegh/go-lakekeeper/issues/146)) ([ece634e](https://github.com/baptistegh/go-lakekeeper/commit/ece634e7559c05e72e277f5d95a69329484b9fa1))
+* **deps:** bump golang.org/x/oauth2 from 0.32.0 to 0.33.0 ([#150](https://github.com/baptistegh/go-lakekeeper/issues/150)) ([961f61a](https://github.com/baptistegh/go-lakekeeper/commit/961f61a71164d0777f8418d0aaf721d006de57f1))
+* **deps:** bump golangci/golangci-lint-action from 8.0.0 to 9.0.0 in the github-actions group ([#149](https://github.com/baptistegh/go-lakekeeper/issues/149)) ([7ba84a0](https://github.com/baptistegh/go-lakekeeper/commit/7ba84a018920096b792a156e3a6cb8e67fc45db6))
+* **deps:** update all non-major dependencies ([df084fc](https://github.com/baptistegh/go-lakekeeper/commit/df084fcba13a369578f7ed4b24b45e49aa93b028))
+* **deps:** update all non-major dependencies ([95db8cb](https://github.com/baptistegh/go-lakekeeper/commit/95db8cb086609791a7ba8986e083dceaafcd5d67))
+* **deps:** update all non-major dependencies (minor) ([#168](https://github.com/baptistegh/go-lakekeeper/issues/168)) ([df084fc](https://github.com/baptistegh/go-lakekeeper/commit/df084fcba13a369578f7ed4b24b45e49aa93b028))
+* **deps:** update all non-major dependencies (patch) ([#167](https://github.com/baptistegh/go-lakekeeper/issues/167)) ([95db8cb](https://github.com/baptistegh/go-lakekeeper/commit/95db8cb086609791a7ba8986e083dceaafcd5d67))
+* **deps:** update dependency mkdocs-material to v9 ([#159](https://github.com/baptistegh/go-lakekeeper/issues/159)) ([64af7d1](https://github.com/baptistegh/go-lakekeeper/commit/64af7d1e07998e84a4a6fc41a456d4383bb5dc95))
+* **deps:** update dependency ubuntu to v24 ([#160](https://github.com/baptistegh/go-lakekeeper/issues/160)) ([11ac251](https://github.com/baptistegh/go-lakekeeper/commit/11ac251bb114d26967a1ad729e2e72e993d50f8c))
+* **renovate:** not grouping go toolchain updates ([#169](https://github.com/baptistegh/go-lakekeeper/issues/169)) ([9414097](https://github.com/baptistegh/go-lakekeeper/commit/941409787329c4904413e28f4de3d9b6fb7017df))
+* **renovate:** try gomod grouName ([#173](https://github.com/baptistegh/go-lakekeeper/issues/173)) ([9563c73](https://github.com/baptistegh/go-lakekeeper/commit/9563c733711d8c140b5b96eef66ee207d9c7e32a))
+* **renovate:** Update configuration ([#171](https://github.com/baptistegh/go-lakekeeper/issues/171)) ([bcf8dfb](https://github.com/baptistegh/go-lakekeeper/commit/bcf8dfb1aeece94a461a6153a900a340dadac110))
+
 ## [0.0.19](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.18...v0.0.19) (2025-10-02)
 
 
