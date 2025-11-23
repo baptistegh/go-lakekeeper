@@ -47,28 +47,6 @@ func TestProjectService_Get(t *testing.T) {
 	assert.Equal(t, want, project)
 }
 
-func TestProjectService_GetDefault(t *testing.T) {
-	t.Parallel()
-	mux, client := testutil.ServerMux(t)
-
-	mux.HandleFunc("/management/v1/default-project", func(w http.ResponseWriter, r *http.Request) {
-		testutil.TestMethod(t, r, http.MethodGet)
-		testutil.TestHeader(t, r, "x-project-id", "")
-		testutil.MustWriteHTTPResponse(t, w, "testdata/get_project.json")
-	})
-
-	project, resp, err := client.ProjectV1().GetDefault(t.Context())
-	require.NoError(t, err)
-	assert.NotNil(t, resp)
-
-	want := &managementv1.Project{
-		ID:   "01f2fdfc-81fc-444d-8368-5b6701566e35",
-		Name: "test-project",
-	}
-
-	assert.Equal(t, want, project)
-}
-
 func TestProjectService_List(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
@@ -96,28 +74,6 @@ func TestProjectService_List(t *testing.T) {
 	}
 
 	assert.Equal(t, want, project)
-}
-
-func TestProjectService_RenameDefault(t *testing.T) {
-	t.Parallel()
-	mux, client := testutil.ServerMux(t)
-
-	opts := &managementv1.RenameProjectOptions{
-		NewName: "project-renamed",
-	}
-
-	mux.HandleFunc("/management/v1/default-project/rename", func(_ http.ResponseWriter, r *http.Request) {
-		testutil.TestMethod(t, r, http.MethodPost)
-		if !testutil.TestBodyJSON(t, r, opts) {
-			t.Fatalf("wrong json body")
-		}
-	})
-
-	resp, err := client.ProjectV1().RenameDefault(t.Context(), opts)
-	require.NoError(t, err)
-	assert.NotNil(t, resp)
-
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestProjectService_Rename(t *testing.T) {
@@ -153,21 +109,6 @@ func TestProjectService_Delete(t *testing.T) {
 	})
 
 	resp, err := client.ProjectV1().Delete(t.Context(), "01f2fdfc-81fc-444d-8368-5b6701566e35")
-	require.NoError(t, err)
-	assert.NotNil(t, resp)
-}
-
-func TestProjectService_DeleteDefault(t *testing.T) {
-	t.Parallel()
-	mux, client := testutil.ServerMux(t)
-
-	mux.HandleFunc("/management/v1/default-project", func(w http.ResponseWriter, r *http.Request) {
-		testutil.TestMethod(t, r, http.MethodDelete)
-		testutil.TestHeader(t, r, "x-project-id", "")
-		w.WriteHeader(http.StatusNoContent)
-	})
-
-	resp, err := client.ProjectV1().DeleteDefault(t.Context())
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 }

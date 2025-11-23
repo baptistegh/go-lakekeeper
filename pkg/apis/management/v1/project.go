@@ -24,15 +24,6 @@ import (
 
 type (
 	ProjectServiceInterface interface {
-		// Retrieves information about the user's default project.
-		// Deprecated: This endpoint is deprecated and will be removed in a future version.
-		GetDefault(ctx context.Context, options ...core.RequestOptionFunc) (*Project, *http.Response, error)
-		// Removes the user's default project and all its resources.
-		// Deprecated: This endpoint is deprecated and will be removed in a future version.
-		DeleteDefault(ctx context.Context, options ...core.RequestOptionFunc) (*http.Response, error)
-		// Updates the name of the user's default project.
-		// Deprecated: This endpoint is deprecated and will be removed in a future version.
-		RenameDefault(ctx context.Context, opts *RenameProjectOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Retrieves information about a project.
 		Get(ctx context.Context, id string, options ...core.RequestOptionFunc) (*Project, *http.Response, error)
 		// Creates a new project with the specified configuration.
@@ -200,68 +191,6 @@ func (s *ProjectService) Get(ctx context.Context, id string, options ...core.Req
 	}
 
 	return &prj, resp, nil
-}
-
-// GetDefault retrieves information about the user's default project.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/get_default_project
-//
-// Deprecated: This endpoint is deprecated and will be removed in a future version.
-func (s *ProjectService) GetDefault(ctx context.Context, options ...core.RequestOptionFunc) (*Project, *http.Response, error) {
-	req, err := s.client.NewRequest(ctx, http.MethodGet, "/default-project", nil, options)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var prj Project
-
-	resp, apiErr := s.client.Do(req, &prj)
-	if apiErr != nil {
-		return nil, resp, apiErr
-	}
-
-	return &prj, resp, nil
-}
-
-// DeleteDefault removes the user's default project and all its resources.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/delete_default_project_deprecated
-//
-// Deprecated: This endpoint is deprecated and will be removed in a future version.
-func (s *ProjectService) DeleteDefault(ctx context.Context, options ...core.RequestOptionFunc) (*http.Response, error) {
-	req, err := s.client.NewRequest(ctx, http.MethodDelete, "/default-project", nil, options)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, apiErr := s.client.Do(req, nil)
-	if apiErr != nil {
-		return resp, apiErr
-	}
-
-	return resp, nil
-}
-
-// RenameDefault updates the name of the user's default project.
-//
-// Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/rename_default_project_deprecated
-//
-// Deprecated: This endpoint is deprecated and will be removed in a future version.
-func (s *ProjectService) RenameDefault(ctx context.Context, opts *RenameProjectOptions, options ...core.RequestOptionFunc) (*http.Response, error) {
-	req, err := s.client.NewRequest(ctx, http.MethodPost, "/default-project/rename", opts, options)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, apiErr := s.client.Do(req, nil)
-	if apiErr != nil {
-		return resp, apiErr
-	}
-
-	return resp, nil
 }
 
 // ListProjects lists all projects that the requesting user has access to.
