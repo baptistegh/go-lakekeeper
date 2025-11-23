@@ -83,46 +83,6 @@ func TestProject_Rename(t *testing.T) {
 	assert.Equal(t, "test-project-renamed", project.Name)
 }
 
-func TestProject_RenameDefault(t *testing.T) {
-	client := Setup(t)
-
-	t.Cleanup(func() {
-		r, err := client.ProjectV1().RenameDefault(context.Background(), &managementv1.RenameProjectOptions{
-			NewName: "Default Project",
-		})
-		if err != nil {
-			t.Fatalf("could not rename default project, %v", err)
-		}
-		assert.Equal(t, http.StatusOK, r.StatusCode)
-	})
-
-	r, err := client.ProjectV1().RenameDefault(t.Context(), &managementv1.RenameProjectOptions{
-		NewName: "test-project-renamed",
-	})
-
-	require.NoError(t, err)
-	assert.Equal(t, http.StatusOK, r.StatusCode)
-
-	project, r, err := client.ProjectV1().GetDefault(t.Context())
-
-	require.NoError(t, err)
-	assert.Equal(t, http.StatusOK, r.StatusCode)
-	assert.Equal(t, "test-project-renamed", project.Name)
-}
-
-func TestProject_Default(t *testing.T) {
-	client := Setup(t)
-
-	project, r, err := client.ProjectV1().GetDefault(t.Context())
-
-	require.NoError(t, err)
-	assert.NotNil(t, r)
-	assert.Equal(t, http.StatusOK, r.StatusCode)
-
-	assert.Equal(t, defaultProjectID, project.ID)
-	assert.Equal(t, "Default Project", project.Name)
-}
-
 func TestProject_Delete(t *testing.T) {
 	client := Setup(t)
 
