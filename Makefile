@@ -101,15 +101,6 @@ $(YQ): | $(BIN_DIR)
 	@chmod +x $(YQ)
 	@echo Installed yq version $(YQ_VERSION) in $(YQ)
 
-GOLANGCI_LINT_VERSION := $(strip $(shell $(YQ) .jobs.lint.steps[2].with.version .github/workflows/test.yml))
-GOLANGCI_LINT := $(BIN_DIR)/golangci-lint
-$(GOLANGCI_LINT): | $(BIN_DIR)
-	@echo === installing golangci-lint
-	@mkdir -p $(BIN_DIR)/tmp
-	@curl -sL https://github.com/golangci/golangci-lint/releases/download/$(GOLANGCI_LINT_VERSION)/golangci-lint-$(patsubst v%,%,$(GOLANGCI_LINT_VERSION))-$(shell go env GOHOSTOS)-$(GOHOSTARCH).tar.gz | tar -xz -C $(BIN_DIR)/tmp
-	@mv $(BIN_DIR)/tmp/golangci-lint-$(patsubst v%,%,$(GOLANGCI_LINT_VERSION))-$(shell go env GOHOSTOS)-$(GOHOSTARCH)/golangci-lint $(GOLANGCI_LINT)
-	@rm -fr $(BIN_DIR)/tmp
-
 .PHONY: build
 build: build.common
 	@echo === go build dist/lkctl
@@ -120,7 +111,7 @@ build.common: $(YQ) mod license fmt vet test
 
 .PHONY: mod
 mod: 
-	@$(GOHOST) mod tidy
+	@$(GO) mod tidy
 
 .PHONY: test
 test: ## Runs unit tests.
@@ -154,36 +145,20 @@ $(ENV_FILE):
 .PHONY: vet
 vet:
 	@echo === go vet
-	@CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GOHOST) vet $(GO_COMMON_FLAGS) ./...
+	@CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GO) vet $(GO_COMMON_FLAGS) ./...
 
 .PHONY: fmt
-fmt: $(GOLANGCI_LINT)
+fmt:
 	@echo === golangci-lint fix
-	@$(GOLANGCI_LINT) run --fix ./...
+	@$(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint run --fix ./...
 
 .PHONY: lint
-lint: $(GOLANGCI_LINT)
+lint:
 	@echo === golangci-lint
-	@$(GOLANGCI_LINT) run ./...
+	@$(GO) run github.com/golangci/golangci-lint/v2/cmd/golangci-lint run ./...
 
 .PHONY: validate
 validate: vet lint
-
-MKDOCS_DOCKER_IMAGE?=python:3.12-alpine
-MKDOCS_RUN_ARGS?=
-
-.PHONY: clidocsgen
-clidocsgen:
-	@echo === generate cli docs
-	@$(GO) run ./tools/cmd-docs
-
-.PHONY: build-docs
-build-docs:
-	$(DOCKER) run ${MKDOCS_RUN_ARGS} --rm -it -v ${SELF_DIR}:/docs -w /docs --entrypoint "" ${MKDOCS_DOCKER_IMAGE} sh -c 'pip install mkdocs; pip install $$(mkdocs get-deps); mkdocs build'
-
-.PHONY: serve-docs
-serve-docs:
-	$(DOCKER) run ${MKDOCS_RUN_ARGS} --rm -it -p 8000:8000 -v ${SELF_DIR}:/docs -w /docs --entrypoint "" ${MKDOCS_DOCKER_IMAGE} sh -c 'pip install mkdocs; pip install $$(mkdocs get-deps); mkdocs serve -a $$(ip route get 1 | awk '\''{print $$7}'\''):8000'
 
 .PHONY: clean
 clean:
