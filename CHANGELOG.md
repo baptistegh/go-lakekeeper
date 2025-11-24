@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.21](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.20...v0.0.21) (2025-11-24)
+
+
+### Miscellaneous Chores
+
+* fix goreleaser ([#185](https://github.com/baptistegh/go-lakekeeper/issues/185)) ([2511d56](https://github.com/baptistegh/go-lakekeeper/commit/2511d56029e22cd2f5545fd9cab4f40e59f4436c))
+
 ## [0.0.20](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.19...v0.0.20) (2025-11-24)
 
 

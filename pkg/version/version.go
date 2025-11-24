@@ -22,7 +22,7 @@ import (
 // Version information set by link flags during build. We fall back to these sane
 // default values when we build outside the Makefile context (e.g. go run, go build, or go test).
 var (
-	version      = "0.0.20" // x-release-please-version
+	version      = "0.0.21" // x-release-please-version
 	buildDate    = "1970-01-01T00:00:00Z"
 	gitCommit    = ""
 	gitTag       = ""
