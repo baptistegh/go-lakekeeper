@@ -24,8 +24,6 @@ RUN go build -o lkctl ./cmd
 
 FROM docker.io/bitnami/minideb:bookworm
 
-LABEL maintainer="baptiste.gouhoury@scalend.fr"
-
 ENV HOME="/" 
 
 RUN apt-get update \

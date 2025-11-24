@@ -1,11 +1,10 @@
 
 
-FROM --platform=$BUILDPLATFORM docker.io/bitnami/minideb:bookworm
+FROM bitnami/minideb:bookworm
 
+ARG TARGETPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
-
-LABEL maintainer="baptiste.gouhoury@scalend.fr"
 
 ENV HOME="/"
 
@@ -16,7 +15,7 @@ RUN apt-get update \
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-COPY --chmod=555 lkctl-${TARGETOS}-${TARGETARCH} /usr/local/bin/lkctl
+COPY --chmod=555 $TARGETPLATFORM/lkctl-${TARGETOS}-${TARGETARCH} /usr/local/bin/lkctl
 
 USER 1001
 ENTRYPOINT ["/usr/local/bin/lkctl"]
