@@ -2,13 +2,9 @@ name: test
 
 on:
   push:
-    branches:
-      - main
-      - release-*
+    branches: [main]
   pull_request:
-    branches:
-      - main
-      - release-*
+    branches: [main]
 
 # cancel the in-progress workflow when PR is refreshed.
 concurrency:
@@ -38,7 +34,9 @@ jobs:
           skip-cache: true
       - name: govulncheck
         uses: golang/govulncheck-action@b625fbe08f3bccbe446d94fbf87fcc875a4f50ee # v1.0.4
-        continue-on-error: true
+        with:
+          go-version-input: "1.25"
+          repo-checkout: 'false'
 
   unit-tests:
     needs: lint
@@ -86,17 +84,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
       - uses: docker/setup-qemu-action@v3
-      
-      - name: Set environment variables for ldflags
-        id: set_ldflag
+
+      - uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6.3.0
+        id: import_gpg
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Setup Golang
+        uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version: "1.25"
+          cache: false
+
+      - name: Set Git tree state
         run: |
           echo "GIT_TREE_STATE=$(if [ -z "`git status --porcelain`" ]; then echo "clean" ; else echo "dirty"; fi)" >> $GITHUB_ENV
 
       - uses: goreleaser/goreleaser-action@v6
         with:
           version: latest
-          args: release --clean --snapshot --skip sign
+          args: release --clean --snapshot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           GIT_TREE_STATE: ${{ env.GIT_TREE_STATE }}
