@@ -52,6 +52,7 @@ type (
 		// Configures the soft-delete behavior for a warehouse.
 		UpdateDeleteProfile(ctx context.Context, id string, opt *UpdateDeleteProfileOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Configures whether a warehouse should be protected from deletion.
+		//
 		// Deprecated: user SetWarehouseProtection instead. This will be remove in the future.
 		SetProtection(ctx context.Context, id string, protected bool, options ...core.RequestOptionFunc) (*SetProtectionResponse, *http.Response, error)
 		// Configures whether a warehouse should be protected from deletion.
