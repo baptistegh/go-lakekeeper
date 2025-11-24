@@ -37,19 +37,17 @@ func TestPermissions_Role_GetAccess(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
 	// User should be owner on this role
-	want := &permissionv1.GetRoleAccessResponse{
-		AllowedActions: []permissionv1.RoleAction{
-			permissionv1.Assume,
-			permissionv1.CanGrantAssignee,
-			permissionv1.CanChangeOwnership,
-			permissionv1.DeleteRole,
-			permissionv1.UpdateRole,
-			permissionv1.ReadRole,
-			permissionv1.ReadRoleAssignments,
-		},
+	want := []permissionv1.RoleAction{
+		permissionv1.Assume,
+		permissionv1.CanGrantAssignee,
+		permissionv1.CanChangeOwnership,
+		permissionv1.DeleteRole,
+		permissionv1.UpdateRole,
+		permissionv1.ReadRole,
+		permissionv1.ReadRoleAssignments,
 	}
 
-	assert.Equal(t, want, resp)
+	assert.Equal(t, want, resp.AllowedActions)
 }
 
 func TestPermissions_Role_GetAssignments(t *testing.T) {

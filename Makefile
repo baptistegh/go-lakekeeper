@@ -18,9 +18,10 @@
 LC_ALL=C
 export LC_ALL
 
+.DEFAULT_GOAL := all
+
 .PHONY: all
 all: build
-.DEFAULT_GOAL := all
 
 # set the shell to bash in case some environments use sh
 SHELL := /usr/bin/env bash

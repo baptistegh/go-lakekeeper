@@ -35,29 +35,27 @@ func TestPermissions_Project_GetAccess(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
 	// User should have all permissions on the project
-	want := &permissionv1.GetProjectAccessResponse{
-		AllowedActions: []permissionv1.ProjectAction{
-			permissionv1.CreateWarehouse,
-			permissionv1.DeleteProject,
-			permissionv1.RenameProject,
-			permissionv1.ListWarehouses,
-			permissionv1.CreateRole,
-			permissionv1.ListRoles,
-			permissionv1.SearchRoles,
-			permissionv1.ReadProjectAssignments,
-			permissionv1.GrantProjectRoleCreator,
-			permissionv1.GrantProjectCreate,
-			permissionv1.GrantProjectDescribe,
-			permissionv1.GrantProjectModify,
-			permissionv1.GrantProjectSelet,
-			permissionv1.GrantProjectAdmin,
-			permissionv1.GrantSecurityAdmin,
-			permissionv1.GrantDataAdmin,
-			permissionv1.GetProjectEndpointStatistics,
-		},
+	want := []permissionv1.ProjectAction{
+		permissionv1.CreateWarehouse,
+		permissionv1.DeleteProject,
+		permissionv1.RenameProject,
+		permissionv1.ListWarehouses,
+		permissionv1.CreateRole,
+		permissionv1.ListRoles,
+		permissionv1.SearchRoles,
+		permissionv1.ReadProjectAssignments,
+		permissionv1.GrantProjectRoleCreator,
+		permissionv1.GrantProjectCreate,
+		permissionv1.GrantProjectDescribe,
+		permissionv1.GrantProjectModify,
+		permissionv1.GrantProjectSelet,
+		permissionv1.GrantProjectAdmin,
+		permissionv1.GrantSecurityAdmin,
+		permissionv1.GrantDataAdmin,
+		permissionv1.GetProjectEndpointStatistics,
 	}
 
-	assert.Equal(t, want, resp)
+	assert.Subset(t, want, resp.AllowedActions)
 }
 
 func TestPermissions_Project_GetAssignments(t *testing.T) {

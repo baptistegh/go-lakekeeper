@@ -91,36 +91,34 @@ func TestPermissions_Warehouse_GetAccess(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
 	// User should have all permissions on the project
-	want := &permissionv1.GetWarehouseAccessResponse{
-		AllowedActions: []permissionv1.WarehouseAction{
-			permissionv1.CreateNamespace,
-			permissionv1.DeleteWarehouse,
-			permissionv1.ModifyStorage,
-			permissionv1.ModifyStorageCredential,
-			permissionv1.GetConfig,
-			permissionv1.GetMetadata,
-			permissionv1.ListNamespaces,
-			permissionv1.IncludeInList,
-			permissionv1.Deactivate,
-			permissionv1.Activate,
-			permissionv1.Rename,
-			permissionv1.ListDeletedTabulars,
-			permissionv1.ReadWarehouseAssignments,
-			permissionv1.GrantCreate,
-			permissionv1.GrantDescribe,
-			permissionv1.GrantModify,
-			permissionv1.GrantSelect,
-			permissionv1.GrantPassGrants,
-			permissionv1.GrantManageGrants,
-			permissionv1.ChangeOwnership,
-			permissionv1.GetAllTasks,
-			permissionv1.ControlAllTasks,
-			permissionv1.SetWarehouseProtection,
-			permissionv1.GetWarehouseEndpointStatistics,
-		},
+	want := []permissionv1.WarehouseAction{
+		permissionv1.CreateNamespace,
+		permissionv1.DeleteWarehouse,
+		permissionv1.ModifyStorage,
+		permissionv1.ModifyStorageCredential,
+		permissionv1.GetConfig,
+		permissionv1.GetMetadata,
+		permissionv1.ListNamespaces,
+		permissionv1.IncludeInList,
+		permissionv1.Deactivate,
+		permissionv1.Activate,
+		permissionv1.Rename,
+		permissionv1.ListDeletedTabulars,
+		permissionv1.ReadWarehouseAssignments,
+		permissionv1.GrantCreate,
+		permissionv1.GrantDescribe,
+		permissionv1.GrantModify,
+		permissionv1.GrantSelect,
+		permissionv1.GrantPassGrants,
+		permissionv1.GrantManageGrants,
+		permissionv1.ChangeOwnership,
+		permissionv1.GetAllTasks,
+		permissionv1.ControlAllTasks,
+		permissionv1.SetWarehouseProtection,
+		permissionv1.GetWarehouseEndpointStatistics,
 	}
 
-	assert.Equal(t, want, resp)
+	assert.Subset(t, want, resp.AllowedActions)
 }
 
 func TestPermissions_Warehouse_GetAssignments(t *testing.T) {

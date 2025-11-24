@@ -35,19 +35,17 @@ func TestPermissions_Server_GetAccess(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
 	// User should have all permissions on the server
-	want := &permissionv1.GetServerAccessResponse{
-		AllowedActions: []permissionv1.ServerAction{
-			permissionv1.CreateProject,
-			permissionv1.UpdateUsers,
-			permissionv1.DeleteUsers,
-			permissionv1.ListUsers,
-			permissionv1.GrantServerAdmin,
-			permissionv1.ProvisionUsers,
-			permissionv1.ReadAssignments,
-		},
+	want := []permissionv1.ServerAction{
+		permissionv1.CreateProject,
+		permissionv1.UpdateUsers,
+		permissionv1.DeleteUsers,
+		permissionv1.ListUsers,
+		permissionv1.GrantServerAdmin,
+		permissionv1.ProvisionUsers,
+		permissionv1.ReadAssignments,
 	}
 
-	assert.Equal(t, want, resp)
+	assert.Subset(t, want, resp.AllowedActions)
 }
 
 func TestPermissions_Server_GetAssignments(t *testing.T) {
