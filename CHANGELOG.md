@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.22](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.21...v0.0.22) (2025-11-25)
+
+
+### Miscellaneous Chores
+
+* **ci:** use docker buildx ([935261d](https://github.com/baptistegh/go-lakekeeper/commit/935261d4bc02f8c2842d40fa74db972750095984))
+
 ## [0.0.21](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.20...v0.0.21) (2025-11-24)
 
 
