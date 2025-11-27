@@ -1,20 +1,3 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# Linux doesn't guarantee file ordering, so sort the files to make sure order is deterministic.
-# And in order to handle file paths with spaces, it's easiest to read the file names into an array.
-# Set locale `LC_ALL=C` because different OSes have different sort behavior;
-# `C` sorting order is based on the byte values,
-# Reference: https://blog.zhimingwang.org/macos-lc_collate-hunt
 LC_ALL=C
 export LC_ALL
 
@@ -107,7 +90,7 @@ build: build.common
 	@CGO_ENABLED=$(CGO_ENABLED_VALUE) $(GO) build -a $(GO_COMMON_FLAGS) -o $(DIST_DIR)/lkctl ./cmd
 
 .PHONY: build.common
-build.common: $(YQ) mod license fmt vet test
+build.common: $(YQ) mod fmt vet test
 
 .PHONY: mod
 mod: 
