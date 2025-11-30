@@ -313,8 +313,7 @@ type (
 		PrincipalRole *string `url:"principalRole,omitempty"`
 	}
 
-	// GetWarehouseAllowedAccessResponse represents the GetAllowedActions() response.
-	//
+	// GetWarehouseAllowedActionsResponse represents the GetAllowedActions() response.
 	//
 	//
 	// Lakekeeper API docs:
