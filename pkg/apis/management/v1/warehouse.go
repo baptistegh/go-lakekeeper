@@ -837,6 +837,10 @@ func (s *WarehouseService) GetStatistics(ctx context.Context, id string, opt *Ge
 	return &resp, r, nil
 }
 
+// GetAllowedActions retrieves the allowed actions for a user or role on a warehouse.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_actions
 func (s *WarehouseService) GetAllowedActions(ctx context.Context, id string, opt *GetWarehouseAllowedActionsOptions, options ...core.RequestOptionFunc) (*GetWarehouseAllowedActionsResponse, *http.Response, error) {
 	options = append(options, WithProject(s.projectID))
 
