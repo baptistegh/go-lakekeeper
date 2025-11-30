@@ -38,3 +38,6 @@ target/
 
 # test outputs
 .output/
+
+# MacOS
+.DS_Store

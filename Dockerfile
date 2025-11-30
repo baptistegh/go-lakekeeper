@@ -22,7 +22,7 @@ RUN echo "Building for $GOOS/$GOARCH"
 
 RUN go build -o lkctl ./cmd
 
-FROM docker.io/bitnami/minideb:bookworm
+FROM docker.io/debian:trixie-slim
 
 ENV HOME="/" 
 
