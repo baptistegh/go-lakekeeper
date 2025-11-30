@@ -287,7 +287,7 @@ func (s *WarehousePermissionService) SetManagedAccess(ctx context.Context, id st
 // For Catalog permissions, use GetAllowedActions instead.
 //
 // Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_authorizer_actions
 func (s *WarehousePermissionService) GetAllowedAuthorizerActions(ctx context.Context, id string, opt *GetWarehouseAllowedAuthorizerActionsOptions, options ...core.RequestOptionFunc) (*GetWarehouseAllowedAuthorizerActionsResponse, *http.Response, error) {
 	path := fmt.Sprintf("/permissions/warehouse/%s/authorizer-actions", id)
 
