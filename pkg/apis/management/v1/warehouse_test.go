@@ -571,7 +571,7 @@ func TestWarehouseService_GetStatistics(t *testing.T) {
 	assert.Equal(t, want, resp)
 }
 
-func TestWarehouseService_GetAccess(t *testing.T) {
+func TestWarehouseService_GetAllowedActions(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
