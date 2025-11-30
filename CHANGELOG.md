@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.23](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.22...v0.0.23) (2025-11-30)
+
+
+### Features
+
+* use debian trixie in container ([#194](https://github.com/baptistegh/go-lakekeeper/issues/194)) ([c6d7e8f](https://github.com/baptistegh/go-lakekeeper/commit/c6d7e8f5e37ad06e2dcc066e8968d49da9d3739f))
+
+
+### Miscellaneous Chores
+
+* **deps:** update quay.io/keycloak/keycloak docker tag to v26.4.6 ([#188](https://github.com/baptistegh/go-lakekeeper/issues/188)) ([4ba6a08](https://github.com/baptistegh/go-lakekeeper/commit/4ba6a083ee9f0eff60d0210c9968e13864997c20))
+* remove license headers ([#193](https://github.com/baptistegh/go-lakekeeper/issues/193)) ([59fbb2f](https://github.com/baptistegh/go-lakekeeper/commit/59fbb2f15fb9acf66b3f1c4a48a5bd320a55336a))
+
 ## [0.0.22](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.21...v0.0.22) (2025-11-25)
 
 
