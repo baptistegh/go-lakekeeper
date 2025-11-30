@@ -1,0 +1,26 @@
+{
+    "allowed-actions": [
+        "create_namespace",
+        "delete",
+        "modify_storage",
+        "modify_storage_credential",
+        "get_config",
+        "get_metadata",
+        "list_namespaces",
+        "include_in_list",
+        "deactivate",
+        "activate",
+        "rename",
+        "list_deleted_tabulars",
+        "read_assignments",
+        "grant_create",
+        "grant_describe",
+        "grant_modify",
+        "grant_select",
+        "grant_pass_grants",
+        "grant_manage_grants",
+        "change_ownership",
+        "set_protection",
+        "get_endpoint_statistics"
+    ]
+}

@@ -160,7 +160,7 @@ func TestWarehousePermissionService_GetAllowedAuthorizerActions(t *testing.T) {
 		AllowedActions: []permissionv1.OpenFGAWarehouseAction{
 			permissionv1.WarehouseReadAssignments,
 			permissionv1.WarehouseGrantCreate,
-			permissionv1.WarehouseGrandDescribe,
+			permissionv1.WarehouseGrantDescribe,
 			permissionv1.WarehouseGrantModify,
 			permissionv1.WarehouseGrantSelect,
 			permissionv1.WarehouseGrantPassGrants,
