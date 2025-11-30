@@ -70,13 +70,13 @@ type (
 		AllowedActions []WarehouseAction `json:"allowed-actions"`
 	}
 
-	// GetWarehouseAccessOptions represents the GetAccess() options.
+	// GetWarehouseAllowedAuthorizerActionsOptions represents the GetAllowedAuthorizerActions() options.
 	//
 	// Only one of PrincipalUser or PrincipalRole should be set at a time.
 	// Setting both fields simultaneously is not allowed.
 	//
 	// Lakekeeper API docs:
-	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_authorizer_actions
 	GetWarehouseAllowedAuthorizerActionsOptions struct {
 		PrincipalUser *string `url:"principalUser,omitempty"`
 		PrincipalRole *string `url:"principalRole,omitempty"`
