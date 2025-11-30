@@ -1,0 +1,8 @@
+{
+    "allowed-actions": [
+        "assume",
+        "can_change_ownership",
+        "can_grant_assignee",
+        "read_assignments"
+    ]
+}

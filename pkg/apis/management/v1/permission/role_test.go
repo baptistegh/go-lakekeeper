@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -105,4 +106,36 @@ func TestRolePermissionService_Update(t *testing.T) {
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
+}
+
+func TestRolePermissionService_GetAllowedAuthorizerActions(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	opt := &permissionv1.GetRoleAllowedAuthorizerActionsOptions{
+		PrincipalUser: core.Ptr("oidc~testuser"),
+		PrincipalRole: core.Ptr("testrole"),
+	}
+
+	mux.HandleFunc("/management/v1/permissions/role/ed149356-70a0-4a9b-af80-b54b411dae33/authorizer-actions", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestParam(t, r, "principalUser", "oidc~testuser")
+		testutil.TestParam(t, r, "principalRole", "testrole")
+		testutil.MustWriteHTTPResponse(t, w, "../testdata/permissions_role_get_authorizer_actions.json")
+	})
+
+	access, resp, err := client.PermissionV1().RolePermission().GetAllowedAuthorizerActions(t.Context(), "ed149356-70a0-4a9b-af80-b54b411dae33", opt)
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	want := &permissionv1.GetRoleAllowedAuthorizerActionsResponse{
+		AllowedActions: []permissionv1.OpenFGARoleAction{
+			permissionv1.RoleAssume,
+			permissionv1.RoleCanChangeOwnership,
+			permissionv1.RoleGrantAssignee,
+			permissionv1.RoleReadAssignments,
+		},
+	}
+
+	assert.Equal(t, want, access)
 }

@@ -20,6 +20,10 @@ type (
 		GetAssignments(ctx context.Context, id string, opts *GetRoleAssignmentsOptions, options ...core.RequestOptionFunc) (*GetRoleAssignmentsResponse, *http.Response, error)
 		// Update permissions for a role
 		Update(ctx context.Context, id string, opts *UpdateRolePermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Get allowed Authorizer actions on a role
+		// opts filters the access by a specific user or role.
+		// If not specified, it returns the access for the current user.
+		GetAllowedAuthorizerActions(ctx context.Context, id string, opts *GetRoleAllowedAuthorizerActionsOptions, options ...core.RequestOptionFunc) (*GetRoleAllowedAuthorizerActionsResponse, *http.Response, error)
 	}
 
 	// RolePermissionService handles communication with role permissions endpoints of the Lakekeeper API.
@@ -29,9 +33,6 @@ type (
 	RolePermissionService struct {
 		client core.Client
 	}
-
-	// Available actions on a role
-	RoleAction string
 
 	// GetRoleAccessOptions represents the GetAccess() options.
 	//
@@ -51,6 +52,26 @@ type (
 	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_role_access
 	GetRoleAccessResponse struct {
 		AllowedActions []RoleAction `json:"allowed-actions"`
+	}
+
+	// GetRoleAllowedAuthorizerActionsOptions represents the GetAllowedAuthorizerActions() options.
+	//
+	// Only one of PrincipalUser or PrincipalRole should be set at a time.
+	// Setting both fields simultaneously is not allowed.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions-openfga/operation/get_authorizer_role_actions
+	GetRoleAllowedAuthorizerActionsOptions struct {
+		PrincipalUser *string `url:"principalUser,omitempty"`
+		PrincipalRole *string `url:"principalRole,omitempty"`
+	}
+
+	// GetRoleAllowedAuthorizerActionsResponse represents the response from the GetAllowedAuthorizerActions() endpoint.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions-openfga/operation/get_authorizer_role_actions
+	GetRoleAllowedAuthorizerActionsResponse struct {
+		AllowedActions []OpenFGARoleAction `json:"allowed-actions"`
 	}
 
 	// GetRoleAssignmentsOptions represents the GetAssignments() options.
@@ -81,6 +102,9 @@ type (
 	}
 )
 
+// Available actions on a role
+type RoleAction string
+
 const (
 	Assume              RoleAction = "assume"
 	CanGrantAssignee    RoleAction = "can_grant_assignee"
@@ -89,6 +113,15 @@ const (
 	UpdateRole          RoleAction = "update"
 	ReadRole            RoleAction = "read"
 	ReadRoleAssignments RoleAction = "read_assignments"
+)
+
+type OpenFGARoleAction string
+
+const (
+	RoleAssume             OpenFGARoleAction = "assume"
+	RoleGrantAssignee      OpenFGARoleAction = "can_grant_assignee"
+	RoleCanChangeOwnership OpenFGARoleAction = "can_change_ownership"
+	RoleReadAssignments    OpenFGARoleAction = "read_assignments"
 )
 
 func NewRolePermissionService(client core.Client) RolePermissionServiceInterface {
@@ -157,4 +190,26 @@ func (s *RolePermissionService) Update(ctx context.Context, id string, opt *Upda
 	}
 
 	return resp, nil
+}
+
+// GetAllowedAuthorizerActions gets allowed Authorizer actions on a role
+//
+// Returns Authorizer permissions (OpenFGA relations) for the specified role.
+// For Catalog permissions, use /management/v1/role/{role_id}/actions instead.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions-openfga/operation/get_authorizer_role_actions
+func (s *RolePermissionService) GetAllowedAuthorizerActions(ctx context.Context, id string, opt *GetRoleAllowedAuthorizerActionsOptions, options ...core.RequestOptionFunc) (*GetRoleAllowedAuthorizerActionsResponse, *http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/permissions/role/%s/authorizer-actions", id), opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var response GetRoleAllowedAuthorizerActionsResponse
+	resp, apiErr := s.client.Do(req, &response)
+	if apiErr != nil {
+		return nil, resp, apiErr
+	}
+
+	return &response, resp, nil
 }
