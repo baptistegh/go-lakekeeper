@@ -19,6 +19,9 @@ type (
 		GetAssignments(ctx context.Context, opts *GetServerAssignmentsOptions, options ...core.RequestOptionFunc) (*GetServerAssignmentsResponse, *http.Response, error)
 		// Update permissions for the server
 		Update(ctx context.Context, opts *UpdateServerPermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Get allowed Authorizer actions on the server
+		// opts filters the access by a specific user or role.
+		// If not specified, it returns the access for the current user.
 		GetAllowedAuthorizerActions(ctx context.Context, opts *GetServerAllowedAuthorizerActionsOptions, options ...core.RequestOptionFunc) (*GetServerAllowedAuthorizerActionsResponse, *http.Response, error)
 	}
 
