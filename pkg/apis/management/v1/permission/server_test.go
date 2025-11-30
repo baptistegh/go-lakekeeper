@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -105,4 +106,34 @@ func TestServerPermissionService_Update(t *testing.T) {
 	assert.NotNil(t, resp)
 
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
+}
+
+func TestServerPermissionService_GetAllowedAuthorizerActions(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	opt := &permissionv1.GetServerAllowedAuthorizerActionsOptions{
+		PrincipalUser: core.Ptr("oidc~testuser"),
+		PrincipalRole: core.Ptr("testrole"),
+	}
+
+	mux.HandleFunc("/management/v1/permissions/server/authorizer-actions", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestParam(t, r, "principalUser", "oidc~testuser")
+		testutil.TestParam(t, r, "principalRole", "testrole")
+		testutil.MustWriteHTTPResponse(t, w, "../testdata/permissions_server_get_authorizer_actions.json")
+	})
+
+	access, resp, err := client.PermissionV1().ServerPermission().GetAllowedAuthorizerActions(t.Context(), opt)
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	want := &permissionv1.GetServerAllowedAuthorizerActionsResponse{
+		AllowedActions: []permissionv1.OpenFGAServerAction{
+			permissionv1.ServerGrantAdmin,
+			permissionv1.ServerReadAssignments,
+		},
+	}
+
+	assert.Equal(t, want, access)
 }
