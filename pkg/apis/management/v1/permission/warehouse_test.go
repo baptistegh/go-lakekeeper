@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -147,12 +148,19 @@ func TestWarehousePermissionService_GetAllowedAuthorizerActions(t *testing.T) {
 	t.Parallel()
 	mux, client := testutil.ServerMux(t)
 
+	opt := &permissionv1.GetWarehouseAllowedAuthorizerActionsOptions{
+		PrincipalUser: core.Ptr("oidc~testuser"),
+		PrincipalRole: core.Ptr("testrole"),
+	}
+
 	mux.HandleFunc("/management/v1/permissions/warehouse/62709608-250c-41e0-9457-32bb4de3345c/authorizer-actions", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestParam(t, r, "principalUser", "oidc~testuser")
+		testutil.TestParam(t, r, "principalRole", "testrole")
 		testutil.MustWriteHTTPResponse(t, w, "../testdata/permissions_warehouse_get_authorizer_actions.json")
 	})
 
-	access, resp, err := client.PermissionV1().WarehousePermission().GetAllowedAuthorizerActions(t.Context(), "62709608-250c-41e0-9457-32bb4de3345c", nil)
+	access, resp, err := client.PermissionV1().WarehousePermission().GetAllowedAuthorizerActions(t.Context(), "62709608-250c-41e0-9457-32bb4de3345c", opt)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 

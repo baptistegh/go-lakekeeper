@@ -19,6 +19,7 @@ type (
 		GetAssignments(ctx context.Context, opts *GetServerAssignmentsOptions, options ...core.RequestOptionFunc) (*GetServerAssignmentsResponse, *http.Response, error)
 		// Update permissions for the server
 		Update(ctx context.Context, opts *UpdateServerPermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		GetAllowedAuthorizerActions(ctx context.Context, opts *GetServerAllowedAuthorizerActionsOptions, options ...core.RequestOptionFunc) (*GetServerAllowedAuthorizerActionsResponse, *http.Response, error)
 	}
 
 	// ServerPermissionService handles communication with server permissions endpoints of the Lakekeeper API.
@@ -28,9 +29,6 @@ type (
 	ServerPermissionService struct {
 		client core.Client
 	}
-
-	// Available actions on a server
-	ServerAction string
 
 	// GetServerAccessOptions represents the GetAccess() options.
 	//
@@ -50,6 +48,26 @@ type (
 	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_server_access
 	GetServerAccessResponse struct {
 		AllowedActions []ServerAction `json:"allowed-actions"`
+	}
+
+	// GetServerAllowedAuthorizerActionsOptions represents the GetAllowedAuthorizerActions() options.
+	//
+	// Only one of PrincipalUser or PrincipalRole should be set at a time.
+	// Setting both fields simultaneously is not allowed.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions-openfga/operation/get_authorizer_server_actions
+	GetServerAllowedAuthorizerActionsOptions struct {
+		PrincipalUser *string `url:"principalUser,omitempty"`
+		PrincipalRole *string `url:"principalRole,omitempty"`
+	}
+
+	// GetServerAllowedAuthorizerActionsResponse represents the response from the GetAllowedAuthorizerActions() endpoint.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions-openfga/operation/get_authorizer_server_actions
+	GetServerAllowedAuthorizerActionsResponse struct {
+		AllowedActions []OpenFGAServerAction `json:"allowed-actions"`
 	}
 
 	// GetServerAssignmentsOptions represents the GetAssignments() options.
@@ -80,6 +98,9 @@ type (
 	}
 )
 
+// Available actions on a server
+type ServerAction string
+
 const (
 	CreateProject    ServerAction = "create_project"
 	UpdateUsers      ServerAction = "update_users"
@@ -88,6 +109,14 @@ const (
 	GrantServerAdmin ServerAction = "grant_admin"
 	ProvisionUsers   ServerAction = "provision_users"
 	ReadAssignments  ServerAction = "read_assignments"
+)
+
+// Available authorizer actions on a server
+type OpenFGAServerAction string
+
+const (
+	ServerGrantAdmin      OpenFGAServerAction = "grant_admin"
+	ServerReadAssignments OpenFGAServerAction = "read_assignments"
 )
 
 func NewServerPermissionService(client core.Client) ServerPermissionServiceInterface {
@@ -150,4 +179,26 @@ func (s *ServerPermissionService) Update(ctx context.Context, opt *UpdateServerP
 	}
 
 	return resp, nil
+}
+
+// GetAllowedAuthorizerActions gets allowed Authorizer actions on the server
+//
+// Returns Authorizer permissions (OpenFGA relations) for the server.
+// For Catalog permissions, use /management/v1/server/actions instead.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions-openfga/operation/get_authorizer_server_actions
+func (s *ServerPermissionService) GetAllowedAuthorizerActions(ctx context.Context, opt *GetServerAllowedAuthorizerActionsOptions, options ...core.RequestOptionFunc) (*GetServerAllowedAuthorizerActionsResponse, *http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/permissions/server/authorizer-actions", opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var response GetServerAllowedAuthorizerActionsResponse
+	resp, apiErr := s.client.Do(req, &response)
+	if apiErr != nil {
+		return nil, resp, apiErr
+	}
+
+	return &response, resp, nil
 }
