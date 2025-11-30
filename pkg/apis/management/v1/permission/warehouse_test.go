@@ -142,3 +142,32 @@ func TestWarehousePermissionService_Update(t *testing.T) {
 
 	assert.Equal(t, http.StatusNoContent, resp.StatusCode)
 }
+
+func TestWarehousePermissionService_GetAllowedAuthorizerActions(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	mux.HandleFunc("/management/v1/permissions/warehouse/62709608-250c-41e0-9457-32bb4de3345c/authorizer-actions", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.MustWriteHTTPResponse(t, w, "../testdata/permissions_warehouse_get_authorizer_actions.json")
+	})
+
+	access, resp, err := client.PermissionV1().WarehousePermission().GetAllowedAuthorizerActions(t.Context(), "62709608-250c-41e0-9457-32bb4de3345c", nil)
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	want := &permissionv1.GetWarehouseAllowedAuthorizerActionsResponse{
+		AllowedActions: []permissionv1.OpenFGAWarehouseAction{
+			permissionv1.WarehouseReadAssignments,
+			permissionv1.WarehouseGrantCreate,
+			permissionv1.WarehouseGrantDescribe,
+			permissionv1.WarehouseGrantModify,
+			permissionv1.WarehouseGrantSelect,
+			permissionv1.WarehouseGrantPassGrants,
+			permissionv1.WarehouseGrantManageGrants,
+			permissionv1.WarehouseChangeOwnership,
+		},
+	}
+
+	assert.Equal(t, want, access)
+}

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
+	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/credential"
 	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/profile"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
@@ -568,4 +569,56 @@ func TestWarehouseService_GetStatistics(t *testing.T) {
 	assert.Equal(t, http.StatusOK, r.StatusCode)
 
 	assert.Equal(t, want, resp)
+}
+
+func TestWarehouseService_GetAllowedActions(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+	warehouseID := "a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d"
+
+	opt := &managementv1.GetWarehouseAllowedActionsOptions{
+		PrincipalUser: core.Ptr("oidc~testuser"),
+	}
+
+	mux.HandleFunc("/management/v1/warehouse/a4b2c1d0-e3f4-5a6b-7c8d-9e0f1a2b3c4d/actions", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.MustWriteHTTPResponse(t, w, "./testdata/warehouse_get_actions.json")
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.TestParam(t, r, "principalUser", "oidc~testuser")
+	})
+
+	access, resp, err := client.WarehouseV1(projectID).GetAllowedActions(t.Context(), warehouseID, opt)
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	want := &managementv1.GetWarehouseAllowedActionsResponse{
+		AllowedActions: []permissionv1.WarehouseAction{
+			permissionv1.CreateNamespace,
+			permissionv1.DeleteWarehouse,
+			permissionv1.ModifyStorage,
+			permissionv1.ModifyStorageCredential,
+			permissionv1.GetConfig,
+			permissionv1.GetMetadata,
+			permissionv1.ListNamespaces,
+			permissionv1.IncludeInList,
+			permissionv1.Deactivate,
+			permissionv1.Activate,
+			permissionv1.Rename,
+			permissionv1.ListDeletedTabulars,
+			permissionv1.ReadWarehouseAssignments,
+			permissionv1.GrantCreate,
+			permissionv1.GrantDescribe,
+			permissionv1.GrantModify,
+			permissionv1.GrantSelect,
+			permissionv1.GrantPassGrants,
+			permissionv1.GrantManageGrants,
+			permissionv1.ChangeOwnership,
+			permissionv1.SetWarehouseProtection,
+			permissionv1.GetWarehouseEndpointStatistics,
+		},
+	}
+
+	assert.Equal(t, want, access)
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/credential"
 	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/storage/profile"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
@@ -70,6 +71,8 @@ type (
 		SetTableProtection(ctx context.Context, warehouseID, tableID string, opt *SetProtectionOptions, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error)
 		// Configures whether a view should be protected from deletion.
 		SetViewProtection(ctx context.Context, warehouseID, viewID string, opt *SetProtectionOptions, options ...core.RequestOptionFunc) (*GetProtectionResponse, *http.Response, error)
+		// Get user allowed actions for a warehouse
+		GetAllowedActions(ctx context.Context, warehouseID string, opt *GetWarehouseAllowedActionsOptions, options ...core.RequestOptionFunc) (*GetWarehouseAllowedActionsResponse, *http.Response, error)
 	}
 
 	// WarehouseService handles communication with warehouse endpoints of the Lakekeeper API.
@@ -294,6 +297,29 @@ type (
 		} `json:"stats"`
 
 		ListResponse `json:",inline"`
+	}
+
+	// GetWarehouseAllowedActionsOptions represents the GetAllowedActions() options.
+	//
+	// Only one of PrincipalUser or PrincipalRole should be set at a time.
+	// Setting both fields simultaneously is not allowed.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_actions
+	GetWarehouseAllowedActionsOptions struct {
+		// The user to show actions for.
+		PrincipalUser *string `url:"principalUser,omitempty"`
+		// The role to show actions for.
+		PrincipalRole *string `url:"principalRole,omitempty"`
+	}
+
+	// GetWarehouseAllowedActionsResponse represents the GetAllowedActions() response.
+	//
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_actions
+	GetWarehouseAllowedActionsResponse struct {
+		AllowedActions []permission.WarehouseAction `json:"allowed-actions"`
 	}
 )
 
@@ -809,4 +835,25 @@ func (s *WarehouseService) GetStatistics(ctx context.Context, id string, opt *Ge
 	}
 
 	return &resp, r, nil
+}
+
+// GetAllowedActions retrieves the allowed actions for a user or role on a warehouse.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_actions
+func (s *WarehouseService) GetAllowedActions(ctx context.Context, id string, opt *GetWarehouseAllowedActionsOptions, options ...core.RequestOptionFunc) (*GetWarehouseAllowedActionsResponse, *http.Response, error) {
+	options = append(options, WithProject(s.projectID))
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, fmt.Sprintf("/warehouse/%s/actions", id), opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var response GetWarehouseAllowedActionsResponse
+	resp, apiErr := s.client.Do(req, &response)
+	if apiErr != nil {
+		return nil, resp, apiErr
+	}
+
+	return &response, resp, nil
 }

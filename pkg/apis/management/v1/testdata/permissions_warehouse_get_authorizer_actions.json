@@ -1,0 +1,12 @@
+{
+    "allowed-actions": [
+        "read_assignments",
+        "grant_create",
+        "grant_describe",
+        "grant_modify",
+        "grant_select",
+        "grant_pass_grants",
+        "grant_manage_grants",
+        "change_ownership"
+    ]
+}
