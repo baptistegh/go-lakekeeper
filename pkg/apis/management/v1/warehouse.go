@@ -299,7 +299,7 @@ type (
 		ListResponse `json:",inline"`
 	}
 
-	// GetWarehouseAllowedAccessOptions represents the GetAllowedActions() options.
+	// GetWarehouseAllowedActionsOptions represents the GetAllowedActions() options.
 	//
 	// Only one of PrincipalUser or PrincipalRole should be set at a time.
 	// Setting both fields simultaneously is not allowed.
