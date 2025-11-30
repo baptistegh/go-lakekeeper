@@ -82,10 +82,10 @@ type (
 		PrincipalRole *string `url:"principalRole,omitempty"`
 	}
 
-	// GetWarehouseAccessResponse represents the response from the GetAccess() endpoint.
+	// GetWarehouseAllowedAuthorizerActionsResponse represents the response from the GetAllowedAuthorizerActions() endpoint.
 	//
 	// Lakekeeper API docs:
-	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_authorizer_actions
 	GetWarehouseAllowedAuthorizerActionsResponse struct {
 		AllowedActions []OpenFGAWarehouseAction `json:"allowed-actions"`
 	}
