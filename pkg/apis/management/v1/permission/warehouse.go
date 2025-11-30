@@ -14,6 +14,8 @@ type (
 		// Get the access to a warehouse
 		// opt filters the access by a specific user or role.
 		// If not specified, it returns the access for the current user.
+		//
+		// Deprecated: Use GetAllowedAuthorizerActions() for Authorizer permissions or GetAllowedActions() for Catalog permissions instead.
 		GetAccess(ctx context.Context, id string, opt *GetWarehouseAccessOptions, options ...core.RequestOptionFunc) (*GetWarehouseAccessResponse, *http.Response, error)
 		// Get a warehouse assignments
 		// opt filters the assignments by relations.
@@ -23,6 +25,9 @@ type (
 		Update(ctx context.Context, id string, opts *UpdateWarehousePermissionsOptions, options ...core.RequestOptionFunc) (*http.Response, error)
 		// Set managed access property of a warehouse
 		SetManagedAccess(ctx context.Context, id string, opts *SetWarehouseManagedAccessOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		// Returns Authorizer permissions (OpenFGA relations) for the specified warehouse.
+		// For Catalog permissions, use GetAllowedActions() instead.
+		GetAllowedAuthorizerActions(ctx context.Context, id string, opts *GetWarehouseAllowedAuthorizerActionsOptions, option ...core.RequestOptionFunc) (*GetWarehouseAllowedAuthorizerActionsResponse, *http.Response, error)
 	}
 
 	// WarehousePermissionService handles communication with warehouse permissions endpoints of the Lakekeeper API.
@@ -32,9 +37,6 @@ type (
 	WarehousePermissionService struct {
 		client core.Client
 	}
-
-	// Available actions on a warehouse
-	WarehouseAction string
 
 	// GetWarehouseAuthzPropertiesResponse represents the response from the GetAuthzProperties() endpoint.
 	//
@@ -49,6 +51,8 @@ type (
 	// Only one of PrincipalUser or PrincipalRole should be set at a time.
 	// Setting both fields simultaneously is not allowed.
 	//
+	// Deprecated: Use GetAllowedAuthorizerActions() for Authorizer permissions or GetAllowedActions() for Catalog permissions instead.
+	//
 	// Lakekeeper API docs:
 	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
 	GetWarehouseAccessOptions struct {
@@ -58,10 +62,32 @@ type (
 
 	// GetWarehouseAccessResponse represents the response from the GetAccess() endpoint.
 	//
+	// Deprecated: Use GetAllowedAuthorizerActions() for Authorizer permissions or GetAllowedActions() for Catalog permissions instead.
+	//
 	// Lakekeeper API docs:
 	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
 	GetWarehouseAccessResponse struct {
 		AllowedActions []WarehouseAction `json:"allowed-actions"`
+	}
+
+	// GetWarehouseAccessOptions represents the GetAccess() options.
+	//
+	// Only one of PrincipalUser or PrincipalRole should be set at a time.
+	// Setting both fields simultaneously is not allowed.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
+	GetWarehouseAllowedAuthorizerActionsOptions struct {
+		PrincipalUser *string `url:"principalUser,omitempty"`
+		PrincipalRole *string `url:"principalRole,omitempty"`
+	}
+
+	// GetWarehouseAccessResponse represents the response from the GetAccess() endpoint.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
+	GetWarehouseAllowedAuthorizerActionsResponse struct {
+		AllowedActions []OpenFGAWarehouseAction `json:"allowed-actions"`
 	}
 
 	// GetWarehouseAssignmentsOptions represents the GetAssignments() options.
@@ -106,6 +132,9 @@ func NewWarehousePermissionService(client core.Client) WarehousePermissionServic
 	}
 }
 
+// Available actions on a warehouse
+type WarehouseAction string
+
 const (
 	CreateNamespace                WarehouseAction = "create_namespace"
 	DeleteWarehouse                WarehouseAction = "delete"
@@ -133,6 +162,20 @@ const (
 	GetWarehouseEndpointStatistics WarehouseAction = "get_endpoint_statistics"
 )
 
+// Available Authorizer Actions for a Warehouse
+type OpenFGAWarehouseAction string
+
+const (
+	WarehouseReadAssignments   OpenFGAWarehouseAction = "read_assignments"
+	WarehouseGrantCreate       OpenFGAWarehouseAction = "grant_create"
+	WarehouseGrandDescribe     OpenFGAWarehouseAction = "grant_describe"
+	WarehouseGrantModify       OpenFGAWarehouseAction = "grant_modify"
+	WarehouseGrantSelect       OpenFGAWarehouseAction = "grant_select"
+	WarehouseGrantPassGrants   OpenFGAWarehouseAction = "grant_pass_grants"
+	WarehouseGrantManageGrants OpenFGAWarehouseAction = "grant_manage_grants"
+	WarehouseChangeOwnership   OpenFGAWarehouseAction = "change_ownership"
+)
+
 // GetAuthzProperties retrieves authorization properties of a warehouse.
 //
 // Lakekeeper API docs:
@@ -155,6 +198,8 @@ func (s *WarehousePermissionService) GetAuthzProperties(ctx context.Context, id 
 }
 
 // GetAccess retrieves user or role access to a warehouse.
+//
+// Deprecated: Use GetAuthorizerActions() for Authorizer permissions or GetAllowedActions() for Catalog permissions instead.
 //
 // Lakekeeper API docs:
 // https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
@@ -234,4 +279,28 @@ func (s *WarehousePermissionService) SetManagedAccess(ctx context.Context, id st
 	}
 
 	return resp, nil
+}
+
+// GetAllowedAuthorizerActions gets allowed Authorizer actions on a warehouse
+//
+// Returns Authorizer permissions (OpenFGA relations) for the specified warehouse.
+// For Catalog permissions, use GetAllowedActions instead.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/permissions/operation/get_warehouse_access
+func (s *WarehousePermissionService) GetAllowedAuthorizerActions(ctx context.Context, id string, opt *GetWarehouseAllowedAuthorizerActionsOptions, options ...core.RequestOptionFunc) (*GetWarehouseAllowedAuthorizerActionsResponse, *http.Response, error) {
+	path := fmt.Sprintf("/permissions/warehouse/%s/authorizer-actions", id)
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var response GetWarehouseAllowedAuthorizerActionsResponse
+	resp, apiErr := s.client.Do(req, &response)
+	if apiErr != nil {
+		return nil, resp, apiErr
+	}
+
+	return &response, resp, nil
 }
