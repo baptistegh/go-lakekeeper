@@ -168,7 +168,7 @@ type OpenFGAWarehouseAction string
 const (
 	WarehouseReadAssignments   OpenFGAWarehouseAction = "read_assignments"
 	WarehouseGrantCreate       OpenFGAWarehouseAction = "grant_create"
-	WarehouseGrandDescribe     OpenFGAWarehouseAction = "grant_describe"
+	WarehouseGrantDescribe     OpenFGAWarehouseAction = "grant_describe"
 	WarehouseGrantModify       OpenFGAWarehouseAction = "grant_modify"
 	WarehouseGrantSelect       OpenFGAWarehouseAction = "grant_select"
 	WarehouseGrantPassGrants   OpenFGAWarehouseAction = "grant_pass_grants"
