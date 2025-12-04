@@ -196,10 +196,10 @@ func TestProjectService_GetAllowedActions(t *testing.T) {
 
 	mux.HandleFunc("/management/v1/project/actions", func(w http.ResponseWriter, r *http.Request) {
 		testutil.TestMethod(t, r, http.MethodGet)
-		testutil.MustWriteHTTPResponse(t, w, "./testdata/project_get_actions.json")
 		testutil.TestHeader(t, r, "x-project-id", projectID)
 		testutil.TestParam(t, r, "principalUser", "oidc~testuser")
 		testutil.TestParam(t, r, "principalRole", "testrole")
+		testutil.MustWriteHTTPResponse(t, w, "./testdata/project_get_actions.json")
 	})
 
 	access, resp, err := client.ProjectV1().GetAllowedActions(t.Context(), projectID, opt)
@@ -211,7 +211,7 @@ func TestProjectService_GetAllowedActions(t *testing.T) {
 			permissionv1.CreateWarehouse,
 			permissionv1.DeleteProject,
 			permissionv1.RenameProject,
-			permissionv1.GetMetdata,
+			permissionv1.ProjectGetMetadata,
 			permissionv1.ListWarehouses,
 			permissionv1.ProjectIncludeInList,
 			permissionv1.CreateRole,

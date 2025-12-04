@@ -38,7 +38,7 @@ const (
 	CreateWarehouse              ProjectAction = "create_warehouse"
 	DeleteProject                ProjectAction = "delete"
 	RenameProject                ProjectAction = "rename"
-	GetMetdata                   ProjectAction = "get_metadata"
+	ProjectGetMetadata           ProjectAction = "get_metadata"
 	ListWarehouses               ProjectAction = "list_warehouses"
 	ProjectIncludeInList         ProjectAction = "include_in_list"
 	CreateRole                   ProjectAction = "create_role"

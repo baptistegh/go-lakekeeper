@@ -311,10 +311,10 @@ func (p *Project) String() string {
 	return fmt.Sprintf("Project{ID: %s, Name: %s}", p.ID, p.Name)
 }
 
-// GetAllowedActions retrieves the allowed actions for a user or role on a warehouse.
+// GetAllowedActions retrieves the allowed actions for a user or role on a project.
 //
 // Lakekeeper API docs:
-// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_actions
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/get_project_actions
 func (s *ProjectService) GetAllowedActions(ctx context.Context, id string, opt *GetProjectAllowedActionsOptions, options ...core.RequestOptionFunc) (*GetProjectAllowedActionsResponse, *http.Response, error) {
 	options = append(options, WithProject(id))
 
