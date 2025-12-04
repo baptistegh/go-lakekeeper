@@ -1,0 +1,9 @@
+{
+    "allowed-actions": [
+        "create_project",
+        "update_users",
+        "delete_users",
+        "list_users",
+        "provision_users"
+    ]
+}
