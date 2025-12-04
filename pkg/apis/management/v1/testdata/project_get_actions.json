@@ -1,0 +1,14 @@
+{
+    "allowed-actions": [
+        "create_warehouse",
+        "delete",
+        "rename",
+        "get_metadata",
+        "list_warehouses",
+        "include_in_list",
+        "create_role",
+        "list_roles",
+        "search_roles",
+        "get_endpoint_statistics"
+    ]
+}

@@ -38,10 +38,13 @@ const (
 	CreateWarehouse              ProjectAction = "create_warehouse"
 	DeleteProject                ProjectAction = "delete"
 	RenameProject                ProjectAction = "rename"
+	GetMetdata                   ProjectAction = "get_metadata"
 	ListWarehouses               ProjectAction = "list_warehouses"
+	ProjectIncludeInList         ProjectAction = "include_in_list"
 	CreateRole                   ProjectAction = "create_role"
 	ListRoles                    ProjectAction = "list_roles"
 	SearchRoles                  ProjectAction = "search_roles"
+	GetProjectEndpointStatistics ProjectAction = "get_endpoint_statistics"
 	ReadProjectAssignments       ProjectAction = "read_assignments"
 	GrantProjectRoleCreator      ProjectAction = "grant_role_creator"
 	GrantProjectCreate           ProjectAction = "grant_create"
@@ -51,7 +54,6 @@ const (
 	GrantProjectAdmin            ProjectAction = "grant_project_admin"
 	GrantSecurityAdmin           ProjectAction = "grant_security_admin"
 	GrantDataAdmin               ProjectAction = "grant_data_admin"
-	GetProjectEndpointStatistics ProjectAction = "get_endpoint_statistics"
 )
 
 func NewProjectPermissionService(client core.Client) ProjectPermissionServiceInterface {

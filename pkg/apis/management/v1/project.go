@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 )
 
@@ -23,6 +24,8 @@ type (
 		// Retrieves detailed endpoint call statistics for your project, allowing you to monitor API usage patterns,
 		// track frequency of operations, and analyze response codes.
 		GetAPIStatistics(ctx context.Context, id string, opt *GetAPIStatisticsOptions, options ...core.RequestOptionFunc) (*GetAPIStatisticsResponse, *http.Response, error)
+		// Get user allowed actions for a project
+		GetAllowedActions(ctx context.Context, id string, opt *GetProjectAllowedActionsOptions, options ...core.RequestOptionFunc) (*GetProjectAllowedActionsResponse, *http.Response, error)
 	}
 
 	// ProjectService handles communication with project endpoints of the Lakekeeper API.
@@ -148,6 +151,29 @@ type (
 		// If any endpoint is called in the following hour, there'll be an entry in timestamps for the following hour.
 		// If not, then there'll be no entry.
 		Timestamps []string `json:"timestamps"`
+	}
+
+	// GetProjectAllowedActionsOptions represents the GetAllowedActions() options.
+	//
+	// Only one of PrincipalUser or PrincipalRole should be set at a time.
+	// Setting both fields simultaneously is not allowed.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/get_project_actions
+	GetProjectAllowedActionsOptions struct {
+		// The user to show actions for.
+		PrincipalUser *string `url:"principalUser,omitempty"`
+		// The role to show actions for.
+		PrincipalRole *string `url:"principalRole,omitempty"`
+	}
+
+	// GetProjectAllowedActionsResponse represents the GetAllowedActions() response.
+	//
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/project/operation/get_project_actions
+	GetProjectAllowedActionsResponse struct {
+		AllowedActions []permission.ProjectAction `json:"allowed-actions"`
 	}
 )
 
@@ -283,4 +309,25 @@ func (s *ProjectService) GetAPIStatistics(ctx context.Context, id string, opt *G
 
 func (p *Project) String() string {
 	return fmt.Sprintf("Project{ID: %s, Name: %s}", p.ID, p.Name)
+}
+
+// GetAllowedActions retrieves the allowed actions for a user or role on a warehouse.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/warehouse/operation/get_warehouse_actions
+func (s *ProjectService) GetAllowedActions(ctx context.Context, id string, opt *GetProjectAllowedActionsOptions, options ...core.RequestOptionFunc) (*GetProjectAllowedActionsResponse, *http.Response, error) {
+	options = append(options, WithProject(id))
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/project/actions", opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var response GetProjectAllowedActionsResponse
+	resp, apiErr := s.client.Do(req, &response)
+	if apiErr != nil {
+		return nil, resp, apiErr
+	}
+
+	return &response, resp, nil
 }
