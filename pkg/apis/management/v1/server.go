@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 )
 
@@ -12,6 +13,7 @@ type (
 	ServerServiceInterface interface {
 		Info(ctx context.Context, options ...core.RequestOptionFunc) (*ServerInfo, *http.Response, error)
 		Bootstrap(ctx context.Context, opts *BootstrapServerOptions, options ...core.RequestOptionFunc) (*http.Response, error)
+		GetAllowedActions(ctx context.Context, opts *GetServerAllowedActionsOptions, options ...core.RequestOptionFunc) (*GetServerAllowedActionsResponse, *http.Response, error)
 	}
 
 	// BootstrapService handles communication with server endpoints of the Lakekeeper API.
@@ -45,6 +47,29 @@ type (
 		UserEmail        *string   `json:"user-email,omitempty"`
 		UserName         *string   `json:"user-name,omitempty"`
 		UserType         *UserType `json:"user-type,omitempty"`
+	}
+
+	// GetServerAllowedActionsOptions represents the GetAllowedActions() options.
+	//
+	// Only one of PrincipalUser or PrincipalRole should be set at a time.
+	// Setting both fields simultaneously is not allowed.
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/server/operation/get_server_actions
+	GetServerAllowedActionsOptions struct {
+		// The user to show actions for.
+		PrincipalUser *string `url:"principalUser,omitempty"`
+		// The role to show actions for.
+		PrincipalRole *string `url:"principalRole,omitempty"`
+	}
+
+	// GetServerAllowedActionsResponse represents the GetAllowedActions() response.
+	//
+	//
+	// Lakekeeper API docs:
+	// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/server/operation/get_server_actions
+	GetServerAllowedActionsResponse struct {
+		AllowedActions []permissionv1.ServerAction `json:"allowed-actions"`
 	}
 )
 
@@ -99,4 +124,23 @@ func (s *ServerService) Bootstrap(ctx context.Context, opts *BootstrapServerOpti
 	}
 
 	return resp, nil
+}
+
+// GetAllowedActions retrieves the allowed actions for a user or role on the server.
+//
+// Lakekeeper API docs:
+// https://docs.lakekeeper.io/docs/nightly/api/management/#tag/server/operation/get_server_actions
+func (s *ServerService) GetAllowedActions(ctx context.Context, opt *GetServerAllowedActionsOptions, options ...core.RequestOptionFunc) (*GetServerAllowedActionsResponse, *http.Response, error) {
+	req, err := s.client.NewRequest(ctx, http.MethodGet, "/server/actions", opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var response GetServerAllowedActionsResponse
+	resp, apiErr := s.client.Do(req, &response)
+	if apiErr != nil {
+		return nil, resp, apiErr
+	}
+
+	return &response, resp, nil
 }

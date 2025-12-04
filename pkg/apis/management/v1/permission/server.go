@@ -109,8 +109,8 @@ const (
 	UpdateUsers      ServerAction = "update_users"
 	DeleteUsers      ServerAction = "delete_users"
 	ListUsers        ServerAction = "list_users"
-	GrantServerAdmin ServerAction = "grant_admin"
 	ProvisionUsers   ServerAction = "provision_users"
+	GrantServerAdmin ServerAction = "grant_admin"
 	ReadAssignments  ServerAction = "read_assignments"
 )
 

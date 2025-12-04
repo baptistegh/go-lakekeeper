@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
+	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
+	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -56,4 +58,37 @@ func TestServerService_Bootstrap(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotNil(t, r)
 	assert.Equal(t, http.StatusNoContent, r.StatusCode)
+}
+
+func TestServerService_GetAllowedActions(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	opt := &managementv1.GetServerAllowedActionsOptions{
+		PrincipalUser: core.Ptr("oidc~testuser"),
+		PrincipalRole: core.Ptr("testrole"),
+	}
+
+	mux.HandleFunc("/management/v1/server/actions", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.MustWriteHTTPResponse(t, w, "./testdata/server_get_actions.json")
+		testutil.TestParam(t, r, "principalUser", "oidc~testuser")
+		testutil.TestParam(t, r, "principalRole", "testrole")
+	})
+
+	access, resp, err := client.ServerV1().GetAllowedActions(t.Context(), opt)
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	want := &managementv1.GetServerAllowedActionsResponse{
+		AllowedActions: []permissionv1.ServerAction{
+			permissionv1.CreateProject,
+			permissionv1.UpdateUsers,
+			permissionv1.DeleteUsers,
+			permissionv1.ListUsers,
+			permissionv1.ProvisionUsers,
+		},
+	}
+
+	assert.Equal(t, want, access)
 }
