@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	managementv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1"
+	permissionv1 "github.com/baptistegh/go-lakekeeper/pkg/apis/management/v1/permission"
 	"github.com/baptistegh/go-lakekeeper/pkg/core"
 	"github.com/baptistegh/go-lakekeeper/pkg/testutil"
 	"github.com/stretchr/testify/assert"
@@ -180,4 +181,45 @@ func TestProjectService_GetAPIStatistics(t *testing.T) {
 	}
 
 	assert.Equal(t, want, project)
+}
+
+func TestProjectService_GetAllowedActions(t *testing.T) {
+	t.Parallel()
+	mux, client := testutil.ServerMux(t)
+
+	projectID := "01f2fdfc-81fc-444d-8368-5b6701566e35"
+
+	opt := &managementv1.GetProjectAllowedActionsOptions{
+		PrincipalUser: core.Ptr("oidc~testuser"),
+		PrincipalRole: core.Ptr("testrole"),
+	}
+
+	mux.HandleFunc("/management/v1/project/actions", func(w http.ResponseWriter, r *http.Request) {
+		testutil.TestMethod(t, r, http.MethodGet)
+		testutil.TestHeader(t, r, "x-project-id", projectID)
+		testutil.TestParam(t, r, "principalUser", "oidc~testuser")
+		testutil.TestParam(t, r, "principalRole", "testrole")
+		testutil.MustWriteHTTPResponse(t, w, "./testdata/project_get_actions.json")
+	})
+
+	access, resp, err := client.ProjectV1().GetAllowedActions(t.Context(), projectID, opt)
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	want := &managementv1.GetProjectAllowedActionsResponse{
+		AllowedActions: []permissionv1.ProjectAction{
+			permissionv1.CreateWarehouse,
+			permissionv1.DeleteProject,
+			permissionv1.RenameProject,
+			permissionv1.ProjectGetMetadata,
+			permissionv1.ListWarehouses,
+			permissionv1.ProjectIncludeInList,
+			permissionv1.CreateRole,
+			permissionv1.ListRoles,
+			permissionv1.SearchRoles,
+			permissionv1.GetProjectEndpointStatistics,
+		},
+	}
+
+	assert.Equal(t, want, access)
 }
