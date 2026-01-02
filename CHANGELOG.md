@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.0.23](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.22...v0.0.23) (2026-01-02)
+
+
+### Features
+
+* **project:** add GetAllowedActions ([#216](https://github.com/baptistegh/go-lakekeeper/issues/216)) ([9a08270](https://github.com/baptistegh/go-lakekeeper/commit/9a08270f345abc2a5e881dad91a53b870d05a51e))
+* **role:** add new get allowed authorizer actions ([#200](https://github.com/baptistegh/go-lakekeeper/issues/200)) ([fbcb6df](https://github.com/baptistegh/go-lakekeeper/commit/fbcb6df42b9b9340a063cd5b48df676dc6525a92))
+* **server:** add GetAllowedActions ([#215](https://github.com/baptistegh/go-lakekeeper/issues/215)) ([0db6ed5](https://github.com/baptistegh/go-lakekeeper/commit/0db6ed5987f9538890431a5db924e013eb406757))
+* **server:** add new get allowed authorizer actions ([#197](https://github.com/baptistegh/go-lakekeeper/issues/197)) ([09beac7](https://github.com/baptistegh/go-lakekeeper/commit/09beac7778cda490720ff053079f533aaa8e7f79))
+* use debian trixie in container ([#194](https://github.com/baptistegh/go-lakekeeper/issues/194)) ([c6d7e8f](https://github.com/baptistegh/go-lakekeeper/commit/c6d7e8f5e37ad06e2dcc066e8968d49da9d3739f))
+* **warehouse:** add new permission methods - mark `GetAccess` as deprecated ([#195](https://github.com/baptistegh/go-lakekeeper/issues/195)) ([98491bd](https://github.com/baptistegh/go-lakekeeper/commit/98491bdda47f29cba48c5ef662e284d3884a3987))
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/google/go-querystring to v1.2.0 ([#219](https://github.com/baptistegh/go-lakekeeper/issues/219)) ([bf5b076](https://github.com/baptistegh/go-lakekeeper/commit/bf5b0768b8c3c4f2128f3afac98aeec1e3dd4e3d))
+* **deps:** update module github.com/spf13/cobra to v1.10.2 ([#214](https://github.com/baptistegh/go-lakekeeper/issues/214)) ([d0dd036](https://github.com/baptistegh/go-lakekeeper/commit/d0dd0364bda2545795657a27a10de2245af46bd8))
+* **deps:** update module golang.org/x/oauth2 to v0.34.0 ([#218](https://github.com/baptistegh/go-lakekeeper/issues/218)) ([38dbde9](https://github.com/baptistegh/go-lakekeeper/commit/38dbde93e8b203f79a778ebc7019615047572306))
+
+
+### Miscellaneous Chores
+
+* **deps:** update actions/checkout action to v6.0.1 ([#211](https://github.com/baptistegh/go-lakekeeper/issues/211)) ([559b8ae](https://github.com/baptistegh/go-lakekeeper/commit/559b8ae4b92f621d63439bf087dc5ce9fa7ae10d))
+* **deps:** update dependency go to v1.25.5 ([#210](https://github.com/baptistegh/go-lakekeeper/issues/210)) ([555bc20](https://github.com/baptistegh/go-lakekeeper/commit/555bc203266fa758bdc859830cccc3bef5bee46f))
+* **deps:** update golangci/golangci-lint-action action to v9.2.0 ([#212](https://github.com/baptistegh/go-lakekeeper/issues/212)) ([50b283d](https://github.com/baptistegh/go-lakekeeper/commit/50b283d2189e4bc82c8527bfda4c5264b975dfb9))
+* **deps:** update module github.com/golangci/golangci-lint/v2 to v2.7.1 ([#213](https://github.com/baptistegh/go-lakekeeper/issues/213)) ([3f660a4](https://github.com/baptistegh/go-lakekeeper/commit/3f660a4ee7d082d0efca2ecec45f961731b1ac17))
+* **deps:** update module github.com/golangci/golangci-lint/v2 to v2.7.2 ([#217](https://github.com/baptistegh/go-lakekeeper/issues/217)) ([7395b33](https://github.com/baptistegh/go-lakekeeper/commit/7395b3314dee113c2976fcc9009d36c715f1aba4))
+* **deps:** update quay.io/keycloak/keycloak docker tag to v26.4.6 ([#188](https://github.com/baptistegh/go-lakekeeper/issues/188)) ([4ba6a08](https://github.com/baptistegh/go-lakekeeper/commit/4ba6a083ee9f0eff60d0210c9968e13864997c20))
+* **deps:** update quay.io/keycloak/keycloak docker tag to v26.4.7 ([#209](https://github.com/baptistegh/go-lakekeeper/issues/209)) ([1549c97](https://github.com/baptistegh/go-lakekeeper/commit/1549c9741b9b262dd5583f19c9bfed30bc8e6779))
+* do not comment on correct PR title ([#196](https://github.com/baptistegh/go-lakekeeper/issues/196)) ([1df4597](https://github.com/baptistegh/go-lakekeeper/commit/1df45978ea9ebf7a6db08a237a8822793531fced))
+* remove license headers ([#193](https://github.com/baptistegh/go-lakekeeper/issues/193)) ([59fbb2f](https://github.com/baptistegh/go-lakekeeper/commit/59fbb2f15fb9acf66b3f1c4a48a5bd320a55336a))
+
 ## [0.0.22](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.21...v0.0.22) (2025-11-25)
 
 
