@@ -69,7 +69,7 @@ func TestCloudflareR2Credential(t *testing.T) {
 	b, err := json.Marshal(creds)
 	require.NoError(t, err)
 
-	jsonStr := `{"type":"s3","credential-type":"cloudflare-r2","access-key-id":"access-key","secret-access-key":"secret-key","account=id":"account-id","token":"token"}`
+	jsonStr := `{"type":"s3","credential-type":"cloudflare-r2","access-key-id":"access-key","secret-access-key":"secret-key","account-id":"account-id","token":"token"}`
 
 	assert.JSONEq(t, jsonStr, string(b))
 }

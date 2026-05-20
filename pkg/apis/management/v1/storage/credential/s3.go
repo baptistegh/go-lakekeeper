@@ -31,7 +31,7 @@ type (
 		SecretAccessKey string `json:"secret-access-key"`
 		// Cloudflare account ID, used to determine the temporary credentials
 		// endpoint.
-		AccountID string `json:"account=id"`
+		AccountID string `json:"account-id"`
 		// Token associated with the access key ID.
 		// This is used to fetch downscoped temporary credentials
 		// for vended credentials.
