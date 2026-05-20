@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.0.24](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.23...v0.0.24) (2026-05-20)
+
+
+### Miscellaneous Chores
+
+* **deps:** update googleapis/release-please-action action to v5 ([#253](https://github.com/baptistegh/go-lakekeeper/issues/253)) ([26e1b9c](https://github.com/baptistegh/go-lakekeeper/commit/26e1b9cc611ca61ad389fbc1630b4cdb407d05ad))
+* **deps:** update module github.com/golangci/golangci-lint/v2 to v2.12.2 ([#256](https://github.com/baptistegh/go-lakekeeper/issues/256)) ([3399b42](https://github.com/baptistegh/go-lakekeeper/commit/3399b420e2b416055b0ccf20611b20c3db606ddd))
+* **deps:** update openfga/openfga docker tag to v1.15 ([#255](https://github.com/baptistegh/go-lakekeeper/issues/255)) ([412160f](https://github.com/baptistegh/go-lakekeeper/commit/412160f5c5a015f20c73f5a5541e759078e75b32))
+* **deps:** update quay.io/keycloak/keycloak docker tag to v26.6.1 ([#252](https://github.com/baptistegh/go-lakekeeper/issues/252)) ([09662c4](https://github.com/baptistegh/go-lakekeeper/commit/09662c4efd1e7ac87d384a171e4ef33e5a3be7e9))
+* **docs:** Update README to reflect project maintenance status ([f452e5f](https://github.com/baptistegh/go-lakekeeper/commit/f452e5f361f2b47ded6285891e90f1c659941b0e))
+
 ## [0.0.23](https://github.com/baptistegh/go-lakekeeper/compare/v0.0.22...v0.0.23) (2026-04-12)
 
 
