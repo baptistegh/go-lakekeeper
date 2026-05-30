@@ -2,7 +2,7 @@ module github.com/baptistegh/go-lakekeeper
 
 go 1.25.0
 
-toolchain go1.26.2
+toolchain go1.26.3
 
 require (
 	github.com/apache/iceberg-go v0.5.0
